@@ -3,7 +3,7 @@
         <ProjectGuid>{8188B60D-2F5B-41C4-9ECF-4B754C6EB6BA}</ProjectGuid>
         <ProjectVersion>18.5</ProjectVersion>
         <FrameworkType>None</FrameworkType>
-        <MainSource>TestDBEnginesBr.dpr</MainSource>
+        <MainSource>TestDBEBr_FireDAC.dpr</MainSource>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Debug</Config>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
@@ -82,7 +82,7 @@
         <Icon_MainIcon>$(BDS)\bin\delphi_PROJECTICON.ico</Icon_MainIcon>
         <Icns_MainIcns>$(BDS)\bin\delphi_PROJECTICNS.icns</Icns_MainIcns>
         <DCC_UnitSearchPath>$(DUnitX);$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
-        <SanitizedProjectName>TestDBEnginesBr</SanitizedProjectName>
+        <SanitizedProjectName>TestDBEBr_FireDAC</SanitizedProjectName>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Android)'!=''">
         <DCC_UsePackage>DBXSqliteDriver;tethering;FireDACDBXDriver;RESTBackendComponents;bindengine;CloudService;DataSnapClient;bindcompdbx;IndyIPServer;IndySystem;fmxFireDAC;FMXTee;soaprtl;DbxCommonDriver;xmlrtl;soapmidas;DataSnapNativeClient;rtl;DbxClientDriver;IndyIPClient;DataSnapProviderClient;RESTComponents;ZComponent;DBXInterBaseDriver;ZCore;emsclientfiredac;DataSnapFireDAC;bindcompfmx;FmxTeeUI;FireDACIBDriver;fmx;dbexpress;IndyCore;ZParseSql;dsnap;DataSnapCommon;emsclient;FireDACCommon;soapserver;FireDACCommonDriver;inet;IndyIPCommon;ZDbc;FireDAC;FireDACSqliteDriver;ibmonitor;ibxpress;ibxbindings;FireDACDSDriver;CustomIPTransport;bindcomp;ZPlain;dbxcds;dsnapxml;dbrtl;IndyProtocols;RestDatawareCORE;$(DCC_UsePackage)</DCC_UsePackage>
@@ -159,7 +159,7 @@
         <BorlandProject>
             <Delphi.Personality>
                 <Source>
-                    <Source Name="MainSource">TestDBEnginesBr.dpr</Source>
+                    <Source Name="MainSource">TestDBEBr_FireDAC.dpr</Source>
                 </Source>
             </Delphi.Personality>
             <Deployment Version="3">
@@ -188,9 +188,9 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="Win32\Debug\TestDBEnginesBr.exe" Configuration="Debug" Class="ProjectOutput">
+                <DeployFile LocalName="Win32\Debug\TestDBEBr_FireDAC.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
-                        <RemoteName>TestDBEnginesBr.exe</RemoteName>
+                        <RemoteName>TestDBEBr_FireDAC.exe</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>

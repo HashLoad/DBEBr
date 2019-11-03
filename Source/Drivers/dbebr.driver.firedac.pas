@@ -36,7 +36,7 @@ uses
   FireDAC.Comp.ScriptCommands,
   FireDAC.DApt,
   FireDAC.Stan.Param,
-  /// DBEBr
+  // DBEBr
   dbebr.driver.connection,
   dbebr.factory.interfaces;
 

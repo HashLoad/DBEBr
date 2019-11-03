@@ -30,7 +30,7 @@ uses
   Classes,
   DB,
   FireDAC.Comp.Client,
-  /// DBEBr
+  // DBEBr
   dbebr.driver.connection,
   dbebr.factory.interfaces;
 

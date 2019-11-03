@@ -1,4 +1,4 @@
-program TestDBEnginesBr;
+program TestDBEBr_FireDAC;
 
 {$IFNDEF TESTINSIGHT}
 {$APPTYPE CONSOLE}
