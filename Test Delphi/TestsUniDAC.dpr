@@ -1,4 +1,4 @@
-program TestDBEBr_FireDAC;
+program TestsUniDAC;
 
 {$IFNDEF TESTINSIGHT}
 {$APPTYPE CONSOLE}
@@ -11,25 +11,25 @@ uses
   DUnitX.Loggers.Console,
   DUnitX.Loggers.Xml.NUnit,
   DUnitX.TestFramework,
-  dbenginesbr.firedac in 'dbenginesbr.firedac.pas',
+  Tests.Driver.UniDAC in 'Tests.Driver.UniDAC.pas',
+  Tests.Consts in 'Tests.Consts.pas',
+  dbebr.driver.unidac in '..\Source\Drivers\dbebr.driver.unidac.pas',
+  dbebr.driver.unidac.transaction in '..\Source\Drivers\dbebr.driver.unidac.transaction.pas',
+  dbebr.factory.unidac in '..\Source\Drivers\dbebr.factory.unidac.pas',
   dbebr.driver.connection in '..\Source\Core\dbebr.driver.connection.pas',
   dbebr.factory.connection in '..\Source\Core\dbebr.factory.connection.pas',
-  dbebr.factory.interfaces in '..\Source\Core\dbebr.factory.interfaces.pas',
-  dbebr.driver.firedac in '..\Source\Drivers\dbebr.driver.firedac.pas',
-  dbebr.driver.firedac.transaction in '..\Source\Drivers\dbebr.driver.firedac.transaction.pas',
-  dbebr.factory.firedac in '..\Source\Drivers\dbebr.factory.firedac.pas';
+  dbebr.factory.interfaces in '..\Source\Core\dbebr.factory.interfaces.pas';
 
-{$IFNDEF TESTINSIGHT}
 var
   runner : ITestRunner;
   results : IRunResults;
   logger : ITestLogger;
   nunitLogger : ITestLogger;
-{$ENDIF}
 begin
 {$IFDEF TESTINSIGHT}
   TestInsight.DUnitX.RunRegisteredTests;
-{$ELSE}
+  exit;
+{$ENDIF}
   try
     //Check command line options, will exit if invalid
     TDUnitX.CheckCommandLine;
@@ -63,5 +63,4 @@ begin
     on E: Exception do
       System.Writeln(E.ClassName, ': ', E.Message);
   end;
-{$ENDIF}
 end.

@@ -24,6 +24,10 @@
 
 unit dbebr.driver.connection;
 
+{$ifdef fpc}
+  {$mode delphi}{$H+}
+{$endif}
+
 interface
 
 uses

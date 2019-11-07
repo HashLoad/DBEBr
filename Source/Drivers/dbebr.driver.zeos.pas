@@ -24,6 +24,10 @@
 
 unit dbebr.driver.zeos;
 
+{$ifdef fpc}
+  {$mode delphi}{$H+}
+{$endif}
+
 interface
 
 uses

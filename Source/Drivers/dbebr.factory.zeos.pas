@@ -98,7 +98,6 @@ end;
 
 procedure TFactoryZeos.Disconnect;
 begin
-  inherited;
   if IsConnected then
     FDriverConnection.Disconnect;
 end;
@@ -125,19 +124,16 @@ end;
 
 function TFactoryZeos.ExecuteSQL(const ASQL: string): IDBResultSet;
 begin
-  inherited;
   Result := FDriverConnection.ExecuteSQL(ASQL);
 end;
 
 function TFactoryZeos.GetDriverName: TDriverName;
 begin
-  inherited;
   Result := FDriverConnection.DriverName;
 end;
 
 function TFactoryZeos.IsConnected: Boolean;
 begin
-  inherited;
   Result := FDriverConnection.IsConnected;
 end;
 
@@ -154,7 +150,6 @@ end;
 
 procedure TFactoryZeos.AddScript(const ASQL: string);
 begin
-  inherited;
   FDriverConnection.AddScript(ASQL);
 end;
 

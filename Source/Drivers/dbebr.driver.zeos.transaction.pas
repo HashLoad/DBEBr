@@ -73,19 +73,16 @@ end;
 
 procedure TDriverZeosTransaction.StartTransaction;
 begin
-  inherited;
   FConnection.StartTransaction;
 end;
 
 procedure TDriverZeosTransaction.Commit;
 begin
-  inherited;
   FConnection.Commit;
 end;
 
 procedure TDriverZeosTransaction.Rollback;
 begin
-  inherited;
   FConnection.Rollback;
 end;
 

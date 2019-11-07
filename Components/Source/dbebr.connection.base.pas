@@ -5,7 +5,7 @@ interface
 uses
   DB,
   Classes,
-  ormbr.factory.interfaces;
+  dbebr.factory.interfaces;
 
 type
   {$IF CompilerVersion > 23}
