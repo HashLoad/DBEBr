@@ -1,0 +1,9 @@
+{
+	"name": "DBEBr",
+	"description": "O DBEBr nos oferece uma interface de conexão própria, nos possibilitando assim ficar totalmente desacoplado de qualquer engine que usemos",
+	"version": "1.0.0",
+	"homepage": "",
+	"mainsrc": "Source",
+	"projects": [],
+	"dependencies": {}
+}
