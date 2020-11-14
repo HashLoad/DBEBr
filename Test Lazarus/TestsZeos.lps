@@ -8,17 +8,17 @@
       <Unit0>
         <Filename Value="TestsZeos.lpr"/>
         <IsPartOfProject Value="True"/>
-        <IsVisibleTab Value="True"/>
-        <EditorIndex Value="8"/>
+        <EditorIndex Value="-1"/>
         <CursorPos X="54" Y="6"/>
         <UsageCount Value="20"/>
-        <Loaded Value="True"/>
       </Unit0>
       <Unit1>
         <Filename Value="tests.driver.zeos.pas"/>
         <IsPartOfProject Value="True"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="1"/>
         <TopLine Value="182"/>
-        <CursorPos X="30" Y="215"/>
+        <CursorPos X="40" Y="206"/>
         <UsageCount Value="20"/>
         <Loaded Value="True"/>
       </Unit1>
@@ -26,7 +26,6 @@
         <Filename Value="tests.consts.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="Tests.Consts"/>
-        <EditorIndex Value="9"/>
         <CursorPos Y="11"/>
         <UsageCount Value="20"/>
         <Loaded Value="True"/>
@@ -34,11 +33,10 @@
       <Unit3>
         <Filename Value="..\Source\Core\dbebr.driver.connection.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="49"/>
         <CursorPos X="3" Y="67"/>
         <UsageCount Value="20"/>
-        <Loaded Value="True"/>
       </Unit3>
       <Unit4>
         <Filename Value="..\Source\Core\dbebr.factory.connection.pas"/>
@@ -61,36 +59,32 @@
       <Unit6>
         <Filename Value="..\Source\Drivers\dbebr.driver.zeos.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="3"/>
+        <EditorIndex Value="-1"/>
         <CursorPos Y="30"/>
         <UsageCount Value="20"/>
-        <Loaded Value="True"/>
       </Unit6>
       <Unit7>
         <Filename Value="..\Source\Drivers\dbebr.driver.zeos.transaction.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="4"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="53"/>
         <CursorPos Y="86"/>
         <UsageCount Value="20"/>
-        <Loaded Value="True"/>
       </Unit7>
       <Unit8>
         <Filename Value="..\Source\Drivers\dbebr.factory.zeos.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="5"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="132"/>
         <CursorPos Y="153"/>
         <UsageCount Value="20"/>
-        <Loaded Value="True"/>
       </Unit8>
       <Unit9>
         <Filename Value="D:\lazarus\components\zeosdbo\src\component\ZAbstractConnection.pas"/>
-        <EditorIndex Value="6"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="43"/>
         <CursorPos X="3" Y="61"/>
         <UsageCount Value="20"/>
-        <Loaded Value="True"/>
       </Unit9>
       <Unit10>
         <Filename Value="D:\lazarus\components\zeosdbo\src\core\ZClasses.pas"/>
@@ -112,11 +106,10 @@
       </Unit11>
       <Unit12>
         <Filename Value="D:\lazarus\components\zeosdbo\src\dbc\ZDbcIntfs.pas"/>
-        <EditorIndex Value="7"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="1756"/>
         <CursorPos Y="1774"/>
         <UsageCount Value="10"/>
-        <Loaded Value="True"/>
       </Unit12>
       <Unit13>
         <Filename Value="D:\lazarus\components\zeosdbo\src\parsesql\ZSelectSchema.pas"/>
@@ -138,11 +131,10 @@
       </Unit14>
       <Unit15>
         <Filename Value="D:\lazarus\components\zeosdbo\src\dbc\ZDbcSqLiteUtils.pas"/>
-        <EditorIndex Value="1"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="233"/>
         <CursorPos Y="240"/>
         <UsageCount Value="10"/>
-        <Loaded Value="True"/>
       </Unit15>
       <Unit16>
         <Filename Value="D:\lazarus\fpc\3.0.4\source\packages\fcl-db\src\base\db.pas"/>
@@ -159,30 +151,70 @@
         <UsageCount Value="10"/>
       </Unit17>
     </Units>
-    <JumpHistory Count="6" HistoryIndex="5">
+    <JumpHistory Count="16" HistoryIndex="15">
       <Position1>
-        <Filename Value="D:\lazarus\components\zeosdbo\src\dbc\ZDbcSqLiteUtils.pas"/>
-        <Caret Line="240" TopLine="233"/>
+        <Filename Value="tests.driver.zeos.pas"/>
+        <Caret Line="16" Column="15"/>
       </Position1>
       <Position2>
         <Filename Value="tests.driver.zeos.pas"/>
-        <Caret Line="16" Column="15"/>
       </Position2>
       <Position3>
         <Filename Value="tests.driver.zeos.pas"/>
+        <Caret Line="16" Column="19"/>
       </Position3>
       <Position4>
         <Filename Value="tests.driver.zeos.pas"/>
-        <Caret Line="16" Column="19"/>
+        <Caret Line="4" Column="31"/>
       </Position4>
       <Position5>
         <Filename Value="tests.driver.zeos.pas"/>
-        <Caret Line="4" Column="31"/>
+        <Caret Line="215" Column="30" TopLine="182"/>
       </Position5>
       <Position6>
         <Filename Value="tests.driver.zeos.pas"/>
-        <Caret Line="215" Column="30" TopLine="182"/>
+        <Caret Line="25" Column="15"/>
       </Position6>
+      <Position7>
+        <Filename Value="tests.driver.zeos.pas"/>
+        <Caret Line="205" Column="13" TopLine="182"/>
+      </Position7>
+      <Position8>
+        <Filename Value="tests.driver.zeos.pas"/>
+        <Caret Line="28" Column="18" TopLine="12"/>
+      </Position8>
+      <Position9>
+        <Filename Value="tests.driver.zeos.pas"/>
+        <Caret Line="54" Column="71" TopLine="51"/>
+      </Position9>
+      <Position10>
+        <Filename Value="tests.driver.zeos.pas"/>
+        <Caret Line="29" Column="19" TopLine="10"/>
+      </Position10>
+      <Position11>
+        <Filename Value="tests.driver.zeos.pas"/>
+        <Caret Line="59" Column="3" TopLine="57"/>
+      </Position11>
+      <Position12>
+        <Filename Value="tests.driver.zeos.pas"/>
+        <Caret Line="30" Column="15" TopLine="11"/>
+      </Position12>
+      <Position13>
+        <Filename Value="tests.driver.zeos.pas"/>
+        <Caret Line="140" Column="3" TopLine="133"/>
+      </Position13>
+      <Position14>
+        <Filename Value="tests.driver.zeos.pas"/>
+        <Caret Line="41" Column="15" TopLine="18"/>
+      </Position14>
+      <Position15>
+        <Filename Value="tests.driver.zeos.pas"/>
+        <Caret Line="204" Column="25" TopLine="182"/>
+      </Position15>
+      <Position16>
+        <Filename Value="tests.driver.zeos.pas"/>
+        <Caret Line="205" Column="42" TopLine="182"/>
+      </Position16>
     </JumpHistory>
     <RunParams>
       <FormatVersion Value="2"/>
