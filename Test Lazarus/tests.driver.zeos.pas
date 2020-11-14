@@ -202,7 +202,7 @@ begin
   FConnection.Protocol := 'sqlite';
   FConnection.Database := 'database.db3';
 
-  FDBConnection := TFactoryZeos.Create(FConnection, dnSQLite);
+  FDBConnection := TFactoryUniDAC.Create(FConnection, dnSQLite);
 end;
 
 procedure TTestDBEBrZeos.TearDown;
