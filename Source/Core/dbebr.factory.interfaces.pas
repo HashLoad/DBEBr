@@ -82,6 +82,7 @@ type
     function GetField(const AFieldName: string): TField;
     function GetFieldType(const AFieldName: string): TFieldType;
     function FieldByName(const AFieldName: string): TAsField;
+    function DataSet: TDataSet;
     property FetchingAll: Boolean read GetFetchingAll write SetFetchingAll;
   end;
 
@@ -97,6 +98,7 @@ type
   ICommandMonitor = interface
     ['{9AEB5A47-0205-4648-8C8A-F9DA8D88EB64}']
     procedure Command(const ASQL: string; AParams: TParams);
+    procedure Show;
   end;
 
   IDBConnection = interface

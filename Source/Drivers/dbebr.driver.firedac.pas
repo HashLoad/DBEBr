@@ -162,45 +162,35 @@ end;
 procedure TDriverFireDAC.ExecuteScript(const ASQL: string);
 begin
   inherited;
+  if ASQL = '' then
+    Exit;
   FSQLScript.SQLScripts[0].SQL.Clear;
-  with FSQLScript.SQLScripts[0].SQL do
-  begin
-    if MatchText(FConnection.DriverName, ['FB','IB']) then // Firebird/Interbase
-      Add('SET AUTOCOMMIT OFF');
-    Add(ASQL);
+  try
+    FSQLScript.SQLScripts[0].SQL.Add(ASQL);
+    if FSQLScript.ValidateAll then
+      FSQLScript.ExecuteAll;
+  finally
+    FSQLScript.SQLScripts[0].SQL.Clear;
   end;
-  if FSQLScript.ValidateAll then
-    FSQLScript.ExecuteAll;
 end;
 
 procedure TDriverFireDAC.ExecuteScripts;
 begin
   inherited;
-  FConnection.Connected := True;
+  if FSQLScript.SQLScripts.Count = 0 then
+    Exit;
   try
-    if FSQLScript.SQLScripts.Count > 0 then
-    begin
-      try
-        if FSQLScript.ValidateAll then
-          FSQLScript.ExecuteAll;
-      finally
-        FSQLScript.SQLScripts[0].SQL.Clear;
-      end;
-    end;
+    if FSQLScript.ValidateAll then
+      FSQLScript.ExecuteAll;
   finally
-    FConnection.Connected := False;
+    FSQLScript.SQLScripts[0].SQL.Clear;
   end;
 end;
 
 procedure TDriverFireDAC.AddScript(const ASQL: string);
 begin
   inherited;
-  with FSQLScript.SQLScripts[0].SQL do
-  begin
-    if MatchText(FConnection.DriverName, ['FB','IB']) then // Firebird/Interbase
-      Add('SET AUTOCOMMIT OFF');
-    Add(ASQL);
-  end;
+  FSQLScript.SQLScripts[0].SQL.Add(ASQL);
 end;
 
 procedure TDriverFireDAC.Connect;
@@ -226,8 +216,12 @@ begin
 end;
 
 function TDriverFireDAC.ExecuteSQL(const ASQL: string): IDBResultSet;
+var
+  LDBQuery: IDBQuery;
 begin
-  Result := CreateResultSet(ASQL);
+  LDBQuery := TDriverQueryFireDAC.Create(FConnection);
+  LDBQuery.CommandText := ASQL;
+  Result := LDBQuery.ExecuteQuery;
 end;
 
 function TDriverFireDAC.CreateResultSet(const ASQL: string): IDBResultSet;

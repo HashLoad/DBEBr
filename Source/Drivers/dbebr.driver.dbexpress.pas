@@ -34,7 +34,8 @@ uses
   SysUtils,
   // DBEBr
   dbebr.driver.connection,
-  dbebr.factory.interfaces;
+  dbebr.factory.interfaces,
+  ormbr.utils;
 
 type
   // Classe de conexão concreta com dbExpress
@@ -75,8 +76,6 @@ type
   end;
 
   TDriverResultSetDBExpress = class(TDriverResultSet<TSQLQuery>)
-  private
-    function Iso8601ToDateTime(const AValue: string): TDateTime;
   public
     constructor Create(ADataSet: TSQLQuery); override;
     destructor Destroy; override;
@@ -167,8 +166,12 @@ begin
 end;
 
 function TDriverDBExpress.ExecuteSQL(const ASQL: string): IDBResultSet;
+var
+  LDBQuery: IDBQuery;
 begin
-  Result := CreateResultSet(ASQL);
+  LDBQuery := TDriverQueryDBExpress.Create(FConnection);
+  LDBQuery.CommandText := ASQL;
+  Result := LDBQuery.ExecuteQuery;
 end;
 
 procedure TDriverDBExpress.AddScript(const ASQL: string);
@@ -331,7 +334,7 @@ begin
     begin
       if (Copy(LValue,5,1) = '-') and (Copy(LValue,8,1) = '-') then
       begin
-         Result := Iso8601ToDateTime(LValue);
+         Result := TUtilSingleton.GetInstance.Iso8601ToDateTime(LValue);
          Exit;
       end;
     end;
@@ -347,52 +350,6 @@ begin
      FDataSet.Next;
 
   Result := not FDataSet.Eof;
-end;
-
-
-function TDriverResultSetDBExpress.Iso8601ToDateTime(const AValue: string): TDateTime;
-var
-  Y, M, D, HH, MI, SS: Cardinal;
-begin
-  // YYYY-MM-DD   Thh:mm:ss  or  YYYY-MM-DDThh:mm:ss
-  // 1234567890   123456789      1234567890123456789
-  Result := StrToDateTimeDef(AValue, 0);
-  case Length(AValue) of
-    9:
-      if (AValue[1] = 'T') and (AValue[4] = ':') and (AValue[7] = ':') then
-      begin
-        HH := Ord(AValue[2]) * 10 + Ord(AValue[3]) - (48 + 480);
-        MI := Ord(AValue[5]) * 10 + Ord(AValue[6]) - (48 + 480);
-        SS := Ord(AValue[8]) * 10 + Ord(AValue[9]) - (48 + 480);
-        if (HH < 24) and (MI < 60) and (SS < 60) then
-          Result := EncodeTime(HH, MI, SS, 0);
-      end;
-    10:
-      if (AValue[5] = AValue[8]) and (Ord(AValue[8]) in [Ord('-'), Ord('/')]) then
-      begin
-        Y := Ord(AValue[1]) * 1000 + Ord(AValue[2]) * 100 + Ord(AValue[3]) * 10 + Ord(AValue[4]) - (48 + 480 + 4800 + 48000);
-        M := Ord(AValue[6]) * 10 + Ord(AValue[7]) - (48 + 480);
-        D := Ord(AValue[9]) * 10 + Ord(AValue[10]) - (48 + 480);
-        if (Y <= 9999) and ((M - 1) < 12) and ((D - 1) < 31) then
-          Result := EncodeDate(Y, M, D);
-      end;
-    19,24:
-      if (AValue[5] = AValue[8]) and
-         (Ord(AValue[8]) in [Ord('-'), Ord('/')]) and
-         (Ord(AValue[11]) in [Ord(' '), Ord('T')]) and
-         (AValue[14] = ':') and
-         (AValue[17] = ':') then
-      begin
-        Y := Ord(AValue[1]) * 1000 + Ord(AValue[2]) * 100 + Ord(AValue[3]) * 10 + Ord(AValue[4]) - (48 + 480 + 4800 + 48000);
-        M := Ord(AValue[6]) * 10 + Ord(AValue[7]) - (48 + 480);
-        D := Ord(AValue[9]) * 10 + Ord(AValue[10]) - (48 + 480);
-        HH := Ord(AValue[12]) * 10 + Ord(AValue[13]) - (48 + 480);
-        MI := Ord(AValue[15]) * 10 + Ord(AValue[16]) - (48 + 480);
-        SS := Ord(AValue[18]) * 10 + Ord(AValue[19]) - (48 + 480);
-        if (Y <= 9999) and ((M - 1) < 12) and ((D - 1) < 31) and (HH < 24) and (MI < 60) and (SS < 60) then
-          Result := EncodeDate(Y, M, D) + EncodeTime(HH, MI, SS, 0);
-      end;
-  end;
 end;
 
 end.

@@ -105,6 +105,7 @@ type
     function FieldByName(const AFieldName: string): TAsField; virtual;
     function RecordCount: Integer; virtual;
     function FieldDefs: TFieldDefs; virtual; abstract;
+    function DataSet: TDataSet; virtual; abstract;
     property FetchingAll: Boolean read GetFetchingAll write SetFetchingAll;
   end;
 
@@ -115,6 +116,7 @@ type
     constructor Create(ADataSet: T); overload; virtual;
     procedure Close; override;
     function FieldDefs: TFieldDefs; override;
+    function DataSet: TDataSet; override;
   end;
 
   TDBEBrField = class(TAsField)
@@ -162,6 +164,11 @@ begin
   FRecordCount := FDataSet.RecordCount;
   except
   end;
+end;
+
+function TDriverResultSet<T>.DataSet: TDataSet;
+begin
+  Result := FDataSet;
 end;
 
 procedure TDriverResultSet<T>.Close;
@@ -375,13 +382,13 @@ begin
   Result := 0;
   LResult := FOwner.GetFieldValue(FAsFieldName);
   if LResult <> Null then
-    Result := Int64(LResult);
+    Result := LResult;
 end;
 
 function TDBEBrField.AsIntegerDef(const Def: Int64): Int64;
 begin
   try
-    Result := Int64(FOwner.GetFieldValue(FAsFieldName));
+    Result := FOwner.GetFieldValue(FAsFieldName);
   except
     Result := Def;
   end;

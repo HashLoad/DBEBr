@@ -91,6 +91,7 @@ type
     function GetFieldType(const AFieldName: string): TFieldType; overload; override;
     function GetField(const AFieldName: string): TField; override;
     function FieldDefs: TFieldDefs; override;
+    function DataSet: TDataSet; override;
   end;
 
 implementation
@@ -178,8 +179,13 @@ begin
 end;
 
 function TDriverFIBPlus.ExecuteSQL(const ASQL: string): IDBResultSet;
+var
+  LDBQuery: IDBQuery;
 begin
-  Result := CreateResultSet(ASQL);
+  inherited;
+  LDBQuery := TDriverQueryFIBPlus.Create(FConnection);
+  LDBQuery.CommandText := ASQL;
+  Result := LDBQuery.ExecuteQuery;
 end;
 
 procedure TDriverFIBPlus.AddScript(const ASQL: string);
@@ -323,6 +329,11 @@ begin
   Create;
   FDataSet := ADataSet;
   FRecordCount := FDataSet.RecordCount;
+end;
+
+function TDriverResultSetFIBPlus.DataSet: TDataSet;
+begin
+  Result := FDataSet;
 end;
 
 destructor TDriverResultSetFIBPlus.Destroy;
