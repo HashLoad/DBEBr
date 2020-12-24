@@ -39,8 +39,7 @@ uses
 
   // DBEBr
   dbebr.driver.connection,
-  dbebr.factory.interfaces,
-  dbebr.utils;
+  dbebr.factory.interfaces;
 
 type
   // Classe de conexão concreta com dbExpress
@@ -176,8 +175,13 @@ begin
 end;
 
 function TDriverIBExpress.ExecuteSQL(const ASQL: string): IDBResultSet;
+var
+  LDBQuery: IDBQuery;
 begin
-  Result := CreateResultSet(ASQL);
+  inherited;
+  LDBQuery := TDriverQueryIBExpress.Create(FConnection);
+  LDBQuery.CommandText := ASQL;
+  Result := LDBQuery.ExecuteQuery;
 end;
 
 procedure TDriverIBExpress.AddScript(const ASQL: string);
@@ -341,7 +345,6 @@ begin
      FFirstNext := True
   else
      FDataSet.Next;
-
   Result := not FDataSet.Eof;
 end;
 

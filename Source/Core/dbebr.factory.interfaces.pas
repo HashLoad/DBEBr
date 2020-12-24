@@ -82,6 +82,7 @@ type
     function GetField(const AFieldName: string): TField;
     function GetFieldType(const AFieldName: string): TFieldType;
     function FieldByName(const AFieldName: string): TAsField;
+    function DataSet: TDataSet;
     property FetchingAll: Boolean read GetFetchingAll write SetFetchingAll;
   end;
 

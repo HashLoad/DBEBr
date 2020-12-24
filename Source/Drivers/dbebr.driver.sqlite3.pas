@@ -181,8 +181,12 @@ begin
 end;
 
 function TDriverSQLite3.ExecuteSQL(const ASQL: string): IDBResultSet;
+var
+  LDBQuery: IDBQuery;
 begin
-  Result := CreateResultSet(ASQL);
+  LDBQuery := TDriverQuerySQLite3.Create(FConnection);
+  LDBQuery.CommandText := ASQL;
+  Result := LDBQuery.ExecuteQuery;
 end;
 
 procedure TDriverSQLite3.AddScript(const ASQL: string);

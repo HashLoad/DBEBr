@@ -175,8 +175,12 @@ begin
 end;
 
 function TDriverElevateDB.ExecuteSQL(const ASQL: string): IDBResultSet;
+var
+  LDBQuery: IDBQuery;
 begin
-  Result := CreateResultSet(ASQL);
+  LDBQuery := TDriverQueryFireDAC.Create(FConnection);
+  LDBQuery.CommandText := ASQL;
+  Result := LDBQuery.ExecuteQuery;
 end;
 
 procedure TDriverElevateDB.AddScript(const ASQL: string);

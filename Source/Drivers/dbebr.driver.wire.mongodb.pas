@@ -66,7 +66,7 @@ type
     procedure CommandInsertExecute(const ACommandText: String; const AParams: TParams);
     procedure CommandDeleteExecute(const ACommandText: String; const AParams: TParams);
   public
-    constructor Create(AConnection: TComponent; ADriverName: TDriverName); override;
+    constructor Create(const AConnection: TComponent; const ADriverName: TDriverName); override;
     destructor Destroy; override;
     procedure Connect; override;
     procedure Disconnect; override;
@@ -78,7 +78,7 @@ type
     function IsConnected: Boolean; override;
     function InTransaction: Boolean; override;
     function CreateQuery: IDBQuery; override;
-    function CreateResultSet(const ASQL: string): IDBResultSet; override;
+    function CreateResultSet(const ASQL: String): IDBResultSet; override;
     function ExecuteSQL(const ASQL: string): IDBResultSet; override;
   end;
 
@@ -111,16 +111,15 @@ implementation
 
 uses
   ormbr.utils,
-  ormbr.dataset.bind,
+  ormbr.bind,
   ormbr.mapping.explorer,
   ormbr.rest.json,
-  ormbr.objectset.bind,
   ormbr.mapping.rttiutils,
   ormbr.objects.helper;
 
 { TDriverMongoWire }
 
-constructor TDriverMongoWire.Create(AConnection: TComponent; ADriverName: TDriverName);
+constructor TDriverMongoWire.Create(const AConnection: TComponent; const ADriverName: TDriverName);
 begin
   inherited;
   FConnection := AConnection as TMongoWireConnection;
@@ -194,8 +193,12 @@ begin
 end;
 
 function TDriverMongoWire.ExecuteSQL(const ASQL: string): IDBResultSet;
+var
+  LDBQuery: IDBQuery;
 begin
-  Result := CreateResultSet(ASQL);
+  LDBQuery := TDriverQueryMongoWire.Create(FConnection);
+  LDBQuery.CommandText := ASQL;
+  Result := LDBQuery.ExecuteQuery;
 end;
 
 procedure TDriverMongoWire.AddScript(const ASQL: string);
@@ -293,7 +296,7 @@ begin
   Result := TDriverQueryMongoWire.Create(FConnection);
 end;
 
-function TDriverMongoWire.CreateResultSet(const ASQL: string): IDBResultSet;
+function TDriverMongoWire.CreateResultSet(const ASQL: String): IDBResultSet;
 var
   LDBQuery: IDBQuery;
 begin
@@ -328,9 +331,8 @@ begin
                 .GetInstance
                   .Repository
                     .FindEntityByName('T' + LResultSet.Collection).Create;
-  TBindDataSet
-    .GetInstance
-      .SetInternalInitFieldDefsObjectClass(LResultSet, LObject);
+  TBind.Instance
+       .SetInternalInitFieldDefsObjectClass(LResultSet, LObject);
   LResultSet.CreateDataSet;
   LResultSet.LogChanges := False;
   try
@@ -471,9 +473,8 @@ begin
         /// Popula do dataset usado pelo ORMBr
         /// </summary>
         Append;
-        TBindDataSet
-          .GetInstance
-            .SetPropertyToField(LObject, Self);
+        TBind.Instance
+             .SetPropertyToField(LObject, Self);
         Post;
       finally
         LObject.Free;

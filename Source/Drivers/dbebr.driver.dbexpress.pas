@@ -167,8 +167,12 @@ begin
 end;
 
 function TDriverDBExpress.ExecuteSQL(const ASQL: string): IDBResultSet;
+var
+  LDBQuery: IDBQuery;
 begin
-  Result := CreateResultSet(ASQL);
+  LDBQuery := TDriverQueryDBExpress.Create(FConnection);
+  LDBQuery.CommandText := ASQL;
+  Result := LDBQuery.ExecuteQuery;
 end;
 
 procedure TDriverDBExpress.AddScript(const ASQL: string);
@@ -322,11 +326,9 @@ begin
   else
   begin
     LValue := FDataSet.Fields[AFieldIndex].Value;
-    /// <summary>
-    ///   Usando DBExpress para acessar SQLite os campos data retornam no
-    ///   formato ISO8601 "yyyy-MM-dd e o DBExpress não converte para dd-MM-yyy,
-    ///   então tive que criar uma alternativa.
-    /// </summary>
+    // Usando DBExpress para acessar SQLite os campos data retornam no
+    // formato ISO8601 "yyyy-MM-dd e o DBExpress não converte para dd-MM-yyy,
+    // então tive que criar uma alternativa.
     if FDataSet.SQLConnection.DriverName = 'Sqlite' then
     begin
       if (Copy(LValue,5,1) = '-') and (Copy(LValue,8,1) = '-') then

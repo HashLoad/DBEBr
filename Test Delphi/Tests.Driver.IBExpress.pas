@@ -9,7 +9,7 @@ uses
 
   IBDatabase,
 
-  ormbr.factory.interfaces;
+  dbebr.factory.interfaces;
 
 type
   [TestFixture]
@@ -59,7 +59,7 @@ type
 implementation
 
 uses
-  ormbr.factory.ibexpress,
+  dbebr.factory.ibexpress,
   Tests.Consts;
 
 { TTestDriverConnection }

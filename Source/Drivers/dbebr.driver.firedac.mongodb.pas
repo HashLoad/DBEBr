@@ -194,8 +194,12 @@ begin
 end;
 
 function TDriverMongoFireDAC.ExecuteSQL(const ASQL: string): IDBResultSet;
+var
+  LDBQuery: IDBQuery;
 begin
-  Result := CreateResultSet(ASQL);
+  LDBQuery := TDriverQueryMongoFireDAC.Create(FConnection, FMongoConnection, FMongoEnv);
+  LDBQuery.CommandText := ASQL;
+  Result := LDBQuery.ExecuteQuery;
 end;
 
 procedure TDriverMongoFireDAC.AddScript(const ASQL: string);

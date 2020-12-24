@@ -167,6 +167,15 @@ begin
   end;
 end;
 
+function TDriverAbsoluteDB.ExecuteSQL(const ASQL: string): IDBResultSet;
+var
+  LDBQuery: IDBQuery;
+begin
+  LDBQuery := TDriverQueryAbsoluteDB.Create(FConnection);
+  LDBQuery.CommandText := ASQL;
+  Result := LDBQuery.ExecuteQuery;
+end;
+
 procedure TDriverAbsoluteDB.AddScript(const ASQL: string);
 begin
   inherited;
@@ -194,11 +203,6 @@ end;
 function TDriverAbsoluteDB.CreateQuery: IDBQuery;
 begin
   Result := TDriverQueryAbsoluteDB.Create(FConnection);
-end;
-
-function TDriverAbsoluteDB.ExecuteSQL(const ASQL: string): IDBResultSet;
-begin
-  Result := CreateResultSet(ASQL);
 end;
 
 function TDriverAbsoluteDB.CreateResultSet(const ASQL: String): IDBResultSet;
