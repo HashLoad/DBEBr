@@ -101,6 +101,12 @@ type
     procedure Show;
   end;
 
+  IDBOptions = interface
+    ['{A3C489B1-F2D8-4E4D-9EC2-152C730ED33D}']
+    function StoreGUIDAsOctet(const AValue: Boolean): IDBOptions; overload;
+    function StoreGUIDAsOctet: Boolean; overload;
+  end;
+
   IDBConnection = interface
     ['{4520C97F-8777-4D14-9C14-C79EF86957DB}']
     procedure Connect;
@@ -121,6 +127,7 @@ type
     function CreateResultSet(const ASQL: String): IDBResultSet;
     function ExecuteSQL(const ASQL: string): IDBResultSet;
     function CommandMonitor: ICommandMonitor;
+    function DBOptions: IDBOptions;
   end;
 
   IDBTransaction = interface

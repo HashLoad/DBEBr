@@ -40,6 +40,7 @@ type
     FAutoTransaction: Boolean;
   protected
     FCommandMonitor: ICommandMonitor;
+    FDBOptions: IDBOptions;
     FDriverConnection: TDriverConnection;
     FDriverTransaction: TDriverTransaction;
   public
@@ -64,6 +65,8 @@ type
     function CreateResultSet(const ASQL: String): IDBResultSet; virtual; abstract;
     function ExecuteSQL(const ASQL: string): IDBResultSet; virtual; abstract;
     function CommandMonitor: ICommandMonitor;
+    function DBOptions: IDBOptions; virtual;
+
   end;
 
 implementation
@@ -85,6 +88,13 @@ constructor TFactoryConnection.Create(const AConnection: TComponent;
   const ADriverName: TDriverName);
 begin
   FAutoTransaction := False;
+end;
+
+function TFactoryConnection.DBOptions: IDBOptions;
+begin
+  if not Assigned(FDBOptions) then
+    FDBOptions := TDBOptions.Create;
+  Result := FDBOptions;
 end;
 
 procedure TFactoryConnection.ExecuteDirect(const ASQL: string; const AParams: TParams);
