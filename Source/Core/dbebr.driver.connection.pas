@@ -73,6 +73,15 @@ type
     function InTransaction: Boolean; virtual; abstract;
   end;
 
+  TDBOptions = class(TInterfacedObject, IDBOptions)
+  strict private
+    FStoreGUIDAsOctet: Boolean;
+  public
+    constructor Create;
+    function StoreGUIDAsOctet(const AValue: Boolean): IDBOptions; overload;
+    function StoreGUIDAsOctet: Boolean; overload;
+  end;
+
   TDriverQuery = class(TInterfacedObject, IDBQuery)
   protected
     procedure SetCommandText(ACommandText: string); virtual; abstract;
@@ -444,6 +453,24 @@ begin
   except
     Result := Def;
   end;
+end;
+
+{ TDBDefinition }
+
+function TDBOptions.StoreGUIDAsOctet(const AValue: Boolean): IDBOptions;
+begin
+  Result := Self;
+  FStoreGUIDAsOctet := AValue;
+end;
+
+constructor TDBOptions.Create;
+begin
+  FStoreGUIDAsOctet := True;
+end;
+
+function TDBOptions.StoreGUIDAsOctet: Boolean;
+begin
+  Result := FStoreGUIDAsOctet;
 end;
 
 end.
