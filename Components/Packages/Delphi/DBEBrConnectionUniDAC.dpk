@@ -25,18 +25,19 @@ package DBEBrConnectionUniDAC;
 {$IMAGEBASE $400000}
 {$DEFINE DEBUG}
 {$ENDIF IMPLICITBUILDING}
+{$DESCRIPTION 'DBEnginesBr - UniDAC'}
+{$RUNONLY}
 {$IMPLICITBUILD ON}
 
 requires
   rtl,
-  designide,
+  unidac260,
   DBEBrCore;
 
 contains
   dbebr.connection.unidac in '..\..\Source\dbebr.connection.unidac.pas',
-  dbebr.connection.unidac.reg in '..\..\Source\dbebr.connection.unidac.reg.pas',
-  ormbr.driver.unidac in '..\..\..\Source\Drivers\ormbr.driver.unidac.pas',
-  ormbr.driver.unidac.transaction in '..\..\..\Source\Drivers\ormbr.driver.unidac.transaction.pas',
-  ormbr.factory.unidac in '..\..\..\Source\Drivers\ormbr.factory.unidac.pas';
+  dbebr.driver.unidac in '..\..\..\Source\Drivers\ormbr.driver.unidac.pas',
+  dbebr.driver.unidac.transaction in '..\..\..\Source\Drivers\ormbr.driver.unidac.transaction.pas',
+  dbebr.factory.unidac in '..\..\..\Source\Drivers\ormbr.factory.unidac.pas';
 
 end.

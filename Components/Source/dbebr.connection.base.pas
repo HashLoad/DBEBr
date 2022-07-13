@@ -1,10 +1,40 @@
+{
+      ORM Brasil é um ORM simples e descomplicado para quem utiliza Delphi
+
+                   Copyright (c) 2016, Isaque Pinheiro
+                          All rights reserved.
+
+                    GNU Lesser General Public License
+                      Versão 3, 29 de junho de 2007
+
+       Copyright (C) 2007 Free Software Foundation, Inc. <http://fsf.org/>
+       A todos é permitido copiar e distribuir cópias deste documento de
+       licença, mas mudá-lo não é permitido.
+
+       Esta versão da GNU Lesser General Public License incorpora
+       os termos e condições da versão 3 da GNU General Public License
+       Licença, complementado pelas permissões adicionais listadas no
+       arquivo LICENSE na pasta principal.
+}
+
+{ @abstract(ORMBr Framework.)
+  @created(20 Jul 2016)
+  @author(Isaque Pinheiro <isaquepsp@gmail.com>)
+  @author(Skype : ispinheiro)
+  @abstract(Website : http://www.ormbr.com.br)
+  @abstract(Telagram : https://t.me/ormbr)
+}
+
 unit dbebr.connection.base;
 
 interface
 
 uses
   DB,
+  SysUtils,
   Classes,
+  dbebr.driver.connection,
+  dbebr.factory.connection,
   dbebr.factory.interfaces;
 
 type
@@ -20,8 +50,10 @@ type
   protected
     FDBConnection: IDBConnection;
     FDriverName: TDriverName;
-    function GetDBConnection: IDBConnection; virtual; abstract;
+    function GetDBConnection: IDBConnection;
   public
+    constructor Create(const AOwner: TComponent); virtual;
+    destructor Destroy; override;
     procedure Connect;
     procedure Disconnect;
     procedure StartTransaction;
@@ -39,10 +71,8 @@ type
     function CreateResultSet(const ASQL: String): IDBResultSet;
     function ExecuteSQL(const ASQL: string): IDBResultSet;
     function CommandMonitor: ICommandMonitor;
-    function Connection: IDBConnection;
+    function DBConnection: IDBConnection;
   published
-    constructor Create(AOwner: TComponent); virtual;
-    destructor Destroy; override;
     property DriverName: TDriverName read FDriverName write FDriverName;
   end;
 
@@ -50,7 +80,7 @@ implementation
 
 { TDBEBrConnectionBase }
 
-constructor TDBEBrConnectionBase.Create(AOwner: TComponent);
+constructor TDBEBrConnectionBase.Create(const AOwner: TComponent);
 begin
 
 end;
@@ -81,9 +111,9 @@ begin
   GetDBConnection.Connect;
 end;
 
-function TDBEBrConnectionBase.Connection: IDBConnection;
+function TDBEBrConnectionBase.DBConnection: IDBConnection;
 begin
-  Result := FDBConnection;
+  Result := GetDBConnection;
 end;
 
 function TDBEBrConnectionBase.CreateQuery: IDBQuery;
@@ -126,6 +156,13 @@ end;
 function TDBEBrConnectionBase.ExecuteSQL(const ASQL: string): IDBResultSet;
 begin
   Result := GetDBConnection.ExecuteSQL(ASQL);
+end;
+
+function TDBEBrConnectionBase.GetDBConnection: IDBConnection;
+begin
+//  if FDBConnection = nil then
+//    raise Exception.Create('Connection property not set!');
+  Result := FDBConnection;
 end;
 
 function TDBEBrConnectionBase.InTransaction: Boolean;

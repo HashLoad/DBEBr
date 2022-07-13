@@ -7,8 +7,8 @@ uses
   SqlExpr,
   Classes,
   dbebr.connection.base,
-  ormbr.factory.dbexpress,
-  ormbr.factory.interfaces;
+  dbebr.factory.dbexpress,
+  dbebr.factory.interfaces;
 
 type
   {$IF CompilerVersion > 23}
@@ -22,19 +22,20 @@ type
   TDBEBrConnectionDBExpress = class(TDBEBrConnectionBase)
   private
     FConnection: TSQLConnection;
+    procedure SetConnection(const Value: TSQLConnection);
+    function GetConnection: TSQLConnection;
   public
-    function GetDBConnection: IDBConnection; Override;
-  published
-    constructor Create(AOwner: TComponent); override;
+    constructor Create(const AOwner: TComponent); override;
     destructor Destroy; override;
-    property Connetion: TSQLConnection read FConnection write FConnection;
+  published
+    property Connection: TSQLConnection read GetConnection write SetConnection;
   end;
 
 implementation
 
 { TDBEBrConnectionDBExpress }
 
-constructor TDBEBrConnectionDBExpress.Create(AOwner: TComponent);
+constructor TDBEBrConnectionDBExpress.Create(const AOwner: TComponent);
 begin
   inherited Create(AOwner);
 end;
@@ -45,11 +46,16 @@ begin
   inherited;
 end;
 
-function TDBEBrConnectionDBExpress.GetDBConnection: IDBConnection;
+function TDBEBrConnectionDBExpress.GetConnection: TSQLConnection;
 begin
+  Result := FConnection;
+end;
+
+procedure TDBEBrConnectionDBExpress.SetConnection(const Value: TSQLConnection);
+begin
+  FConnection := Value;
   if not Assigned(FDBConnection) then
     FDBConnection := TFactoryDBExpress.Create(FConnection, FDriverName);
-  Result := FDBConnection;
 end;
 
 end.

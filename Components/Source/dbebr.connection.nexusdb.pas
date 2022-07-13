@@ -8,8 +8,8 @@ uses
   nxdb,
   nxllComponent,
   dbebr.connection.base,
-  ormbr.factory.nexusdb,
-  ormbr.factory.interfaces;
+  dbebr.factory.nexusdb,
+  dbebr.factory.interfaces;
 
 type
   {$IF CompilerVersion > 23}
@@ -23,19 +23,20 @@ type
   TDBEBrConnectionNexusDB = class(TDBEBrConnectionBase)
   private
     FConnection: TnxDatabase;
+    procedure SetConnection(const Value: TnxDatabase);
+    function GetConnection: TnxDatabase;
   public
-    function GetDBConnection: IDBConnection; override;
-  published
-    constructor Create(AOwner: TComponent); override;
+    constructor Create(const AOwner: TComponent); override;
     destructor Destroy; override;
-    property Connetion: TnxDatabase read FConnection write FConnection;
+  published
+    property Connection: TnxDatabase read GetConnection write SetConnection;
   end;
 
 implementation
 
 { TDBEBrConnectionNexusDB }
 
-constructor TDBEBrConnectionNexusDB.Create(AOwner: TComponent);
+constructor TDBEBrConnectionNexusDB.Create(const AOwner: TComponent);
 begin
   inherited Create(AOwner);
 end;
@@ -46,11 +47,16 @@ begin
   inherited;
 end;
 
-function TDBEBrConnectionNexusDB.GetDBConnection: IDBConnection;
+function TDBEBrConnectionNexusDB.GetConnection: TnxDatabase;
 begin
+  Result := FConnection;
+end;
+
+procedure TDBEBrConnectionNexusDB.SetConnection(const Value: TnxDatabase);
+begin
+  FConnection := Value;
   if not Assigned(FDBConnection) then
     FDBConnection := TFactoryNexusDB.Create(FConnection, FDriverName);
-  Result := FDBConnection;
 end;
 
 end.

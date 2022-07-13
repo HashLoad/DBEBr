@@ -7,8 +7,8 @@ uses
   Classes,
   ZConnection,
   dbebr.connection.base,
-  ormbr.factory.zeos,
-  ormbr.factory.interfaces;
+  dbebr.factory.zeos,
+  dbebr.factory.interfaces;
 
 type
   {$IF CompilerVersion > 23}
@@ -22,19 +22,20 @@ type
   TDBEBrConnectionZeos = class(TDBEBrConnectionBase)
   private
     FConnection: TZConnection;
+    procedure SetConnection(const Value: TZConnection);
+    function GetConnection: TZConnection;
   public
-    function GetDBConnection: IDBConnection; override;
-  published
-    constructor Create(AOwner: TComponent); override;
+    constructor Create(const AOwner: TComponent); override;
     destructor Destroy; override;
-    property Connetion: TZConnection read FConnection write FConnection;
+  published
+    property Connection: TZConnection read GetConnection write SetConnection;
   end;
 
 implementation
 
 { TDBEBrConnectionZeos }
 
-constructor TDBEBrConnectionZeos.Create(AOwner: TComponent);
+constructor TDBEBrConnectionZeos.Create(const AOwner: TComponent);
 begin
   inherited Create(AOwner);
 end;
@@ -45,11 +46,16 @@ begin
   inherited;
 end;
 
-function TDBEBrConnectionZeos.GetDBConnection: IDBConnection;
+function TDBEBrConnectionZeos.GetConnection: TZConnection;
 begin
+  Result := FConnection;
+end;
+
+procedure TDBEBrConnectionZeos.SetConnection(const Value: TZConnection);
+begin
+  FConnection := Value;
   if not Assigned(FDBConnection) then
     FDBConnection := TFactoryZeos.Create(FConnection, FDriverName);
-  Result := FDBConnection;
 end;
 
 end.
