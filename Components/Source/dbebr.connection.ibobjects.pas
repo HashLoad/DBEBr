@@ -9,8 +9,8 @@ uses
   IBODataset,
   IB_Access,
   dbebr.connection.base,
-  ormbr.factory.ibobjects,
-  ormbr.factory.interfaces;
+  dbebr.factory.ibobjects,
+  dbebr.factory.interfaces;
 
 type
   {$IF CompilerVersion > 23}
@@ -24,19 +24,20 @@ type
   TDBEBrConnectionIBObjects = class(TDBEBrConnectionBase)
   private
     FConnection: TIBODatabase;
+    procedure SetConnection(const Value: TIBODatabase);
+    function GetConnection: TIBODatabase;
   public
-    function GetDBConnection: IDBConnection; override;
-  published
-    constructor Create(AOwner: TComponent); override;
+    constructor Create(const AOwner: TComponent); override;
     destructor Destroy; override;
-    property Connetion: TIBODatabase read FConnection write FConnection;
+  published
+    property Connection: TIBODatabase read GetConnection write SetConnection;
   end;
 
 implementation
 
 { TDBEBrConnectionIBObjects }
 
-constructor TDBEBrConnectionIBObjects.Create(AOwner: TComponent);
+constructor TDBEBrConnectionIBObjects.Create(const AOwner: TComponent);
 begin
   inherited Create(AOwner);
 end;
@@ -47,11 +48,16 @@ begin
   inherited;
 end;
 
-function TDBEBrConnectionIBObjects.GetDBConnection: IDBConnection;
+function TDBEBrConnectionIBObjects.GetConnection: TIBODatabase;
 begin
+  Result := FConnection;
+end;
+
+procedure TDBEBrConnectionIBObjects.SetConnection(const Value: TIBODatabase);
+begin
+  FConnection := Value;
   if not Assigned(FDBConnection) then
     FDBConnection := TFactoryIBObjects.Create(FConnection, FDriverName);
-  Result := FDBConnection;
 end;
 
 end.

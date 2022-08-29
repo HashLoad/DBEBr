@@ -108,9 +108,9 @@ begin
   if not LIsConnected then
     Connect;
   try
-    if not LInTransaction then
-      StartTransaction;
     try
+      if not LInTransaction then
+        StartTransaction;
       FDriverConnection.ExecuteDirect(ASQL, AParams);
       if not LInTransaction then
         Commit;

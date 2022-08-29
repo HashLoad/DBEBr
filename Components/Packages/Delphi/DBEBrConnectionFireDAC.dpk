@@ -25,11 +25,12 @@ package DBEBrConnectionFireDAC;
 {$IMAGEBASE $400000}
 {$DEFINE DEBUG}
 {$ENDIF IMPLICITBUILDING}
+{$DESCRIPTION 'DBEnginesBr - FireDAC'}
+{$RUNONLY}
 {$IMPLICITBUILD ON}
 
 requires
   rtl,
-  designide,
   FireDAC,
   FireDACCommonDriver,
   FireDACCommon,
@@ -37,9 +38,8 @@ requires
 
 contains
   dbebr.connection.firedac in '..\..\Source\dbebr.connection.firedac.pas',
-  dbebr.connection.firedac.reg in '..\..\Source\dbebr.connection.firedac.reg.pas',
-  ormbr.driver.firedac in '..\..\..\Source\Drivers\ormbr.driver.firedac.pas',
-  ormbr.driver.firedac.transaction in '..\..\..\Source\Drivers\ormbr.driver.firedac.transaction.pas',
-  ormbr.factory.firedac in '..\..\..\Source\Drivers\ormbr.factory.firedac.pas';
+  dbebr.driver.firedac in '..\..\..\Source\Drivers\dbebr.driver.firedac.pas',
+  dbebr.driver.firedac.transaction in '..\..\..\Source\Drivers\dbebr.driver.firedac.transaction.pas',
+  dbebr.factory.firedac in '..\..\..\Source\Drivers\dbebr.factory.firedac.pas';
 
 end.

@@ -7,8 +7,8 @@ uses
   Classes,
   ADODB,
   dbebr.connection.base,
-  ormbr.factory.ado,
-  ormbr.factory.interfaces;
+  dbebr.factory.ado,
+  dbebr.factory.interfaces;
 
 type
   {$IF CompilerVersion > 23}
@@ -22,19 +22,20 @@ type
   TDBEBrConnectionADO = class(TDBEBrConnectionBase)
   private
     FConnection: TADOConnection;
+    procedure SetConnection(const Value: TADOConnection);
+    function GetConnection: TADOConnection;
   public
-    function GetDBConnection: IDBConnection; override;
-  published
-    constructor Create(AOwner: TComponent); override;
+    constructor Create(const AOwner: TComponent); override;
     destructor Destroy; override;
-    property Connetion: TADOConnection read FConnection write FConnection;
+  published
+    property Connection: TADOConnection read GetConnection write SetConnection;
   end;
 
 implementation
 
 { TDBEBrConnectionADO }
 
-constructor TDBEBrConnectionADO.Create(AOwner: TComponent);
+constructor TDBEBrConnectionADO.Create(const AOwner: TComponent);
 begin
   inherited Create(AOwner);
 end;
@@ -45,11 +46,16 @@ begin
   inherited;
 end;
 
-function TDBEBrConnectionADO.GetDBConnection: IDBConnection;
+function TDBEBrConnectionADO.GetConnection: TADOConnection;
 begin
+  Result := FConnection;
+end;
+
+procedure TDBEBrConnectionADO.SetConnection(const Value: TADOConnection);
+begin
+  FConnection := Value;
   if not Assigned(FDBConnection) then
     FDBConnection := TFactoryADO.Create(FConnection, FDriverName);
-  Result := FDBConnection;
 end;
 
 end.

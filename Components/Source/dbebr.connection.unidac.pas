@@ -7,8 +7,8 @@ uses
   Classes,
   Uni,
   dbebr.connection.base,
-  ormbr.factory.unidac,
-  ormbr.factory.interfaces;
+  dbebr.factory.unidac,
+  dbebr.factory.interfaces;
 
 type
   {$IF CompilerVersion > 23}
@@ -22,19 +22,20 @@ type
   TDBEBrConnectionUniDAC = class(TDBEBrConnectionBase)
   private
     FConnection: TUniConnection;
+    procedure SetConnection(const Value: TUniConnection);
+    function GetConnection: TUniConnection;
   public
-    function GetDBConnection: IDBConnection; override;
-  published
-    constructor Create(AOwner: TComponent); override;
+    constructor Create(const AOwner: TComponent); override;
     destructor Destroy; override;
-    property Connetion: TUniConnection read FConnection write FConnection;
+  published
+    property Connection: TUniConnection read GetConnection write SetConnection;
   end;
 
 implementation
 
 { TDBEBrConnectionUniDAC }
 
-constructor TDBEBrConnectionUniDAC.Create(AOwner: TComponent);
+constructor TDBEBrConnectionUniDAC.Create(const AOwner: TComponent);
 begin
   inherited Create(AOwner);
 end;
@@ -45,11 +46,16 @@ begin
   inherited;
 end;
 
-function TDBEBrConnectionUniDAC.GetDBConnection: IDBConnection;
+function TDBEBrConnectionUniDAC.GetConnection: TUniConnection;
 begin
+  Result := FConnection;
+end;
+
+procedure TDBEBrConnectionUniDAC.SetConnection(const Value: TUniConnection);
+begin
+  FConnection := Value;
   if not Assigned(FDBConnection) then
     FDBConnection := TFactoryUniDAC.Create(FConnection, FDriverName);
-  Result := FDBConnection;
 end;
 
 end.

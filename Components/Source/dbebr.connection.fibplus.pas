@@ -9,8 +9,8 @@ uses
   FIBDataSet,
   FIBDatabase,
   dbebr.connection.base,
-  ormbr.factory.fibplus,
-  ormbr.factory.interfaces;
+  dbebr.factory.fibplus,
+  dbebr.factory.interfaces;
 
 type
   {$IF CompilerVersion > 23}
@@ -24,19 +24,20 @@ type
   TDBEBrConnectionFIBPlus = class(TDBEBrConnectionBase)
   private
     FConnection: TFIBDatabase;
+    procedure SetConnection(const Value: TFIBDatabase);
+    function GetConnection: TFIBDatabase;
   public
-    function GetDBConnection: IDBConnection; override;
-  published
-    constructor Create(AOwner: TComponent); override;
+    constructor Create(const AOwner: TComponent); override;
     destructor Destroy; override;
-    property Connetion: TFIBDatabase read FConnection write FConnection;
+  published
+    property Connection: TFIBDatabase read GetConnection write SetConnection;
   end;
 
 implementation
 
 { TDBEBrConnectionFIBPlus }
 
-constructor TDBEBrConnectionFIBPlus.Create(AOwner: TComponent);
+constructor TDBEBrConnectionFIBPlus.Create(const AOwner: TComponent);
 begin
   inherited Create(AOwner);
 end;
@@ -47,11 +48,16 @@ begin
   inherited;
 end;
 
-function TDBEBrConnectionFIBPlus.GetDBConnection: IDBConnection;
+function TDBEBrConnectionFIBPlus.GetConnection: TFIBDatabase;
 begin
+  Result := FConnection;
+end;
+
+procedure TDBEBrConnectionFIBPlus.SetConnection(const Value: TFIBDatabase);
+begin
+  FConnection := Value;
   if not Assigned(FDBConnection) then
     FDBConnection := TFactoryFIBPlus.Create(FConnection, FDriverName);
-  Result := FDBConnection;
 end;
 
 end.

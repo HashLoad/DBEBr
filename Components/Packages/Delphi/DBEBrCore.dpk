@@ -25,7 +25,7 @@ package DBEBrCore;
 {$IMAGEBASE $400000}
 {$DEFINE DEBUG}
 {$ENDIF IMPLICITBUILDING}
-{$DESCRIPTION 'DBEBr - Core'}
+{$DESCRIPTION 'DBEnginesBr - Core'}
 {$RUNONLY}
 {$IMPLICITBUILD OFF}
 
@@ -33,10 +33,12 @@ requires
   rtl,
   vcl,
   vclimg,
-  dbrtl,
-  ORMBrCore;
+  dbrtl;
 
 contains
-  dbebr.connection.base in '..\..\Source\dbebr.connection.base.pas';
+  dbebr.connection.base in '..\..\Source\dbebr.connection.base.pas',
+  dbebr.driver.connection in '..\..\..\Source\Core\dbebr.driver.connection.pas',
+  dbebr.factory.connection in '..\..\..\Source\Core\dbebr.factory.connection.pas',
+  dbebr.factory.interfaces in '..\..\..\Source\Core\dbebr.factory.interfaces.pas';
 
 end.
