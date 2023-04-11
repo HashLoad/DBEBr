@@ -64,7 +64,7 @@ type
   end;
 
   // Classe de trasações abstract
-  TDriverTransaction = class abstract(TInterfacedObject, IDBTransaction)
+  TDriverTransaction = class abstract
   public
     constructor Create(AConnection: TComponent); virtual; abstract;
     procedure StartTransaction; virtual; abstract;
