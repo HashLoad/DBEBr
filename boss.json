@@ -1,7 +1,7 @@
 {
 	"name": "DBEBr",
 	"description": "O DBEBr nos oferece uma interface de conexão própria, nos possibilitando assim ficar totalmente desacoplado de qualquer engine que usemos",
-	"version": "^master",
+	"version": "",
 	"homepage": "https://www.isaquepinheiro.com.br",
 	"mainsrc": "Source/",
 	"projects": [],
