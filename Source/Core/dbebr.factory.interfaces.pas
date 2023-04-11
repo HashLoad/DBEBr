@@ -107,20 +107,24 @@ type
     function StoreGUIDAsOctet: Boolean; overload;
   end;
 
-  IDBConnection = interface
-    ['{4520C97F-8777-4D14-9C14-C79EF86957DB}']
-    procedure Connect;
-    procedure Disconnect;
+  IDBTransaction = interface
+    ['{EB46599C-A021-40E4-94E2-C7507781562B}']
     procedure StartTransaction;
     procedure Commit;
     procedure Rollback;
+    function InTransaction: Boolean;
+  end;
+
+  IDBConnection = interface(IDBTransaction)
+    ['{4520C97F-8777-4D14-9C14-C79EF86957DB}']
+    procedure Connect;
+    procedure Disconnect;
     procedure ExecuteDirect(const ASQL: string); overload;
     procedure ExecuteDirect(const ASQL: string; const AParams: TParams); overload;
     procedure ExecuteScript(const ASQL: string);
     procedure AddScript(const ASQL: string);
     procedure ExecuteScripts;
     procedure SetCommandMonitor(AMonitor: ICommandMonitor);
-    function InTransaction: Boolean;
     function IsConnected: Boolean;
     function GetDriverName: TDriverName;
     function CreateQuery: IDBQuery;
@@ -128,14 +132,6 @@ type
     function ExecuteSQL(const ASQL: string): IDBResultSet;
     function CommandMonitor: ICommandMonitor;
     function DBOptions: IDBOptions;
-  end;
-
-  IDBTransaction = interface
-    ['{EB46599C-A021-40E4-94E2-C7507781562B}']
-    procedure StartTransaction;
-    procedure Commit;
-    procedure Rollback;
-    function InTransaction: Boolean;
   end;
 
 const
