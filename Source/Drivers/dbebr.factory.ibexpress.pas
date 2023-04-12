@@ -37,7 +37,10 @@ type
   TFactoryIBExpress = class(TFactoryConnection)
   public
     constructor Create(const AConnection: TComponent;
-      const ADriverName: TDriverName); override;
+      const ADriverName: TDriverName); overload;
+    constructor Create(const AConnection: TComponent;
+      const ADriverName: TDriverName;
+      const AMonitor: ICommandMonitor); overload;
     destructor Destroy; override;
     procedure Connect; override;
     procedure Disconnect; override;
@@ -77,6 +80,14 @@ begin
   inherited;
   FDriverConnection  := TDriverIBExpress.Create(AConnection, ADriverName);
   FDriverTransaction := TDriverIBExpressTransaction.Create(AConnection);
+  FAutoTransaction := False;
+end;
+
+constructor TFactoryIBExpress.Create(const AConnection: TComponent;
+  const ADriverName: TDriverName; const AMonitor: ICommandMonitor);
+begin
+  Create(AConnection, ADriverName);
+  FCommandMonitor := AMonitor;
 end;
 
 function TFactoryIBExpress.CreateQuery: IDBQuery;

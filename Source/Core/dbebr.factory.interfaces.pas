@@ -136,8 +136,8 @@ type
 
 const
   TStrDriverName: array[dnMSSQL..dnNexusDB] of
-                  string = ('MSSQL','MySQL','Firebird','SQLite','Interbase','DB2',
-                            'Oracle','Informix','PostgreSQL','ADS','ASA',
+                  string = ('MSSQL','MySQL','Firebird','SQLite','Interbase',
+                            'DB2','Oracle','Informix','PostgreSQL','ADS','ASA',
                             'AbsoluteDB','MongoDB','ElevateDB','NexusDB');
 
 implementation

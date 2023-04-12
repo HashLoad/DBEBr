@@ -37,7 +37,10 @@ type
   TFactoryFireDAC = class(TFactoryConnection)
   public
     constructor Create(const AConnection: TComponent;
-      const ADriverName: TDriverName); override;
+      const ADriverName: TDriverName); overload;
+    constructor Create(const AConnection: TComponent;
+      const ADriverName: TDriverName;
+      const AMonitor: ICommandMonitor); overload;
     destructor Destroy; override;
     procedure Connect; override;
     procedure Disconnect; override;
@@ -75,9 +78,17 @@ end;
 constructor TFactoryFireDAC.Create(const AConnection: TComponent;
   const ADriverName: TDriverName);
 begin
-  inherited;
   FDriverConnection  := TDriverFireDAC.Create(AConnection, ADriverName);
   FDriverTransaction := TDriverFireDACTransaction.Create(AConnection);
+  FAutoTransaction := False;
+end;
+
+constructor TFactoryFireDAC.Create(const AConnection: TComponent;
+  const ADriverName: TDriverName;
+  const AMonitor: ICommandMonitor);
+begin
+  Create(AConnection, ADriverName);
+  FCommandMonitor := AMonitor;
 end;
 
 function TFactoryFireDAC.CreateQuery: IDBQuery;
@@ -109,7 +120,8 @@ begin
   inherited;
 end;
 
-procedure TFactoryFireDAC.ExecuteDirect(const ASQL: string; const AParams: TParams);
+procedure TFactoryFireDAC.ExecuteDirect(const ASQL: string;
+  const AParams: TParams);
 begin
   inherited;
 end;

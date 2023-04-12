@@ -41,7 +41,10 @@ type
   TFactoryUniDAC = class(TFactoryConnection)
   public
     constructor Create(const AConnection: TComponent;
-      const ADriverName: TDriverName); override;
+      const ADriverName: TDriverName); overload;
+    constructor Create(const AConnection: TComponent;
+      const ADriverName: TDriverName;
+      const AMonitor: ICommandMonitor); overload;
     destructor Destroy; override;
     procedure Connect; override;
     procedure Disconnect; override;
@@ -79,9 +82,16 @@ end;
 constructor TFactoryUniDAC.Create(const AConnection: TComponent;
   const ADriverName: TDriverName);
 begin
-  inherited;
   FDriverConnection  := TDriverUniDAC.Create(AConnection, ADriverName);
   FDriverTransaction := TDriverUniDACTransaction.Create(AConnection);
+  FAutoTransaction := False;
+end;
+
+constructor TFactoryUniDAC.Create(const AConnection: TComponent;
+  const ADriverName: TDriverName; const AMonitor: ICommandMonitor);
+begin
+  Create(AConnection, ADriverName);
+  FCommandMonitor := AMonitor;
 end;
 
 function TFactoryUniDAC.CreateQuery: IDBQuery;

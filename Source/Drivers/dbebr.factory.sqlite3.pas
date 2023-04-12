@@ -37,7 +37,10 @@ type
   TFactorySQLite = class(TFactoryConnection)
   public
     constructor Create(const AConnection: TComponent;
-      const ADriverName: TDriverName); override;
+      const ADriverName: TDriverName); overload;
+    constructor Create(const AConnection: TComponent;
+      const ADriverName: TDriverName;
+      const AMonitor: ICommandMonitor); overload;
     destructor Destroy; override;
     procedure Connect; override;
     procedure Disconnect; override;
@@ -74,9 +77,17 @@ end;
 constructor TFactorySQLite.Create(const AConnection: TComponent;
   const ADriverName: TDriverName);
 begin
-  inherited;
   FDriverConnection  := TDriverSQLite3.Create(AConnection, ADriverName);
   FDriverTransaction := TDriverSQLiteTransaction3.Create(AConnection);
+  FAutoTransaction := False;
+end;
+
+constructor TFactorySQLite.Create(const AConnection: TComponent;
+  const ADriverName: TDriverName;
+  const AMonitor: ICommandMonitor);
+begin
+  Create(AConnection, ADriverName);
+  FCommandMonitor := AMonitor;
 end;
 
 function TFactorySQLite.CreateQuery: IDBQuery;

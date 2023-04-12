@@ -36,16 +36,13 @@ uses
 type
   // Fábrica de conexões abstratas
   TFactoryConnection = class abstract(TInterfacedObject, IDBConnection)
-  private
-    FAutoTransaction: Boolean;
   protected
+    FAutoTransaction: Boolean;
     FCommandMonitor: ICommandMonitor;
     FDBOptions: IDBOptions;
     FDriverConnection: TDriverConnection;
     FDriverTransaction: TDriverTransaction;
   public
-    constructor Create(const AConnection: TComponent;
-      const ADriverName: TDriverName); virtual;
     procedure Connect; virtual; abstract;
     procedure Disconnect; virtual; abstract;
     procedure StartTransaction; virtual;
@@ -58,6 +55,7 @@ type
     procedure AddScript(const ASQL: string); virtual; abstract;
     procedure ExecuteScripts; virtual;
     procedure SetCommandMonitor(AMonitor: ICommandMonitor); virtual;
+      deprecated 'use Create(AConnection, ADriverName, AMonitor)';
     function InTransaction: Boolean; virtual; abstract;
     function IsConnected: Boolean; virtual; abstract;
     function GetDriverName: TDriverName; virtual; abstract;
@@ -84,12 +82,6 @@ begin
     Disconnect;
 end;
 
-constructor TFactoryConnection.Create(const AConnection: TComponent;
-  const ADriverName: TDriverName);
-begin
-  FAutoTransaction := False;
-end;
-
 function TFactoryConnection.DBOptions: IDBOptions;
 begin
   if not Assigned(FDBOptions) then
@@ -97,7 +89,8 @@ begin
   Result := FDBOptions;
 end;
 
-procedure TFactoryConnection.ExecuteDirect(const ASQL: string; const AParams: TParams);
+procedure TFactoryConnection.ExecuteDirect(const ASQL: string;
+  const AParams: TParams);
 var
   LInTransaction: Boolean;
   LIsConnected: Boolean;

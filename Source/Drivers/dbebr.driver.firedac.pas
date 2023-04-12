@@ -53,7 +53,8 @@ type
     procedure Connect; override;
     procedure Disconnect; override;
     procedure ExecuteDirect(const ASQL: string); override;
-    procedure ExecuteDirect(const ASQL: string; const AParams: TParams); override;
+    procedure ExecuteDirect(const ASQL: string;
+      const AParams: TParams); override;
     procedure ExecuteScript(const ASQL: string); override;
     procedure AddScript(const ASQL: string); override;
     procedure ExecuteScripts; override;
