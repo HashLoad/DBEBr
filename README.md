@@ -12,7 +12,10 @@ DATABASE ENGINE é um framework opensource que provê desacoplamento de conexão
 Embarcadero Delphi XE e superior.
 
 ## ⚙️ Instalação
-O DBEBr não precisa ser instalado, basta adicionar as units no path libriry do seu delphi e começar a usa-lo.
+Instalação usando o [`boss install`]
+```sh
+boss install "https://github.com/HashLoad/dbebr"
+```
 
 ## ⚡️ Como usar
 ```Delphi
