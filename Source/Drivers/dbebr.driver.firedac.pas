@@ -217,12 +217,8 @@ begin
 end;
 
 function TDriverFireDAC.ExecuteSQL(const ASQL: string): IDBResultSet;
-var
-  LDBQuery: IDBQuery;
 begin
-  LDBQuery := TDriverQueryFireDAC.Create(FConnection);
-  LDBQuery.CommandText := ASQL;
-  Result := LDBQuery.ExecuteQuery;
+  Result := CreateResultSet(ASQL);
 end;
 
 function TDriverFireDAC.CreateResultSet(const ASQL: string): IDBResultSet;

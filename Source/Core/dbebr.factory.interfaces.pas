@@ -35,7 +35,8 @@ uses
 type
   TDriverName = (dnMSSQL, dnMySQL, dnFirebird, dnSQLite, dnInterbase, dnDB2,
                  dnOracle, dnInformix, dnPostgreSQL, dnADS, dnASA,
-                 dnAbsoluteDB, dnMongoDB, dnElevateDB, dnNexusDB, dnFirebase);
+                 dnFirebase, dnFirebird3, dnAbsoluteDB, dnMongoDB,
+                 dnElevateDB, dnNexusDB);
 
   TAsField = class abstract
   protected
@@ -101,10 +102,11 @@ type
     procedure Show;
   end;
 
-  IDBOptions = interface
+  IOptions = interface
     ['{A3C489B1-F2D8-4E4D-9EC2-152C730ED33D}']
-    function StoreGUIDAsOctet(const AValue: Boolean): IDBOptions; overload;
+    function StoreGUIDAsOctet(const AValue: Boolean): IOptions; overload;
     function StoreGUIDAsOctet: Boolean; overload;
+
   end;
 
   IDBTransaction = interface
@@ -131,14 +133,15 @@ type
     function CreateResultSet(const ASQL: String): IDBResultSet;
     function ExecuteSQL(const ASQL: string): IDBResultSet;
     function CommandMonitor: ICommandMonitor;
-    function DBOptions: IDBOptions;
+    function Options: IOptions;
   end;
 
 const
   TStrDriverName: array[dnMSSQL..dnNexusDB] of
                   string = ('MSSQL','MySQL','Firebird','SQLite','Interbase',
                             'DB2','Oracle','Informix','PostgreSQL','ADS','ASA',
-                            'AbsoluteDB','MongoDB','ElevateDB','NexusDB');
+                            'dnFirebase', 'dnFirebird3','AbsoluteDB','MongoDB',
+                            'ElevateDB','NexusDB');
 
 implementation
 

@@ -37,7 +37,7 @@ type
   TFactoryMongoFireDAC = class(TFactoryConnection)
   public
     constructor Create(const AConnection: TComponent;
-      const  ADriverName: TDriverName); override;
+      const  ADriverName: TDriverName);
     destructor Destroy; override;
     procedure Connect; override;
     procedure Disconnect; override;
@@ -74,7 +74,6 @@ end;
 constructor TFactoryMongoFireDAC.Create(const AConnection: TComponent;
   const  ADriverName: TDriverName);
 begin
-  inherited;
   FDriverConnection  := TDriverMongoFireDAC.Create(AConnection, ADriverName);
   FDriverTransaction := TDriverMongoFireDACTransaction.Create(AConnection);
 end;

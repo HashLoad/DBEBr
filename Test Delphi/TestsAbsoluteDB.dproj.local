@@ -78,6 +78,8 @@
     <Transaction>2019/11/03 11:12:05.000.954,=D:\PROJETOS-Brasil\DBEBr\Source\Drivers\dbebr.factory.absolutedb.pas</Transaction>
   </Transactions>
 	<ProjectSortOrder AutoSort="0" SortType="0">
+    <File Path="Tests.Driver.AbsoluteDB.pas"/>
+    <File Path="Tests.Consts.pas"/>
     <File Path="..\..\DBEBr"/>
     <File Path="..\Source"/>
     <File Path="..\Source\Core"/>
@@ -88,7 +90,5 @@
     <File Path="..\Source\Drivers\dbebr.driver.absolutedb.pas"/>
     <File Path="..\Source\Drivers\dbebr.driver.absolutedb.transaction.pas"/>
     <File Path="..\Source\Drivers\dbebr.factory.absolutedb.pas"/>
-    <File Path="Tests.Consts.pas"/>
-    <File Path="Tests.Driver.AbsoluteDB.pas"/>
   </ProjectSortOrder>
 </BorlandProject>

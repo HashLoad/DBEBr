@@ -71,6 +71,8 @@
     <Transaction>2019/11/03 11:09:30.000.022,=D:\PROJETOS-Brasil\DBEBr\Source\Drivers\dbebr.driver.ado.transaction.pas</Transaction>
   </Transactions>
 	<ProjectSortOrder AutoSort="0" SortType="0">
+    <File Path="Tests.Driver.ADO.pas"/>
+    <File Path="Tests.Consts.pas"/>
     <File Path="..\..\DBEBr"/>
     <File Path="..\Source"/>
     <File Path="..\Source\Core"/>
@@ -81,7 +83,5 @@
     <File Path="..\Source\Drivers\dbebr.driver.ado.pas"/>
     <File Path="..\Source\Drivers\dbebr.driver.ado.transaction.pas"/>
     <File Path="..\Source\Drivers\dbebr.factory.ado.pas"/>
-    <File Path="Tests.Consts.pas"/>
-    <File Path="Tests.Driver.ADO.pas"/>
   </ProjectSortOrder>
 </BorlandProject>

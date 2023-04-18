@@ -77,7 +77,6 @@ end;
 constructor TFactoryIBExpress.Create(const AConnection: TComponent;
   const ADriverName: TDriverName);
 begin
-  inherited;
   FDriverConnection  := TDriverIBExpress.Create(AConnection, ADriverName);
   FDriverTransaction := TDriverIBExpressTransaction.Create(AConnection);
   FAutoTransaction := False;

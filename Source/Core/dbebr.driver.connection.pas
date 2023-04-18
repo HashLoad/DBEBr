@@ -73,12 +73,12 @@ type
     function InTransaction: Boolean; virtual; abstract;
   end;
 
-  TDBOptions = class(TInterfacedObject, IDBOptions)
+  TOptions = class(TInterfacedObject, IOptions)
   strict private
     FStoreGUIDAsOctet: Boolean;
   public
     constructor Create;
-    function StoreGUIDAsOctet(const AValue: Boolean): IDBOptions; overload;
+    function StoreGUIDAsOctet(const AValue: Boolean): IOptions; overload;
     function StoreGUIDAsOctet: Boolean; overload;
   end;
 
@@ -457,18 +457,18 @@ end;
 
 { TDBDefinition }
 
-function TDBOptions.StoreGUIDAsOctet(const AValue: Boolean): IDBOptions;
+function TOptions.StoreGUIDAsOctet(const AValue: Boolean): IOptions;
 begin
   Result := Self;
   FStoreGUIDAsOctet := AValue;
 end;
 
-constructor TDBOptions.Create;
+constructor TOptions.Create;
 begin
-  FStoreGUIDAsOctet := True;
+  FStoreGUIDAsOctet := False;
 end;
 
-function TDBOptions.StoreGUIDAsOctet: Boolean;
+function TOptions.StoreGUIDAsOctet: Boolean;
 begin
   Result := FStoreGUIDAsOctet;
 end;

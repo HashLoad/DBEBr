@@ -70,6 +70,8 @@
     <Transaction>2019/11/03 11:13:01.000.844,=D:\PROJETOS-Brasil\DBEBr\Source\Drivers\dbebr.driver.sqlite3.pas</Transaction>
   </Transactions>
 	<ProjectSortOrder AutoSort="0" SortType="0">
+    <File Path="Tests.Driver.SQLite.pas"/>
+    <File Path="Tests.Consts.pas"/>
     <File Path="..\..\DBEBr"/>
     <File Path="..\Source"/>
     <File Path="..\Source\Core"/>
@@ -80,7 +82,5 @@
     <File Path="..\Source\Drivers\dbebr.driver.sqlite3.pas"/>
     <File Path="..\Source\Drivers\dbebr.driver.sqlite3.transaction.pas"/>
     <File Path="..\Source\Drivers\dbebr.factory.sqlite3.pas"/>
-    <File Path="Tests.Consts.pas"/>
-    <File Path="Tests.Driver.SQLite.pas"/>
   </ProjectSortOrder>
 </BorlandProject>
