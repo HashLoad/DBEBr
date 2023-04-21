@@ -52,14 +52,13 @@ type
     procedure Disconnect; override;
     procedure ExecuteDirect(const ASQL: string); override;
     procedure ExecuteDirect(const ASQL: string; const AParams: TParams); override;
-    procedure ExecuteScript(const ASQL: string); override;
-    procedure AddScript(const ASQL: string); override;
+    procedure ExecuteScript(const AScript: string); override;
+    procedure AddScript(const AScript: string); override;
     procedure ExecuteScripts; override;
     function IsConnected: Boolean; override;
     function InTransaction: Boolean; override;
     function CreateQuery: IDBQuery; override;
     function CreateResultSet(const ASQL: string): IDBResultSet; override;
-    function ExecuteSQL(const ASQL: string): IDBResultSet; override;
   end;
 
   TDriverQueryFireDAC = class(TDriverQuery)
@@ -151,10 +150,10 @@ begin
   end;
 end;
 
-procedure TDriverNexusDB.ExecuteScript(const ASQL: string);
+procedure TDriverNexusDB.ExecuteScript(const AScript: string);
 begin
   inherited;
-  FSQLScript.SQL.Text := ASQL;
+  FSQLScript.SQL.Text := AScript;
   FSQLScript.ExecSQL;
 end;
 
@@ -176,19 +175,10 @@ begin
   end;
 end;
 
-function TDriverNexusDB.ExecuteSQL(const ASQL: string): IDBResultSet;
-var
-  LDBQuery: IDBQuery;
-begin
-  LDBQuery := TDriverQueryFireDAC.Create(FConnection);
-  LDBQuery.CommandText := ASQL;
-  Result := LDBQuery.ExecuteQuery;
-end;
-
-procedure TDriverNexusDB.AddScript(const ASQL: string);
+procedure TDriverNexusDB.AddScript(const AScript: string);
 begin
   inherited;
-  FSQLScript.SQL.Add(ASQL);
+  FSQLScript.SQL.Add(AScript);
 end;
 
 procedure TDriverNexusDB.Connect;

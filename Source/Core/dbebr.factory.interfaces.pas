@@ -123,15 +123,14 @@ type
     procedure Disconnect;
     procedure ExecuteDirect(const ASQL: string); overload;
     procedure ExecuteDirect(const ASQL: string; const AParams: TParams); overload;
-    procedure ExecuteScript(const ASQL: string);
-    procedure AddScript(const ASQL: string);
+    procedure ExecuteScript(const AScript: string);
+    procedure AddScript(const AScript: string);
     procedure ExecuteScripts;
     procedure SetCommandMonitor(AMonitor: ICommandMonitor);
     function IsConnected: Boolean;
     function GetDriverName: TDriverName;
     function CreateQuery: IDBQuery;
     function CreateResultSet(const ASQL: String): IDBResultSet;
-    function ExecuteSQL(const ASQL: string): IDBResultSet;
     function CommandMonitor: ICommandMonitor;
     function Options: IOptions;
   end;

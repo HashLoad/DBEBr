@@ -47,15 +47,14 @@ type
     procedure ExecuteDirect(const ASQL: string); overload; override;
     procedure ExecuteDirect(const ASQL: string;
       const AParams: TParams); overload; override;
-    procedure ExecuteScript(const ASQL: string); override;
-    procedure AddScript(const ASQL: string); override;
+    procedure ExecuteScript(const AScript: string); override;
+    procedure AddScript(const AScript: string); override;
     procedure ExecuteScripts; override;
     function InTransaction: Boolean; override;
     function IsConnected: Boolean; override;
     function GetDriverName: TDriverName; override;
     function CreateQuery: IDBQuery; override;
     function CreateResultSet(const ASQL: String): IDBResultSet; override;
-    function ExecuteSQL(const ASQL: string): IDBResultSet; override;
   end;
 
 implementation
@@ -114,7 +113,7 @@ begin
   inherited;
 end;
 
-procedure TFactorySQLDirect.ExecuteScript(const ASQL: string);
+procedure TFactorySQLDirect.ExecuteScript(const AScript: string);
 begin
   inherited;
 end;
@@ -122,12 +121,6 @@ end;
 procedure TFactorySQLDirect.ExecuteScripts;
 begin
   inherited;
-end;
-
-function TFactorySQLDirect.ExecuteSQL(const ASQL: string): IDBResultSet;
-begin
-  inherited;
-  Result := FDriverConnection.ExecuteSQL(ASQL);
 end;
 
 function TFactorySQLDirect.GetDriverName: TDriverName;
@@ -153,10 +146,10 @@ begin
   FDriverTransaction.StartTransaction;
 end;
 
-procedure TFactorySQLDirect.AddScript(const ASQL: string);
+procedure TFactorySQLDirect.AddScript(const AScript: string);
 begin
   inherited;
-  FDriverConnection.AddScript(ASQL);
+  FDriverConnection.AddScript(AScript);
 end;
 
 procedure TFactorySQLDirect.Commit;

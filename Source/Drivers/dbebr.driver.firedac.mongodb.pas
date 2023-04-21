@@ -67,14 +67,13 @@ type
     procedure Disconnect; override;
     procedure ExecuteDirect(const ASQL: string); override;
     procedure ExecuteDirect(const ASQL: string; const AParams: TParams); override;
-    procedure ExecuteScript(const ASQL: string); override;
-    procedure AddScript(const ASQL: string); override;
+    procedure ExecuteScript(const AScript: string); override;
+    procedure AddScript(const AScript: string); override;
     procedure ExecuteScripts; override;
     function IsConnected: Boolean; override;
     function InTransaction: Boolean; override;
     function CreateQuery: IDBQuery; override;
     function CreateResultSet(const ASQL: string): IDBResultSet; override;
-    function ExecuteSQL(const ASQL: string): IDBResultSet; override;
   end;
 
   TDriverQueryMongoFireDAC = class(TDriverQuery)
@@ -169,7 +168,7 @@ begin
     CommandDeleteExecute(ASQL, AParams);
 end;
 
-procedure TDriverMongoFireDAC.ExecuteScript(const ASQL: string);
+procedure TDriverMongoFireDAC.ExecuteScript(const AScript: string);
 begin
   inherited;
 //  FSQLScript.QMatch := ASQL;
@@ -193,16 +192,7 @@ begin
 //  end;
 end;
 
-function TDriverMongoFireDAC.ExecuteSQL(const ASQL: string): IDBResultSet;
-var
-  LDBQuery: IDBQuery;
-begin
-  LDBQuery := TDriverQueryMongoFireDAC.Create(FConnection, FMongoConnection, FMongoEnv);
-  LDBQuery.CommandText := ASQL;
-  Result := LDBQuery.ExecuteQuery;
-end;
-
-procedure TDriverMongoFireDAC.AddScript(const ASQL: string);
+procedure TDriverMongoFireDAC.AddScript(const AScript: string);
 begin
   inherited;
 //  FSQLScript.QMatch := ASQL;

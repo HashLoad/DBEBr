@@ -46,8 +46,6 @@ type
     [Test]
     procedure TestCreateResultSet;
     [Test]
-    procedure TestExecuteSQL;
-    [Test]
     procedure TestStartTransaction;
     [Test]
     procedure TestCommit;
@@ -130,13 +128,6 @@ end;
 procedure TTestDriverConnection.TestExecuteScripts;
 begin
   Assert.Pass('');
-end;
-
-procedure TTestDriverConnection.TestExecuteSQL;
-begin
-  FDBResultSet := FDBConnection.ExecuteSQL( Format(cSQLSELECT, ['1']) );
-
-  Assert.IsTrue(FDBResultSet.RecordCount = 1, 'FDBResultSet.RecordCount = ' + IntToStr(FDBResultSet.RecordCount));
 end;
 
 procedure TTestDriverConnection.TestInTransaction;

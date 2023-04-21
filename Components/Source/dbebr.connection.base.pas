@@ -61,15 +61,14 @@ type
     procedure Rollback;
     procedure ExecuteDirect(const ASQL: string); overload;
     procedure ExecuteDirect(const ASQL: string; const AParams: TParams); overload;
-    procedure ExecuteScript(const ASQL: string);
-    procedure AddScript(const ASQL: string);
+    procedure ExecuteScript(const AScript: string);
+    procedure AddScript(const AScript: string);
     procedure ExecuteScripts;
     procedure SetCommandMonitor(AMonitor: ICommandMonitor);
     function InTransaction: Boolean;
     function IsConnected: Boolean;
     function CreateQuery: IDBQuery;
     function CreateResultSet(const ASQL: String): IDBResultSet;
-    function ExecuteSQL(const ASQL: string): IDBResultSet;
     function CommandMonitor: ICommandMonitor;
     function DBConnection: IDBConnection;
   published
@@ -91,9 +90,9 @@ begin
   inherited;
 end;
 
-procedure TDBEBrConnectionBase.AddScript(const ASQL: string);
+procedure TDBEBrConnectionBase.AddScript(const AScript: string);
 begin
-  GetDBConnection.AddScript(ASQL);
+  GetDBConnection.AddScript(AScript);
 end;
 
 function TDBEBrConnectionBase.CommandMonitor: ICommandMonitor;
@@ -143,19 +142,14 @@ begin
   GetDBConnection.ExecuteDirect(ASQL, AParams);
 end;
 
-procedure TDBEBrConnectionBase.ExecuteScript(const ASQL: string);
+procedure TDBEBrConnectionBase.ExecuteScript(const AScript: string);
 begin
-  GetDBConnection.ExecuteScript(ASQL);
+  GetDBConnection.ExecuteScript(AScript);
 end;
 
 procedure TDBEBrConnectionBase.ExecuteScripts;
 begin
   GetDBConnection.ExecuteScripts;
-end;
-
-function TDBEBrConnectionBase.ExecuteSQL(const ASQL: string): IDBResultSet;
-begin
-  Result := GetDBConnection.ExecuteSQL(ASQL);
 end;
 
 function TDBEBrConnectionBase.GetDBConnection: IDBConnection;

@@ -51,8 +51,8 @@ type
     procedure ExecuteDirect(const ASQL: string); overload; virtual;
     procedure ExecuteDirect(const ASQL: string;
       const AParams: TParams); overload; virtual;
-    procedure ExecuteScript(const ASQL: string); virtual;
-    procedure AddScript(const ASQL: string); virtual; abstract;
+    procedure ExecuteScript(const AScript: string); virtual;
+    procedure AddScript(const AScript: string); virtual; abstract;
     procedure ExecuteScripts; virtual;
     procedure SetCommandMonitor(AMonitor: ICommandMonitor); virtual;
       deprecated 'use Create(AConnection, ADriverName, AMonitor)';
@@ -61,7 +61,6 @@ type
     function GetDriverName: TDriverName; virtual; abstract;
     function CreateQuery: IDBQuery; virtual; abstract;
     function CreateResultSet(const ASQL: String): IDBResultSet; virtual; abstract;
-    function ExecuteSQL(const ASQL: string): IDBResultSet; virtual; abstract;
     function CommandMonitor: ICommandMonitor;
     function Options: IOptions; virtual;
   end;
@@ -151,7 +150,7 @@ begin
   end;
 end;
 
-procedure TFactoryConnection.ExecuteScript(const ASQL: string);
+procedure TFactoryConnection.ExecuteScript(const AScript: string);
 var
   LInTransaction: Boolean;
   LIsConnected: Boolean;
@@ -165,7 +164,7 @@ begin
     if not LInTransaction then
       StartTransaction;
     try
-      FDriverConnection.ExecuteScript(ASQL);
+      FDriverConnection.ExecuteScript(AScript);
       if not LInTransaction then
         Commit;
     except
