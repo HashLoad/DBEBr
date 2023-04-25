@@ -41,6 +41,9 @@ type
     constructor Create(const AConnection: TComponent;
       const ADriverName: TDriverName;
       const AMonitor: ICommandMonitor); overload;
+    constructor Create(const AConnection: TComponent;
+      const ADriverName: TDriverName;
+      const AMonitorCallback: TMonitorProc); overload;
     destructor Destroy; override;
     procedure Connect; override;
     procedure Disconnect; override;
@@ -87,6 +90,13 @@ constructor TFactoryAbsoluteDB.Create(const AConnection: TComponent;
 begin
   Create(AConnection, ADriverName);
   FCommandMonitor := AMonitor;
+end;
+
+constructor TFactoryAbsoluteDB.Create(const AConnection: TComponent;
+  const ADriverName: TDriverName; const AMonitorCallback: TMonitorProc);
+begin
+  Create(AConnection, ADriverName);
+  FMonitorCallback := AMonitorCallback;
 end;
 
 function TFactoryAbsoluteDB.CreateQuery: IDBQuery;

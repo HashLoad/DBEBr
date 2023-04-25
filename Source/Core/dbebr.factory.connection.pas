@@ -42,6 +42,7 @@ type
     FOptions: IOptions;
     FDriverConnection: TDriverConnection;
     FDriverTransaction: TDriverTransaction;
+    FMonitorCallback: TMonitorProc;
   public
     procedure Connect; virtual; abstract;
     procedure Disconnect; virtual; abstract;
@@ -62,6 +63,7 @@ type
     function CreateQuery: IDBQuery; virtual; abstract;
     function CreateResultSet(const ASQL: String): IDBResultSet; virtual; abstract;
     function CommandMonitor: ICommandMonitor;
+    function MonitorCallback: TMonitorProc; virtual;
     function Options: IOptions; virtual;
   end;
 
@@ -210,6 +212,11 @@ begin
     if not LIsConnected then
       Disconnect;
   end;
+end;
+
+function TFactoryConnection.MonitorCallback: TMonitorProc;
+begin
+  Result := FMonitorCallback;
 end;
 
 procedure TFactoryConnection.Rollback;

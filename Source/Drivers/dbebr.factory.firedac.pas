@@ -29,6 +29,7 @@ interface
 uses
   DB,
   Classes,
+  SysUtils,
   dbebr.factory.connection,
   dbebr.factory.interfaces;
 
@@ -41,6 +42,9 @@ type
     constructor Create(const AConnection: TComponent;
       const ADriverName: TDriverName;
       const AMonitor: ICommandMonitor); overload;
+    constructor Create(const AConnection: TComponent;
+      const ADriverName: TDriverName;
+      const AMonitorCallback: TMonitorProc); overload;
     destructor Destroy; override;
     procedure Connect; override;
     procedure Disconnect; override;
@@ -88,6 +92,13 @@ constructor TFactoryFireDAC.Create(const AConnection: TComponent;
 begin
   Create(AConnection, ADriverName);
   FCommandMonitor := AMonitor;
+end;
+
+constructor TFactoryFireDAC.Create(const AConnection: TComponent;
+  const ADriverName: TDriverName; const AMonitorCallback: TMonitorProc);
+begin
+  Create(AConnection, ADriverName);
+  FMonitorCallback := AMonitorCallback;
 end;
 
 function TFactoryFireDAC.CreateQuery: IDBQuery;

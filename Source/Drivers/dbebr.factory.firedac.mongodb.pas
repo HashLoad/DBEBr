@@ -29,6 +29,7 @@ interface
 uses
   DB,
   Classes,
+  SysUtils,
   dbebr.factory.connection,
   dbebr.factory.interfaces;
 
@@ -37,7 +38,10 @@ type
   TFactoryMongoFireDAC = class(TFactoryConnection)
   public
     constructor Create(const AConnection: TComponent;
-      const  ADriverName: TDriverName);
+      const  ADriverName: TDriverName); overload;
+    constructor Create(const AConnection: TComponent;
+      const ADriverName: TDriverName;
+      const AMonitorCallback: TMonitorProc); overload;
     destructor Destroy; override;
     procedure Connect; override;
     procedure Disconnect; override;
@@ -75,6 +79,13 @@ constructor TFactoryMongoFireDAC.Create(const AConnection: TComponent;
 begin
   FDriverConnection  := TDriverMongoFireDAC.Create(AConnection, ADriverName);
   FDriverTransaction := TDriverMongoFireDACTransaction.Create(AConnection);
+end;
+
+constructor TFactoryMongoFireDAC.Create(const AConnection: TComponent;
+  const ADriverName: TDriverName; const AMonitorCallback: TMonitorProc);
+begin
+  Create(AConnection, ADriverName);
+  FMonitorCallback := AMonitorCallback;
 end;
 
 function TFactoryMongoFireDAC.CreateQuery: IDBQuery;

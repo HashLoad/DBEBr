@@ -41,6 +41,9 @@ type
     constructor Create(const AConnection: TComponent;
       const ADriverName: TDriverName;
       const AMonitor: ICommandMonitor); overload;
+    constructor Create(const AConnection: TComponent;
+      const ADriverName: TDriverName;
+      const AMonitorCallback: TMonitorProc); overload;
     destructor Destroy; override;
     procedure Connect; override;
     procedure Disconnect; override;
@@ -86,6 +89,13 @@ constructor TFactoryDBExpress.Create(const AConnection: TComponent;
 begin
   Create(AConnection, ADriverName);
   FCommandMonitor := AMonitor;
+end;
+
+constructor TFactoryDBExpress.Create(const AConnection: TComponent;
+  const ADriverName: TDriverName; const AMonitorCallback: TMonitorProc);
+begin
+  Create(AConnection, ADrivername);
+  FMonitorCallback := AMonitorCallback;
 end;
 
 function TFactoryDBExpress.CreateQuery: IDBQuery;

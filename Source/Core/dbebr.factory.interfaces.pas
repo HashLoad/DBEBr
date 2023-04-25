@@ -33,6 +33,12 @@ uses
   Variants;
 
 type
+  TMonitorParam = record
+    Command: String;
+    Params: TParams;
+  end;
+  TMonitorProc = TProc<TMonitorParam>;
+
   TDriverName = (dnMSSQL, dnMySQL, dnFirebird, dnSQLite, dnInterbase, dnDB2,
                  dnOracle, dnInformix, dnPostgreSQL, dnADS, dnASA,
                  dnFirebase, dnFirebird3, dnAbsoluteDB, dnMongoDB,
@@ -132,6 +138,7 @@ type
     function CreateQuery: IDBQuery;
     function CreateResultSet(const ASQL: String): IDBResultSet;
     function CommandMonitor: ICommandMonitor;
+    function MonitorCallback: TMonitorProc;
     function Options: IOptions;
   end;
 

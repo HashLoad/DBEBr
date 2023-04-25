@@ -29,6 +29,7 @@ interface
 uses
   DB,
   Classes,
+  SysUtils,
   dbebr.factory.connection,
   dbebr.factory.interfaces;
 
@@ -37,7 +38,10 @@ type
   TFactoryNexusDB = class(TFactoryConnection)
   public
     constructor Create(const AConnection: TComponent;
-      const ADriverName: TDriverName); override;
+      const ADriverName: TDriverName); overload;
+    constructor Create(const AConnection: TComponent;
+      const ADriverName: TDriverName;
+      const AMonitorCallback: TMonitorProc); overload;
     destructor Destroy; override;
     procedure Connect; override;
     procedure Disconnect; override;
@@ -77,6 +81,13 @@ begin
   inherited;
   FDriverConnection  := TDriverNexusDB.Create(AConnection, ADriverName);
   FDriverTransaction := TDriverNexusDBTransaction.Create(AConnection);
+end;
+
+constructor TFactoryNexusDB.Create(const AConnection: TComponent;
+  const ADriverName: TDriverName; const AMonitorCallback: TMonitorProc);
+begin
+  Create(AConnection, ADriverName);
+  FMonitorCallback := AMonitorCallback;
 end;
 
 function TFactoryNexusDB.CreateQuery: IDBQuery;

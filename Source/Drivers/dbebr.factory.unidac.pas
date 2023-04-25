@@ -45,6 +45,9 @@ type
     constructor Create(const AConnection: TComponent;
       const ADriverName: TDriverName;
       const AMonitor: ICommandMonitor); overload;
+    constructor Create(const AConnection: TComponent;
+      const ADriverName: TDriverName;
+      const AMonitorCallback: TMonitorProc); overload;
     destructor Destroy; override;
     procedure Connect; override;
     procedure Disconnect; override;
@@ -93,6 +96,13 @@ begin
   FCommandMonitor := AMonitor;
 end;
 
+constructor TFactoryUniDAC.Create(const AConnection: TComponent;
+  const ADriverName: TDriverName; const AMonitorCallback: TMonitorProc);
+begin
+  Create(AConnection, ADriverName);
+  FMonitorCallback := AMonitorCallback;
+end;
+
 function TFactoryUniDAC.CreateQuery: IDBQuery;
 begin
   Result := FDriverConnection.CreateQuery;
@@ -122,7 +132,8 @@ begin
   inherited;
 end;
 
-procedure TFactoryUniDAC.ExecuteDirect(const ASQL: string; const AParams: TParams);
+procedure TFactoryUniDAC.ExecuteDirect(const ASQL: string;
+  const AParams: TParams);
 begin
   inherited;
 end;
