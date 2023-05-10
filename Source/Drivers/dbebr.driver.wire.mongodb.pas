@@ -72,14 +72,13 @@ type
     procedure Disconnect; override;
     procedure ExecuteDirect(const ASQL: string); override;
     procedure ExecuteDirect(const ASQL: string; const AParams: TParams); override;
-    procedure ExecuteScript(const ASQL: string); override;
-    procedure AddScript(const ASQL: string); override;
+    procedure ExecuteScript(const AScript: string); override;
+    procedure AddScript(const AScript: string); override;
     procedure ExecuteScripts; override;
     function IsConnected: Boolean; override;
     function InTransaction: Boolean; override;
     function CreateQuery: IDBQuery; override;
     function CreateResultSet(const ASQL: String): IDBResultSet; override;
-    function ExecuteSQL(const ASQL: string): IDBResultSet; override;
   end;
 
   TDriverQueryMongoWire = class(TDriverQuery)
@@ -168,11 +167,11 @@ begin
     CommandDeleteExecute(ASQL, AParams);
 end;
 
-procedure TDriverMongoWire.ExecuteScript(const ASQL: string);
+procedure TDriverMongoWire.ExecuteScript(const AScript: string);
 begin
   inherited;
   try
-    FConnection.RunCommand(ASQL);
+    FConnection.RunCommand(AScript);
   except
     on E: Exception do
       raise Exception.Create(E.Message);
@@ -192,16 +191,7 @@ begin
 //  end;
 end;
 
-function TDriverMongoWire.ExecuteSQL(const ASQL: string): IDBResultSet;
-var
-  LDBQuery: IDBQuery;
-begin
-  LDBQuery := TDriverQueryMongoWire.Create(FConnection);
-  LDBQuery.CommandText := ASQL;
-  Result := LDBQuery.ExecuteQuery;
-end;
-
-procedure TDriverMongoWire.AddScript(const ASQL: string);
+procedure TDriverMongoWire.AddScript(const AScript: string);
 begin
   inherited;
 //  FScripts.Add(ASQL);

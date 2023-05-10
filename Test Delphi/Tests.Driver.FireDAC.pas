@@ -66,8 +66,6 @@ type
     [Test]
     procedure TestCreateResultSet;
     [Test]
-    procedure TestExecuteSQL;
-    [Test]
     procedure TestStartTransaction;
     [Test]
     procedure TestCommit;
@@ -82,6 +80,18 @@ uses
   Tests.Consts;
 
 { TTestDriverConnection }
+
+procedure TTestDriverConnection.Setup;
+begin
+  FConnection := TFDConnection.Create(nil);
+  FConnection.Params.DriverID := 'SQLite';
+  FConnection.Params.Database := '.\database.db3';
+  FConnection.LoginPrompt := False;
+  FConnection.TxOptions.Isolation := xiReadCommitted;
+  FConnection.TxOptions.AutoCommit := False;
+
+  FDBConnection := TFactoryFireDAC.Create(FConnection, dnSQLite);
+end;
 
 procedure TTestDriverConnection.TestCommit;
 begin
@@ -152,13 +162,6 @@ begin
   Assert.Pass('');
 end;
 
-procedure TTestDriverConnection.TestExecuteSQL;
-begin
-  FDBResultSet := FDBConnection.ExecuteSQL( Format(cSQLSELECT, ['1']) );
-
-  Assert.IsTrue(FDBResultSet.RecordCount = 1, 'FDBResultSet.RecordCount = ' + IntToStr(FDBResultSet.RecordCount));
-end;
-
 procedure TTestDriverConnection.TestInTransaction;
 begin
   FDBConnection.Connect;
@@ -181,18 +184,6 @@ begin
 
   FDBConnection.Rollback;
   Assert.IsFalse(FDBConnection.InTransaction, 'FConnection.InTransaction = false');
-end;
-
-procedure TTestDriverConnection.Setup;
-begin
-  FConnection := TFDConnection.Create(nil);
-  FConnection.Params.DriverID := 'SQLite';
-  FConnection.Params.Database := '.\database.db3';
-  FConnection.LoginPrompt := False;
-  FConnection.TxOptions.Isolation := xiReadCommitted;
-  FConnection.TxOptions.AutoCommit := False;
-
-  FDBConnection := TFactoryFireDAC.Create(FConnection, dnSQLite);
 end;
 
 procedure TTestDriverConnection.TestStartTransaction;

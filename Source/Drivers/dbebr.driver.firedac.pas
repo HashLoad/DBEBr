@@ -53,15 +53,15 @@ type
     procedure Connect; override;
     procedure Disconnect; override;
     procedure ExecuteDirect(const ASQL: string); override;
-    procedure ExecuteDirect(const ASQL: string; const AParams: TParams); override;
-    procedure ExecuteScript(const ASQL: string); override;
-    procedure AddScript(const ASQL: string); override;
+    procedure ExecuteDirect(const ASQL: string;
+      const AParams: TParams); override;
+    procedure ExecuteScript(const AScript: string); override;
+    procedure AddScript(const AScript: string); override;
     procedure ExecuteScripts; override;
     function IsConnected: Boolean; override;
     function InTransaction: Boolean; override;
     function CreateQuery: IDBQuery; override;
     function CreateResultSet(const ASQL: string): IDBResultSet; override;
-    function ExecuteSQL(const ASQL: string): IDBResultSet; override;
   end;
 
   TDriverQueryFireDAC = class(TDriverQuery)
@@ -159,14 +159,14 @@ begin
   end;
 end;
 
-procedure TDriverFireDAC.ExecuteScript(const ASQL: string);
+procedure TDriverFireDAC.ExecuteScript(const AScript: string);
 begin
   inherited;
-  if ASQL = '' then
+  if AScript = '' then
     Exit;
   FSQLScript.SQLScripts[0].SQL.Clear;
   try
-    FSQLScript.SQLScripts[0].SQL.Add(ASQL);
+    FSQLScript.SQLScripts[0].SQL.Add(AScript);
     if FSQLScript.ValidateAll then
       FSQLScript.ExecuteAll;
   finally
@@ -187,10 +187,10 @@ begin
   end;
 end;
 
-procedure TDriverFireDAC.AddScript(const ASQL: string);
+procedure TDriverFireDAC.AddScript(const AScript: string);
 begin
   inherited;
-  FSQLScript.SQLScripts[0].SQL.Add(ASQL);
+  FSQLScript.SQLScripts[0].SQL.Add(AScript);
 end;
 
 procedure TDriverFireDAC.Connect;
@@ -213,15 +213,6 @@ end;
 function TDriverFireDAC.CreateQuery: IDBQuery;
 begin
   Result := TDriverQueryFireDAC.Create(FConnection);
-end;
-
-function TDriverFireDAC.ExecuteSQL(const ASQL: string): IDBResultSet;
-var
-  LDBQuery: IDBQuery;
-begin
-  LDBQuery := TDriverQueryFireDAC.Create(FConnection);
-  LDBQuery.CommandText := ASQL;
-  Result := LDBQuery.ExecuteQuery;
 end;
 
 function TDriverFireDAC.CreateResultSet(const ASQL: string): IDBResultSet;
@@ -299,7 +290,7 @@ end;
 
 constructor TDriverResultSetFireDAC.Create(ADataSet: TFDQuery);
 begin
-  FDataSet:= ADataSet;
+  FDataSet := ADataSet;
   inherited;
 end;
 

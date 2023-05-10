@@ -55,14 +55,13 @@ type
     procedure ExecuteDirect(const ASQL: string); overload; override;
     procedure ExecuteDirect(const ASQL: string;
       const AParams: TParams); overload; override;
-    procedure ExecuteScript(const ASQL: string); override;
-    procedure AddScript(const ASQL: string); override;
+    procedure ExecuteScript(const AScript: string); override;
+    procedure AddScript(const AScript: string); override;
     procedure ExecuteScripts; override;
     function IsConnected: Boolean; override;
     function InTransaction: Boolean; override;
     function CreateQuery: IDBQuery; override;
     function CreateResultSet(const ASQL: String): IDBResultSet; override;
-    function ExecuteSQL(const ASQL: string): IDBResultSet; override;
   end;
 
   TDriverQueryFIBPlus = class(TDriverQuery)
@@ -161,10 +160,10 @@ begin
   end;
 end;
 
-procedure TDriverFIBPlus.ExecuteScript(const ASQL: string);
+procedure TDriverFIBPlus.ExecuteScript(const AScript: string);
 begin
   inherited;
-  FSQLScript.SQL.Text := ASQL;
+  FSQLScript.SQL.Text := AScript;
   FSQLScript.ExecQuery;
 end;
 
@@ -178,20 +177,10 @@ begin
   end;
 end;
 
-function TDriverFIBPlus.ExecuteSQL(const ASQL: string): IDBResultSet;
-var
-  LDBQuery: IDBQuery;
+procedure TDriverFIBPlus.AddScript(const AScript: string);
 begin
   inherited;
-  LDBQuery := TDriverQueryFIBPlus.Create(FConnection);
-  LDBQuery.CommandText := ASQL;
-  Result := LDBQuery.ExecuteQuery;
-end;
-
-procedure TDriverFIBPlus.AddScript(const ASQL: string);
-begin
-  inherited;
-  FSQLScript.SQL.Add(ASQL);
+  FSQLScript.SQL.Add(AScript);
 end;
 
 procedure TDriverFIBPlus.Connect;

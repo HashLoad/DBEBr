@@ -52,14 +52,13 @@ type
     procedure ExecuteDirect(const ASQL: string); overload; virtual; abstract;
     procedure ExecuteDirect(const ASQL: string;
       const AParams: TParams); overload; virtual; abstract;
-    procedure ExecuteScript(const ASQL: string); virtual; abstract;
-    procedure AddScript(const ASQL: string); virtual; abstract;
+    procedure ExecuteScript(const AScript: string); virtual; abstract;
+    procedure AddScript(const AScript: string); virtual; abstract;
     procedure ExecuteScripts; virtual; abstract;
     function IsConnected: Boolean; virtual; abstract;
     function InTransaction: Boolean; virtual; abstract;
     function CreateQuery: IDBQuery; virtual; abstract;
     function CreateResultSet(const ASQL: string): IDBResultSet; virtual; abstract;
-    function ExecuteSQL(const ASQL: string): IDBResultSet; virtual; abstract;
     property DriverName: TDriverName read FDriverName;
   end;
 
@@ -73,12 +72,12 @@ type
     function InTransaction: Boolean; virtual; abstract;
   end;
 
-  TDBOptions = class(TInterfacedObject, IDBOptions)
+  TOptions = class(TInterfacedObject, IOptions)
   strict private
     FStoreGUIDAsOctet: Boolean;
   public
     constructor Create;
-    function StoreGUIDAsOctet(const AValue: Boolean): IDBOptions; overload;
+    function StoreGUIDAsOctet(const AValue: Boolean): IOptions; overload;
     function StoreGUIDAsOctet: Boolean; overload;
   end;
 
@@ -457,18 +456,18 @@ end;
 
 { TDBDefinition }
 
-function TDBOptions.StoreGUIDAsOctet(const AValue: Boolean): IDBOptions;
+function TOptions.StoreGUIDAsOctet(const AValue: Boolean): IOptions;
 begin
   Result := Self;
   FStoreGUIDAsOctet := AValue;
 end;
 
-constructor TDBOptions.Create;
+constructor TOptions.Create;
 begin
-  FStoreGUIDAsOctet := True;
+  FStoreGUIDAsOctet := False;
 end;
 
-function TDBOptions.StoreGUIDAsOctet: Boolean;
+function TOptions.StoreGUIDAsOctet: Boolean;
 begin
   Result := FStoreGUIDAsOctet;
 end;

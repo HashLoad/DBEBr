@@ -59,14 +59,13 @@ type
     procedure Disconnect; override;
     procedure ExecuteDirect(const ASQL: string); override;
     procedure ExecuteDirect(const ASQL: string; const AParams: TParams); override;
-    procedure ExecuteScript(const ASQL: string); override;
-    procedure AddScript(const ASQL: string); override;
+    procedure ExecuteScript(const AScript: string); override;
+    procedure AddScript(const AScript: string); override;
     procedure ExecuteScripts; override;
     function IsConnected: Boolean; override;
     function InTransaction: Boolean; override;
     function CreateQuery: IDBQuery; override;
     function CreateResultSet(const ASQL: String): IDBResultSet; override;
-    function ExecuteSQL(const ASQL: string): IDBResultSet; override;
   end;
 
   TDriverQueryUniDAC = class(TDriverQuery)
@@ -157,7 +156,7 @@ begin
   end;
 end;
 
-procedure TDriverUniDAC.ExecuteScript(const ASQL: string);
+procedure TDriverUniDAC.ExecuteScript(const AScript: string);
 begin
   inherited;
   FSQLScript.SQL.Clear;
@@ -165,7 +164,7 @@ begin
   begin
     if MatchText(FConnection.ProviderName, ['Firebird', 'InterBase']) then // Firebird/Interbase
       Add('SET AUTOCOMMIT OFF');
-    Add(ASQL);
+    Add(AScript);
   end;
   FSQLScript.Execute;
 end;
@@ -182,23 +181,14 @@ begin
   end;
 end;
 
-function TDriverUniDAC.ExecuteSQL(const ASQL: string): IDBResultSet;
-var
-  LDBQuery: IDBQuery;
-begin
-  LDBQuery := TDriverQueryUniDAC.Create(FConnection);
-  LDBQuery.CommandText := ASQL;
-  Result := LDBQuery.ExecuteQuery;
-end;
-
-procedure TDriverUniDAC.AddScript(const ASQL: string);
+procedure TDriverUniDAC.AddScript(const AScript: string);
 begin
   inherited;
   with FSQLScript.SQL do
   begin
     if MatchText(FConnection.ProviderName, ['Firebird', 'InterBase']) then // Firebird/Interbase
       Add('SET AUTOCOMMIT OFF');
-    Add(ASQL);
+    Add(AScript);
   end;
 end;
 

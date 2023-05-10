@@ -33,9 +33,16 @@ uses
   Variants;
 
 type
+  TMonitorParam = record
+    Command: String;
+    Params: TParams;
+  end;
+  TMonitorProc = TProc<TMonitorParam>;
+
   TDriverName = (dnMSSQL, dnMySQL, dnFirebird, dnSQLite, dnInterbase, dnDB2,
                  dnOracle, dnInformix, dnPostgreSQL, dnADS, dnASA,
-                 dnAbsoluteDB, dnMongoDB, dnElevateDB, dnNexusDB, dnFirebase);
+                 dnFirebase, dnFirebird3, dnAbsoluteDB, dnMongoDB,
+                 dnElevateDB, dnNexusDB);
 
   TAsField = class abstract
   protected
@@ -101,10 +108,11 @@ type
     procedure Show;
   end;
 
-  IDBOptions = interface
+  IOptions = interface
     ['{A3C489B1-F2D8-4E4D-9EC2-152C730ED33D}']
-    function StoreGUIDAsOctet(const AValue: Boolean): IDBOptions; overload;
+    function StoreGUIDAsOctet(const AValue: Boolean): IOptions; overload;
     function StoreGUIDAsOctet: Boolean; overload;
+
   end;
 
   IDBTransaction = interface
@@ -121,24 +129,25 @@ type
     procedure Disconnect;
     procedure ExecuteDirect(const ASQL: string); overload;
     procedure ExecuteDirect(const ASQL: string; const AParams: TParams); overload;
-    procedure ExecuteScript(const ASQL: string);
-    procedure AddScript(const ASQL: string);
+    procedure ExecuteScript(const AScript: string);
+    procedure AddScript(const AScript: string);
     procedure ExecuteScripts;
     procedure SetCommandMonitor(AMonitor: ICommandMonitor);
     function IsConnected: Boolean;
     function GetDriverName: TDriverName;
     function CreateQuery: IDBQuery;
     function CreateResultSet(const ASQL: String): IDBResultSet;
-    function ExecuteSQL(const ASQL: string): IDBResultSet;
     function CommandMonitor: ICommandMonitor;
-    function DBOptions: IDBOptions;
+    function MonitorCallback: TMonitorProc;
+    function Options: IOptions;
   end;
 
 const
   TStrDriverName: array[dnMSSQL..dnNexusDB] of
-                  string = ('MSSQL','MySQL','Firebird','SQLite','Interbase','DB2',
-                            'Oracle','Informix','PostgreSQL','ADS','ASA',
-                            'AbsoluteDB','MongoDB','ElevateDB','NexusDB');
+                  string = ('MSSQL','MySQL','Firebird','SQLite','Interbase',
+                            'DB2','Oracle','Informix','PostgreSQL','ADS','ASA',
+                            'dnFirebase', 'dnFirebird3','AbsoluteDB','MongoDB',
+                            'ElevateDB','NexusDB');
 
 implementation
 

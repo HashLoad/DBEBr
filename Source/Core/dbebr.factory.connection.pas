@@ -36,16 +36,14 @@ uses
 type
   // Fábrica de conexões abstratas
   TFactoryConnection = class abstract(TInterfacedObject, IDBConnection)
-  private
-    FAutoTransaction: Boolean;
   protected
+    FAutoTransaction: Boolean;
     FCommandMonitor: ICommandMonitor;
-    FDBOptions: IDBOptions;
+    FOptions: IOptions;
     FDriverConnection: TDriverConnection;
     FDriverTransaction: TDriverTransaction;
+    FMonitorCallback: TMonitorProc;
   public
-    constructor Create(const AConnection: TComponent;
-      const ADriverName: TDriverName); virtual;
     procedure Connect; virtual; abstract;
     procedure Disconnect; virtual; abstract;
     procedure StartTransaction; virtual;
@@ -54,19 +52,19 @@ type
     procedure ExecuteDirect(const ASQL: string); overload; virtual;
     procedure ExecuteDirect(const ASQL: string;
       const AParams: TParams); overload; virtual;
-    procedure ExecuteScript(const ASQL: string); virtual;
-    procedure AddScript(const ASQL: string); virtual; abstract;
+    procedure ExecuteScript(const AScript: string); virtual;
+    procedure AddScript(const AScript: string); virtual; abstract;
     procedure ExecuteScripts; virtual;
     procedure SetCommandMonitor(AMonitor: ICommandMonitor); virtual;
+      deprecated 'use Create(AConnection, ADriverName, AMonitor)';
     function InTransaction: Boolean; virtual; abstract;
     function IsConnected: Boolean; virtual; abstract;
     function GetDriverName: TDriverName; virtual; abstract;
     function CreateQuery: IDBQuery; virtual; abstract;
     function CreateResultSet(const ASQL: String): IDBResultSet; virtual; abstract;
-    function ExecuteSQL(const ASQL: string): IDBResultSet; virtual; abstract;
     function CommandMonitor: ICommandMonitor;
-    function DBOptions: IDBOptions; virtual;
-
+    function MonitorCallback: TMonitorProc; virtual;
+    function Options: IOptions; virtual;
   end;
 
 implementation
@@ -84,20 +82,15 @@ begin
     Disconnect;
 end;
 
-constructor TFactoryConnection.Create(const AConnection: TComponent;
-  const ADriverName: TDriverName);
+function TFactoryConnection.Options: IOptions;
 begin
-  FAutoTransaction := False;
+  if not Assigned(FOptions) then
+    FOptions := TOptions.Create;
+  Result := FOptions;
 end;
 
-function TFactoryConnection.DBOptions: IDBOptions;
-begin
-  if not Assigned(FDBOptions) then
-    FDBOptions := TDBOptions.Create;
-  Result := FDBOptions;
-end;
-
-procedure TFactoryConnection.ExecuteDirect(const ASQL: string; const AParams: TParams);
+procedure TFactoryConnection.ExecuteDirect(const ASQL: string;
+  const AParams: TParams);
 var
   LInTransaction: Boolean;
   LIsConnected: Boolean;
@@ -159,7 +152,7 @@ begin
   end;
 end;
 
-procedure TFactoryConnection.ExecuteScript(const ASQL: string);
+procedure TFactoryConnection.ExecuteScript(const AScript: string);
 var
   LInTransaction: Boolean;
   LIsConnected: Boolean;
@@ -173,7 +166,7 @@ begin
     if not LInTransaction then
       StartTransaction;
     try
-      FDriverConnection.ExecuteScript(ASQL);
+      FDriverConnection.ExecuteScript(AScript);
       if not LInTransaction then
         Commit;
     except
@@ -219,6 +212,11 @@ begin
     if not LIsConnected then
       Disconnect;
   end;
+end;
+
+function TFactoryConnection.MonitorCallback: TMonitorProc;
+begin
+  Result := FMonitorCallback;
 end;
 
 procedure TFactoryConnection.Rollback;
