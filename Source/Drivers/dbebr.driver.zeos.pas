@@ -60,14 +60,13 @@ type
     procedure ExecuteDirect(const ASQL: string); overload; override;
     procedure ExecuteDirect(const ASQL: string;
       const AParams: TParams); overload; override;
-    procedure ExecuteScript(const ASQL: string); override;
-    procedure AddScript(const ASQL: string); override;
+    procedure ExecuteScript(const AScript: string); override;
+    procedure AddScript(const AScript: string); override;
     procedure ExecuteScripts; override;
     function IsConnected: Boolean; override;
     function InTransaction: Boolean; override;
     function CreateQuery: IDBQuery; override;
     function CreateResultSet(const ASQL: String): IDBResultSet; override;
-    function ExecuteSQL(const ASQL: string): IDBResultSet; override;
   end;
 
   TDriverQueryZeos = class(TDriverQuery)
@@ -157,10 +156,10 @@ begin
   end;
 end;
 
-procedure TDriverZeos.ExecuteScript(const ASQL: string);
+procedure TDriverZeos.ExecuteScript(const AScript: string);
 begin
   inherited;
-  FSQLScript.Script.Text := ASQL;
+  FSQLScript.Script.Text := AScript;
   FSQLScript.Execute;
 end;
 
@@ -174,19 +173,10 @@ begin
   end;
 end;
 
-function TDriverZeos.ExecuteSQL(const ASQL: string): IDBResultSet;
-var
-  LDBQuery: IDBQuery;
-begin
-  LDBQuery := TDriverQueryZeos.Create(FConnection);
-  LDBQuery.CommandText := ASQL;
-  Result := LDBQuery.ExecuteQuery;
-end;
-
-procedure TDriverZeos.AddScript(const ASQL: string);
+procedure TDriverZeos.AddScript(const AScript: string);
 begin
   inherited;
-  FSQLScript.Script.Add(ASQL);
+  FSQLScript.Script.Add(AScript);
 end;
 
 procedure TDriverZeos.Connect;

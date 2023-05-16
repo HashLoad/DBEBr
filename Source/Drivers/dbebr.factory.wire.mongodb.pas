@@ -29,6 +29,7 @@ interface
 uses
   DB,
   Classes,
+  SysUtils,
   dbebr.factory.connection,
   dbebr.factory.interfaces;
 
@@ -36,7 +37,11 @@ type
   // Fábrica de conexão concreta com dbExpress
   TFactoryMongoWire = class(TFactoryConnection)
   public
-    constructor Create(AConnection: TComponent; ADriverName: TDriverName); override;
+    constructor Create(const AConnection: TComponent;
+      const ADriverName: TDriverName); overload;
+    constructor Create(const AConnection: TComponent;
+      const ADriverName: TDriverName;
+      const AMonitorCallback: TMonitorProc); overload;
     destructor Destroy; override;
     procedure Connect; override;
     procedure Disconnect; override;
@@ -45,15 +50,14 @@ type
     procedure Rollback; override;
     procedure ExecuteDirect(const ASQL: string); overload; override;
     procedure ExecuteDirect(const ASQL: string; const AParams: TParams); overload; override;
-    procedure ExecuteScript(const ASQL: string); override;
-    procedure AddScript(const ASQL: string); override;
+    procedure ExecuteScript(const AScript: string); override;
+    procedure AddScript(const AScript: string); override;
     procedure ExecuteScripts; override;
     function InTransaction: Boolean; override;
     function IsConnected: Boolean; override;
     function GetDriverName: TDriverName; override;
     function CreateQuery: IDBQuery; override;
     function CreateResultSet: IDBResultSet; override;
-    function ExecuteSQL(const ASQL: string): IDBResultSet; override;
   end;
 
 implementation
@@ -75,6 +79,13 @@ begin
   inherited;
   FDriverConnection  := TDriverMongoWire.Create(AConnection, ADriverName);
   FDriverTransaction := TDriverMongoWireTransaction.Create(AConnection);
+end;
+
+constructor TFactoryMongoWire.Create(const AConnection: TComponent;
+  const ADriverName: TDriverName; const AMonitorCallback: TMonitorProc);
+begin
+  Create(AConnection, ADriverName);
+  FMonitorCallback := AMonitorCallback;
 end;
 
 function TFactoryMongoWire.CreateQuery: IDBQuery;
@@ -111,7 +122,7 @@ begin
   inherited;
 end;
 
-procedure TFactoryMongoWire.ExecuteScript(const ASQL: string);
+procedure TFactoryMongoWire.ExecuteScript(const AScript: string);
 begin
   inherited;
 end;
@@ -119,12 +130,6 @@ end;
 procedure TFactoryMongoWire.ExecuteScripts;
 begin
   inherited;
-end;
-
-function TFactoryMongoWire.ExecuteSQL(const ASQL: string): IDBResultSet;
-begin
-  inherited;
-  Result := FDriverConnection.ExecuteSQL(ASQL);
 end;
 
 function TFactoryMongoWire.GetDriverName: TDriverName;
@@ -150,10 +155,10 @@ begin
   FDriverTransaction.StartTransaction;
 end;
 
-procedure TFactoryMongoWire.AddScript(const ASQL: string);
+procedure TFactoryMongoWire.AddScript(const AScript: string);
 begin
   inherited;
-  FDriverConnection.AddScript(ASQL);
+  FDriverConnection.AddScript(AScript);
 end;
 
 procedure TFactoryMongoWire.Commit;

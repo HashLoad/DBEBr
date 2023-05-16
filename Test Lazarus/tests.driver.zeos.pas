@@ -36,7 +36,6 @@ type
     procedure TestInTransaction;
     procedure TestCreateQuery;
     procedure TestCreateResultSet;
-    procedure TestExecuteSQL;
     procedure TestStartTransaction;
     procedure TestCommit;
     procedure TestRollback;
@@ -162,13 +161,6 @@ end;
 procedure TTestDBEBrZeos.TestCreateResultSet;
 begin
   FDBResultSet := FDBConnection.CreateResultSet(Format(cSQLSELECT, ['1']));
-
-  AssertEquals('FDBResultSet.RecordCount = ' + IntToStr(FDBResultSet.RecordCount), 1, FDBResultSet.RecordCount);
-end;
-
-procedure TTestDBEBrZeos.TestExecuteSQL;
-begin
-  FDBResultSet := FDBConnection.ExecuteSQL( Format(cSQLSELECT, ['1']) );
 
   AssertEquals('FDBResultSet.RecordCount = ' + IntToStr(FDBResultSet.RecordCount), 1, FDBResultSet.RecordCount);
 end;

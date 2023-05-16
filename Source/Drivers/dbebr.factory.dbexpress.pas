@@ -37,7 +37,13 @@ type
   TFactoryDBExpress = class(TFactoryConnection)
   public
     constructor Create(const AConnection: TComponent;
-      const ADriverName: TDriverName); override;
+      const ADriverName: TDriverName); overload;
+    constructor Create(const AConnection: TComponent;
+      const ADriverName: TDriverName;
+      const AMonitor: ICommandMonitor); overload;
+    constructor Create(const AConnection: TComponent;
+      const ADriverName: TDriverName;
+      const AMonitorCallback: TMonitorProc); overload;
     destructor Destroy; override;
     procedure Connect; override;
     procedure Disconnect; override;
@@ -46,15 +52,14 @@ type
     procedure Rollback; override;
     procedure ExecuteDirect(const ASQL: string); override;
     procedure ExecuteDirect(const ASQL: string; const AParams: TParams); override;
-    procedure ExecuteScript(const ASQL: string); override;
-    procedure AddScript(const ASQL: string); override;
+    procedure ExecuteScript(const AScript: string); override;
+    procedure AddScript(const AScript: string); override;
     procedure ExecuteScripts; override;
     function InTransaction: Boolean; override;
     function IsConnected: Boolean; override;
     function GetDriverName: TDriverName; override;
     function CreateQuery: IDBQuery; override;
     function CreateResultSet(const ASQL: String): IDBResultSet; override;
-    function ExecuteSQL(const ASQL: string): IDBResultSet; override;
   end;
 
 implementation
@@ -74,9 +79,23 @@ end;
 constructor TFactoryDBExpress.Create(const AConnection: TComponent;
   const ADriverName: TDriverName);
 begin
-  inherited;
   FDriverConnection  := TDriverDBExpress.Create(AConnection, ADriverName);
   FDriverTransaction := TDriverDBExpressTransaction.Create(AConnection);
+  FAutoTransaction := False;
+end;
+
+constructor TFactoryDBExpress.Create(const AConnection: TComponent;
+  const ADriverName: TDriverName; const AMonitor: ICommandMonitor);
+begin
+  Create(AConnection, ADriverName);
+  FCommandMonitor := AMonitor;
+end;
+
+constructor TFactoryDBExpress.Create(const AConnection: TComponent;
+  const ADriverName: TDriverName; const AMonitorCallback: TMonitorProc);
+begin
+  Create(AConnection, ADrivername);
+  FMonitorCallback := AMonitorCallback;
 end;
 
 function TFactoryDBExpress.CreateQuery: IDBQuery;
@@ -113,7 +132,7 @@ begin
   inherited;
 end;
 
-procedure TFactoryDBExpress.ExecuteScript(const ASQL: string);
+procedure TFactoryDBExpress.ExecuteScript(const AScript: string);
 begin
   inherited;
 end;
@@ -121,12 +140,6 @@ end;
 procedure TFactoryDBExpress.ExecuteScripts;
 begin
   inherited;
-end;
-
-function TFactoryDBExpress.ExecuteSQL(const ASQL: string): IDBResultSet;
-begin
-  inherited;
-  Result := FDriverConnection.ExecuteSQL(ASQL);
 end;
 
 function TFactoryDBExpress.GetDriverName: TDriverName;
@@ -152,10 +165,10 @@ begin
   FDriverTransaction.StartTransaction;
 end;
 
-procedure TFactoryDBExpress.AddScript(const ASQL: string);
+procedure TFactoryDBExpress.AddScript(const AScript: string);
 begin
   inherited;
-  FDriverConnection.AddScript(ASQL);
+  FDriverConnection.AddScript(AScript);
 end;
 
 procedure TFactoryDBExpress.Commit;

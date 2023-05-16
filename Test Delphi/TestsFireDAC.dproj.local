@@ -26,11 +26,11 @@
     <Transaction>2019/03/11 11:30:13.000.980,=C:\Users\isaque.pinheiro\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
     <Transaction>2019/03/11 11:31:20.000.783,C:\Users\isaque.pinheiro\Documents\Embarcadero\Studio\Projects\Unit1.pas=D:\ORMBr\Test\Tests.Exemples.pas</Transaction>
     <Transaction>2019/03/11 11:31:35.000.668,C:\Users\isaque.pinheiro\Documents\Embarcadero\Studio\Projects\Project2.dproj=D:\ORMBr\Test\TestsDBExpress.dproj</Transaction>
-    <Transaction>2019/03/11 11:32:33.000.392,=D:\ORMBr\Source\Drivers\ormbr.factory.connection.pas</Transaction>
     <Transaction>2019/03/11 11:32:33.000.272,=D:\ORMBr\Source\Drivers\ormbr.driver.connection.pas</Transaction>
+    <Transaction>2019/03/11 11:32:33.000.392,=D:\ORMBr\Source\Drivers\ormbr.factory.connection.pas</Transaction>
     <Transaction>2019/03/11 11:32:33.000.331,=D:\ORMBr\Source\Drivers\ormbr.driver.dbexpress.pas</Transaction>
-    <Transaction>2019/03/11 11:32:33.000.509,=D:\ORMBr\Source\Drivers\ormbr.factory.interfaces.pas</Transaction>
     <Transaction>2019/03/11 11:32:33.000.451,=D:\ORMBr\Source\Drivers\ormbr.factory.dbexpress.pas</Transaction>
+    <Transaction>2019/03/11 11:32:33.000.509,=D:\ORMBr\Source\Drivers\ormbr.factory.interfaces.pas</Transaction>
     <Transaction>2019/03/11 11:33:03.000.996,=D:\ORMBr\Test\Unit1.pas</Transaction>
     <Transaction>2019/03/11 11:34:12.000.027,=D:\ORMBr\Test\Tests.Driver.DBExpress.pas</Transaction>
     <Transaction>2019/03/11 11:34:54.000.452,=D:\ORMBr\Test\Unit1.pas</Transaction>
@@ -40,17 +40,17 @@
     <Transaction>2019/03/11 12:16:12.000.769,D:\ORMBr\Source\Drivers\ormbr.factory.dbexpress.pas=</Transaction>
     <Transaction>2019/03/11 12:16:12.000.739,D:\ORMBr\Source\Drivers\ormbr.driver.dbexpress.pas=</Transaction>
     <Transaction>2019/03/11 12:16:33.000.336,=D:\ORMBr\Source\Drivers\ormbr.driver.firedac.transaction.pas</Transaction>
-    <Transaction>2019/03/11 12:16:33.000.282,=D:\ORMBr\Source\Drivers\ormbr.driver.firedac.pas</Transaction>
     <Transaction>2019/03/11 12:16:33.000.390,=D:\ORMBr\Source\Drivers\ormbr.factory.firedac.pas</Transaction>
+    <Transaction>2019/03/11 12:16:33.000.282,=D:\ORMBr\Source\Drivers\ormbr.driver.firedac.pas</Transaction>
     <Transaction>2019/03/11 12:35:19.000.132,D:\ORMBr\Test\Tests.Exemples.pas=</Transaction>
     <Transaction>2019/03/11 13:34:44.000.098,=D:\ORMBr\Test\Unit1.pas</Transaction>
     <Transaction>2019/03/11 13:35:04.000.567,D:\ORMBr\Test\Unit1.pas=D:\ORMBr\Test\Tests.Consts.pas</Transaction>
-    <Transaction>2019/11/03 11:05:23.024,=D:\PROJETOS-Brasil\DBEBr\Source\Core\dbebr.driver.connection.pas</Transaction>
-    <Transaction>2019/11/03 11:05:23.068,=D:\PROJETOS-Brasil\DBEBr\Source\Core\dbebr.factory.connection.pas</Transaction>
-    <Transaction>2019/11/03 11:05:23.099,=D:\PROJETOS-Brasil\DBEBr\Source\Core\dbebr.factory.interfaces.pas</Transaction>
-    <Transaction>2019/11/03 11:05:40.382,=D:\PROJETOS-Brasil\DBEBr\Source\Drivers\dbebr.driver.firedac.pas</Transaction>
-    <Transaction>2019/11/03 11:05:40.423,=D:\PROJETOS-Brasil\DBEBr\Source\Drivers\dbebr.driver.firedac.transaction.pas</Transaction>
-    <Transaction>2019/11/03 11:05:40.463,=D:\PROJETOS-Brasil\DBEBr\Source\Drivers\dbebr.factory.firedac.pas</Transaction>
+    <Transaction>2019/11/03 11:05:23.000.024,=D:\PROJETOS-Brasil\DBEBr\Source\Core\dbebr.driver.connection.pas</Transaction>
+    <Transaction>2019/11/03 11:05:23.000.099,=D:\PROJETOS-Brasil\DBEBr\Source\Core\dbebr.factory.interfaces.pas</Transaction>
+    <Transaction>2019/11/03 11:05:23.000.068,=D:\PROJETOS-Brasil\DBEBr\Source\Core\dbebr.factory.connection.pas</Transaction>
+    <Transaction>2019/11/03 11:05:40.000.423,=D:\PROJETOS-Brasil\DBEBr\Source\Drivers\dbebr.driver.firedac.transaction.pas</Transaction>
+    <Transaction>2019/11/03 11:05:40.000.463,=D:\PROJETOS-Brasil\DBEBr\Source\Drivers\dbebr.factory.firedac.pas</Transaction>
+    <Transaction>2019/11/03 11:05:40.000.382,=D:\PROJETOS-Brasil\DBEBr\Source\Drivers\dbebr.driver.firedac.pas</Transaction>
   </Transactions>
 	<ProjectSortOrder AutoSort="0" SortType="0">
     <File Path="..\..\DBEBr"/>

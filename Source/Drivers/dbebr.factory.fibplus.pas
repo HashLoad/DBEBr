@@ -29,6 +29,7 @@ interface
 uses
   DB,
   Classes,
+  SysUtils,
   dbebr.factory.connection,
   dbebr.factory.interfaces;
 
@@ -37,7 +38,10 @@ type
   TFactoryFIBPlus = class(TFactoryConnection)
   public
     constructor Create(const AConnection: TComponent;
-      const ADriverName: TDriverName); override;
+      const ADriverName: TDriverName); overload;
+    constructor Create(const AConnection: TComponent;
+      const ADriverName: TDriverName;
+      const AMonitorCallback: TMonitorProc); overload;
     destructor Destroy; override;
     procedure Connect; override;
     procedure Disconnect; override;
@@ -47,15 +51,14 @@ type
     procedure ExecuteDirect(const ASQL: string); override;
     procedure ExecuteDirect(const ASQL: string;
       const AParams: TParams); override;
-    procedure ExecuteScript(const ASQL: string); override;
-    procedure AddScript(const ASQL: string); override;
+    procedure ExecuteScript(const AScript: string); override;
+    procedure AddScript(const AScript: string); override;
     procedure ExecuteScripts; override;
     function InTransaction: Boolean; override;
     function IsConnected: Boolean; override;
     function GetDriverName: TDriverName; override;
     function CreateQuery: IDBQuery; override;
     function CreateResultSet(const ASQL: String): IDBResultSet; override;
-    function ExecuteSQL(const ASQL: string): IDBResultSet; override;
   end;
 
 implementation
@@ -78,6 +81,13 @@ begin
   inherited;
   FDriverTransaction := TDriverFIBPlusTransaction.Create(AConnection);
   FDriverConnection  := TDriverFIBPlus.Create(AConnection, ADriverName);
+end;
+
+constructor TFactoryFIBPlus.Create(const AConnection: TComponent;
+  const ADriverName: TDriverName; const AMonitorCallback: TMonitorProc);
+begin
+  Create(AConnection, ADriverName);
+  FMonitorCallback := AMonitorCallback;
 end;
 
 function TFactoryFIBPlus.CreateQuery: IDBQuery;
@@ -115,7 +125,7 @@ begin
   inherited;
 end;
 
-procedure TFactoryFIBPlus.ExecuteScript(const ASQL: string);
+procedure TFactoryFIBPlus.ExecuteScript(const AScript: string);
 begin
   inherited;
 end;
@@ -123,12 +133,6 @@ end;
 procedure TFactoryFIBPlus.ExecuteScripts;
 begin
   inherited;
-end;
-
-function TFactoryFIBPlus.ExecuteSQL(const ASQL: string): IDBResultSet;
-begin
-  inherited;
-  Result := FDriverConnection.ExecuteSQL(ASQL);
 end;
 
 function TFactoryFIBPlus.GetDriverName: TDriverName;
@@ -155,10 +159,10 @@ begin
     FDriverTransaction.StartTransaction;
 end;
 
-procedure TFactoryFIBPlus.AddScript(const ASQL: string);
+procedure TFactoryFIBPlus.AddScript(const AScript: string);
 begin
   inherited;
-  FDriverConnection.AddScript(ASQL);
+  FDriverConnection.AddScript(AScript);
 end;
 
 procedure TFactoryFIBPlus.Commit;
