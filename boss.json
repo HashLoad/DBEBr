@@ -1,8 +1,8 @@
 {
 	"name": "DBEBr",
-	"description": "O DBEBr nos oferece uma interface de conexão própria, nos possibilitando assim ficar totalmente desacoplado de qualquer engine que usemos",
-	"version": "1.1.4",
-	"homepage": "https://www.isaquepinheiro.com.br",
+	"description": "DBEBr Framework for Delphi/Lazaruz",
+	"version": "1.1.6",
+	"homepage": "www.isaquepinheiro.com.br",
 	"mainsrc": "Source/",
 	"projects": [],
 	"dependencies": {}

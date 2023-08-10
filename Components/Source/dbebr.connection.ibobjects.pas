@@ -16,10 +16,13 @@ type
   {$IF CompilerVersion > 23}
   [ComponentPlatformsAttribute(pidWin32 or
                                pidWin64 or
+                               pidWinArm64 or
                                pidOSX32 or
-                               pidiOSSimulator or
-                               pidiOSDevice or
-                               pidAndroid)]
+                               pidOSX64 or
+                               pidOSXArm64 or
+                               pidLinux32 or
+                               pidLinux64 or
+                               pidLinuxArm64)]
   {$IFEND}
   TDBEBrConnectionIBObjects = class(TDBEBrConnectionBase)
   private
@@ -27,7 +30,7 @@ type
     procedure SetConnection(const Value: TIBODatabase);
     function GetConnection: TIBODatabase;
   public
-    constructor Create(const AOwner: TComponent); override;
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
   published
     property Connection: TIBODatabase read GetConnection write SetConnection;
@@ -37,7 +40,7 @@ implementation
 
 { TDBEBrConnectionIBObjects }
 
-constructor TDBEBrConnectionIBObjects.Create(const AOwner: TComponent);
+constructor TDBEBrConnectionIBObjects.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
 end;

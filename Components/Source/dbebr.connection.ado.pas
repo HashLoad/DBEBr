@@ -14,10 +14,13 @@ type
   {$IF CompilerVersion > 23}
   [ComponentPlatformsAttribute(pidWin32 or
                                pidWin64 or
+                               pidWinArm64 or
                                pidOSX32 or
-                               pidiOSSimulator or
-                               pidiOSDevice or
-                               pidAndroid)]
+                               pidOSX64 or
+                               pidOSXArm64 or
+                               pidLinux32 or
+                               pidLinux64 or
+                               pidLinuxArm64)]
   {$IFEND}
   TDBEBrConnectionADO = class(TDBEBrConnectionBase)
   private
@@ -25,7 +28,7 @@ type
     procedure SetConnection(const Value: TADOConnection);
     function GetConnection: TADOConnection;
   public
-    constructor Create(const AOwner: TComponent); override;
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
   published
     property Connection: TADOConnection read GetConnection write SetConnection;
@@ -35,7 +38,7 @@ implementation
 
 { TDBEBrConnectionADO }
 
-constructor TDBEBrConnectionADO.Create(const AOwner: TComponent);
+constructor TDBEBrConnectionADO.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
 end;

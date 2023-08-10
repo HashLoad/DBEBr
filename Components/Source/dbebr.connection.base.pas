@@ -41,10 +41,13 @@ type
   {$IF CompilerVersion > 23}
   [ComponentPlatformsAttribute(pidWin32 or
                                pidWin64 or
+                               pidWinArm64 or
                                pidOSX32 or
-                               pidiOSSimulator or
-                               pidiOSDevice or
-                               pidAndroid)]
+                               pidOSX64 or
+                               pidOSXArm64 or
+                               pidLinux32 or
+                               pidLinux64 or
+                               pidLinuxArm64)]
   {$IFEND}
   TDBEBrConnectionBase = class(TComponent)
   protected
@@ -52,7 +55,7 @@ type
     FDriverName: TDriverName;
     function GetDBConnection: IDBConnection;
   public
-    constructor Create(const AOwner: TComponent); virtual;
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure Connect;
     procedure Disconnect;
@@ -79,9 +82,9 @@ implementation
 
 { TDBEBrConnectionBase }
 
-constructor TDBEBrConnectionBase.Create(const AOwner: TComponent);
+constructor TDBEBrConnectionBase.Create(AOwner: TComponent);
 begin
-
+  inherited Create(AOwner);
 end;
 
 destructor TDBEBrConnectionBase.Destroy;
