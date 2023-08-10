@@ -7,6 +7,6 @@
     <Transaction>2022/07/12 23:05:07.000.880,D:\PROJETOS-Brasil\DBEBr\Components\Packages\Delphi\DBEBrProjectGroup.groupproj=D:\PROJETOS-Brasil\DBEBr\Components\Packages\Delphi\ProjectGroup.groupproj</Transaction>
   </Transactions>
 	<Default.Personality>
-		<Projects ActiveProject="D:\PROJETOS-Brasil\ORMBr\Source\DBEBr\Components\Packages\Delphi\DBEBrConnectionFIBPlus.dproj"/>
+		<Projects ActiveProject="D:\PROJETOS-Brasil\DBEBr\Components\Packages\Delphi\dclDBEBrConnectionFireDAC.dproj"/>
 	</Default.Personality>
 </BorlandProject>

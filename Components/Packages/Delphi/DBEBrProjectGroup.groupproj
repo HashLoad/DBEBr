@@ -27,9 +27,6 @@
         <Projects Include="DBEBrConnectionSQLDirect.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="DBEBrConnectionNexusDB.dproj">
-            <Dependencies/>
-        </Projects>
         <Projects Include="DBEBrConnectionIBObjects.dproj">
             <Dependencies/>
         </Projects>
@@ -143,15 +140,6 @@
     <Target Name="DBEBrConnectionSQLDirect:Make">
         <MSBuild Projects="DBEBrConnectionSQLDirect.dproj" Targets="Make"/>
     </Target>
-    <Target Name="DBEBrConnectionNexusDB">
-        <MSBuild Projects="DBEBrConnectionNexusDB.dproj"/>
-    </Target>
-    <Target Name="DBEBrConnectionNexusDB:Clean">
-        <MSBuild Projects="DBEBrConnectionNexusDB.dproj" Targets="Clean"/>
-    </Target>
-    <Target Name="DBEBrConnectionNexusDB:Make">
-        <MSBuild Projects="DBEBrConnectionNexusDB.dproj" Targets="Make"/>
-    </Target>
     <Target Name="DBEBrConnectionIBObjects">
         <MSBuild Projects="DBEBrConnectionIBObjects.dproj"/>
     </Target>
@@ -252,13 +240,13 @@
         <MSBuild Projects="dclDBEBrConnectionZeos.dproj" Targets="Make"/>
     </Target>
     <Target Name="Build">
-        <CallTarget Targets="DBEBrCore;DBEBrConnectionFireDAC;DBEBrConnectionZeos;DBEBrConnectionDBExpress;DBEBrConnectionADO;DBEBrConnectionFIBPlus;DBEBrConnectionUniDAC;DBEBrConnectionSQLDirect;DBEBrConnectionNexusDB;DBEBrConnectionIBObjects;dclDBEBrConnectionADO;dclDBEBrConnectionDBExpress;dclDBEBrConnectionFIBPlus;dclDBEBrConnectionFireDAC;dclDBEBrConnectionIBObjects;dclDBEBrConnectionMongoWire;dclDBEBrConnectionNexusDB;dclDBEBrConnectionSQLDirect;dclDBEBrConnectionUniDAC;dclDBEBrConnectionZeos"/>
+        <CallTarget Targets="DBEBrCore;DBEBrConnectionFireDAC;DBEBrConnectionZeos;DBEBrConnectionDBExpress;DBEBrConnectionADO;DBEBrConnectionFIBPlus;DBEBrConnectionUniDAC;DBEBrConnectionSQLDirect;DBEBrConnectionIBObjects;dclDBEBrConnectionADO;dclDBEBrConnectionDBExpress;dclDBEBrConnectionFIBPlus;dclDBEBrConnectionFireDAC;dclDBEBrConnectionIBObjects;dclDBEBrConnectionMongoWire;dclDBEBrConnectionNexusDB;dclDBEBrConnectionSQLDirect;dclDBEBrConnectionUniDAC;dclDBEBrConnectionZeos"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="DBEBrCore:Clean;DBEBrConnectionFireDAC:Clean;DBEBrConnectionZeos:Clean;DBEBrConnectionDBExpress:Clean;DBEBrConnectionADO:Clean;DBEBrConnectionFIBPlus:Clean;DBEBrConnectionUniDAC:Clean;DBEBrConnectionSQLDirect:Clean;DBEBrConnectionNexusDB:Clean;DBEBrConnectionIBObjects:Clean;dclDBEBrConnectionADO:Clean;dclDBEBrConnectionDBExpress:Clean;dclDBEBrConnectionFIBPlus:Clean;dclDBEBrConnectionFireDAC:Clean;dclDBEBrConnectionIBObjects:Clean;dclDBEBrConnectionMongoWire:Clean;dclDBEBrConnectionNexusDB:Clean;dclDBEBrConnectionSQLDirect:Clean;dclDBEBrConnectionUniDAC:Clean;dclDBEBrConnectionZeos:Clean"/>
+        <CallTarget Targets="DBEBrCore:Clean;DBEBrConnectionFireDAC:Clean;DBEBrConnectionZeos:Clean;DBEBrConnectionDBExpress:Clean;DBEBrConnectionADO:Clean;DBEBrConnectionFIBPlus:Clean;DBEBrConnectionUniDAC:Clean;DBEBrConnectionSQLDirect:Clean;DBEBrConnectionIBObjects:Clean;dclDBEBrConnectionADO:Clean;dclDBEBrConnectionDBExpress:Clean;dclDBEBrConnectionFIBPlus:Clean;dclDBEBrConnectionFireDAC:Clean;dclDBEBrConnectionIBObjects:Clean;dclDBEBrConnectionMongoWire:Clean;dclDBEBrConnectionNexusDB:Clean;dclDBEBrConnectionSQLDirect:Clean;dclDBEBrConnectionUniDAC:Clean;dclDBEBrConnectionZeos:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="DBEBrCore:Make;DBEBrConnectionFireDAC:Make;DBEBrConnectionZeos:Make;DBEBrConnectionDBExpress:Make;DBEBrConnectionADO:Make;DBEBrConnectionFIBPlus:Make;DBEBrConnectionUniDAC:Make;DBEBrConnectionSQLDirect:Make;DBEBrConnectionNexusDB:Make;DBEBrConnectionIBObjects:Make;dclDBEBrConnectionADO:Make;dclDBEBrConnectionDBExpress:Make;dclDBEBrConnectionFIBPlus:Make;dclDBEBrConnectionFireDAC:Make;dclDBEBrConnectionIBObjects:Make;dclDBEBrConnectionMongoWire:Make;dclDBEBrConnectionNexusDB:Make;dclDBEBrConnectionSQLDirect:Make;dclDBEBrConnectionUniDAC:Make;dclDBEBrConnectionZeos:Make"/>
+        <CallTarget Targets="DBEBrCore:Make;DBEBrConnectionFireDAC:Make;DBEBrConnectionZeos:Make;DBEBrConnectionDBExpress:Make;DBEBrConnectionADO:Make;DBEBrConnectionFIBPlus:Make;DBEBrConnectionUniDAC:Make;DBEBrConnectionSQLDirect:Make;DBEBrConnectionIBObjects:Make;dclDBEBrConnectionADO:Make;dclDBEBrConnectionDBExpress:Make;dclDBEBrConnectionFIBPlus:Make;dclDBEBrConnectionFireDAC:Make;dclDBEBrConnectionIBObjects:Make;dclDBEBrConnectionMongoWire:Make;dclDBEBrConnectionNexusDB:Make;dclDBEBrConnectionSQLDirect:Make;dclDBEBrConnectionUniDAC:Make;dclDBEBrConnectionZeos:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

@@ -33,7 +33,6 @@ requires
   rtl,
   DbxCommonDriver,
   dbexpress,
-  ORMBrCore,
   DBEBrCore;
 
 contains
