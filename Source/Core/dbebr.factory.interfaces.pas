@@ -46,7 +46,7 @@ type
   TDriverName = (dnMSSQL, dnMySQL, dnFirebird, dnSQLite, dnInterbase, dnDB2,
                  dnOracle, dnInformix, dnPostgreSQL, dnADS, dnASA,
                  dnFirebase, dnFirebird3, dnAbsoluteDB, dnMongoDB,
-                 dnElevateDB, dnNexusDB);
+                 dnElevateDB, dnNexusDB, dnMariaDB);
 
   TAsField = class abstract
   protected
@@ -82,19 +82,53 @@ type
 
   IDBResultSet = interface
     ['{A8ECADF6-A9AF-4610-8429-3B0A5CD0295C}']
-    function GetFetchingAll: Boolean;
-    procedure SetFetchingAll(const Value: Boolean);
+    function _GetFetchingAll: Boolean;
+    procedure _SetFetchingAll(const Value: Boolean);
+    function _GetFilter: String;
+    procedure _SetFilter(const Value: String);
+    function _GetFilterOptions: TFilterOptions;
+    procedure _SetFilterOptions(Value: TFilterOptions);
+    function _GetActive: Boolean;
+    procedure _SetActive(const Value: Boolean);
     procedure Close;
+    procedure Open;
+    procedure Delete;
+    procedure Cancel;
+    procedure Clear;
+    procedure DisableControls;
+    procedure EnableControls;
+    procedure Next;
+    procedure Prior;
+    procedure Append;
+    procedure Insert;
+    procedure Edit;
+    procedure Post;
+    procedure First;
+    procedure Last;
+    procedure FreeBookmark(Bookmark: TBookmark);
+    function Locate(const KeyFields: string; const KeyValues: Variant;
+      Options: TLocateOptions): Boolean;
+    function Lookup(const KeyFields: string; const KeyValues: Variant;
+      const ResultFields: string): Variant;
+    function IsEmpty: Boolean;
+    function GetBookmark: TBookmark;
+    function FieldCount: Integer;
+    function State: TDataSetState;
+    function Filtered: Boolean;
     function NotEof: Boolean;
     function RecordCount: Integer;
     function FieldDefs: TFieldDefs;
+    function Modified: Boolean;
     function GetFieldValue(const AFieldName: string): Variant; overload;
     function GetFieldValue(const AFieldIndex: Integer): Variant; overload;
     function GetField(const AFieldName: string): TField;
     function GetFieldType(const AFieldName: string): TFieldType;
     function FieldByName(const AFieldName: string): TAsField;
     function DataSet: TDataSet;
-    property FetchingAll: Boolean read GetFetchingAll write SetFetchingAll;
+    property FetchingAll: Boolean read _GetFetchingAll write _SetFetchingAll;
+    property Filter: String read _GetFilter write _SetFilter;
+    property FilterOptions: TFilterOptions read _GetFilterOptions write _SetFilterOptions;
+    property Active: Boolean read _GetActive write _SetActive;
   end;
 
   IDBQuery = interface
@@ -147,11 +181,11 @@ type
   end;
 
 const
-  TStrDriverName: array[dnMSSQL..dnNexusDB] of
+  TStrDriverName: array[dnMSSQL..dnMariaDB] of
                   string = ('MSSQL','MySQL','Firebird','SQLite','Interbase',
                             'DB2','Oracle','Informix','PostgreSQL','ADS','ASA',
                             'dnFirebase', 'dnFirebird3','AbsoluteDB','MongoDB',
-                            'ElevateDB','NexusDB');
+                            'ElevateDB','NexusDB','MariaDB');
 
 implementation
 
