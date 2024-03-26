@@ -40,9 +40,7 @@ uses
   dbebr.factory.interfaces;
 
 type
-  /// <summary>
-  /// Classe de conexão concreta com UniDAC
-  /// </summary>
+  // Classe de conexão concreta com UniDAC
   TDriverUniDACTransaction = class(TDriverTransaction)
   protected
     FConnection: TUniConnection;

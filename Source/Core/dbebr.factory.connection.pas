@@ -17,7 +17,8 @@
        arquivo LICENSE na pasta principal.
 }
 
-{ @abstract(DBEBr Framework)
+{
+  @abstract(DBEBr Framework)
   @created(20 Jul 2016)
   @author(Isaque Pinheiro <https://www.isaquepinheiro.com.br>)
 }
@@ -57,11 +58,12 @@ type
     procedure ExecuteScripts; virtual;
     procedure SetCommandMonitor(AMonitor: ICommandMonitor); virtual;
       deprecated 'use Create(AConnection, ADriverName, AMonitor)';
+    procedure ApplyUpdates(const ADataSets: array of IDBResultSet); virtual; abstract;
     function InTransaction: Boolean; virtual; abstract;
     function IsConnected: Boolean; virtual; abstract;
     function GetDriverName: TDriverName; virtual; abstract;
     function CreateQuery: IDBQuery; virtual; abstract;
-    function CreateResultSet(const ASQL: String): IDBResultSet; virtual; abstract;
+    function CreateResultSet(const ASQL: String = ''): IDBResultSet; virtual; abstract;
     function CommandMonitor: ICommandMonitor;
     function MonitorCallback: TMonitorProc; virtual;
     function Options: IOptions; virtual;

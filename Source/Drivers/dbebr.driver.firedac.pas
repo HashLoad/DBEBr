@@ -53,11 +53,11 @@ type
     procedure Connect; override;
     procedure Disconnect; override;
     procedure ExecuteDirect(const ASQL: string); override;
-    procedure ExecuteDirect(const ASQL: string;
-      const AParams: TParams); override;
+    procedure ExecuteDirect(const ASQL: string; const AParams: TParams); override;
     procedure ExecuteScript(const AScript: string); override;
     procedure AddScript(const AScript: string); override;
     procedure ExecuteScripts; override;
+    procedure ApplyUpdates(const ADataSets: array of IDBResultSet); override;
     function IsConnected: Boolean; override;
     function InTransaction: Boolean; override;
     function CreateQuery: IDBQuery; override;
@@ -68,24 +68,36 @@ type
   private
     FFDQuery: TFDQuery;
   protected
-    procedure SetCommandText(ACommandText: string); override;
-    function GetCommandText: string; override;
+    procedure _SetCommandText(ACommandText: string); override;
+    function _GetCommandText: string; override;
   public
     constructor Create(AConnection: TFDConnection);
     destructor Destroy; override;
     procedure ExecuteDirect; override;
     function ExecuteQuery: IDBResultSet; override;
+    function RowsAffected: Integer; override;
   end;
 
   TDriverResultSetFireDAC = class(TDriverResultSet<TFDQuery>)
+  protected
+    procedure _SetUniDirectional(const Value: Boolean); override;
+    procedure _SetReadOnly(const Value: Boolean); override;
+    procedure _SetCachedUpdates(const Value: Boolean); override;
+    procedure _SetCommandText(const ACommandText: string); override;
+    function _GetCommandText: string; override;
   public
     constructor Create(ADataSet: TFDQuery); override;
     destructor Destroy; override;
+    procedure ApplyUpdates; override;
     function NotEof: Boolean; override;
     function GetFieldValue(const AFieldName: string): Variant; overload; override;
     function GetFieldValue(const AFieldIndex: Integer): Variant; overload; override;
     function GetFieldType(const AFieldName: string): TFieldType; overload; override;
     function GetField(const AFieldName: string): TField; override;
+    function RowsAffected: Integer; override;
+    function IsUniDirectional: Boolean; override;
+    function IsReadOnly: Boolean; override;
+    function IsCachedUpdates: Boolean; override;
   end;
 
 implementation
@@ -148,12 +160,9 @@ begin
       LExeSQL.ParamByName(AParams[LFor].Name).DataType := AParams[LFor].DataType;
       LExeSQL.ParamByName(AParams[LFor].Name).Value := AParams[LFor].Value;
     end;
-    try
+    if not LExeSQL.Prepared then
       LExeSQL.Prepare;
-      LExeSQL.ExecSQL;
-    except
-      raise;
-    end;
+    LExeSQL.ExecSQL;
   finally
     LExeSQL.Free;
   end;
@@ -191,6 +200,18 @@ procedure TDriverFireDAC.AddScript(const AScript: string);
 begin
   inherited;
   FSQLScript.SQLScripts[0].SQL.Add(AScript);
+end;
+
+procedure TDriverFireDAC.ApplyUpdates(const ADataSets: array of IDBResultSet);
+var
+  LDataSets: array of TCustomDataSet;
+  LFor: Integer;
+begin
+  SetLength(LDataSets, Length(ADataSets));
+  for LFor := Low(ADataSets) to High(ADataSets) do
+    LDataSets[LFor] := TCustomDADataSet(ADataSets[LFor].DataSet);
+
+  FConnection.ApplyUpdates(LDataSets);
 end;
 
 procedure TDriverFireDAC.Connect;
@@ -260,24 +281,37 @@ begin
       LResultSet.Params[LFor].DataType := FFDQuery.Params[LFor].DataType;
       LResultSet.Params[LFor].Value    := FFDQuery.Params[LFor].Value;
     end;
-    LResultSet.Open;
+    if LResultSet.SQL.Text <> '' then
+    begin
+      if not LResultSet.Prepared then
+        LResultSet.Prepare;
+      LResultSet.Open;
+    end;
+    Result := TDriverResultSetFireDAC.Create(LResultSet);
+    if LResultSet.Active then
+    begin
+      if LResultSet.RecordCount = 0 then
+        Result.FetchingAll := True;
+    end;
   except
-    LResultSet.Free;
+    if Assigned(LResultSet) then
+      LResultSet.Free;
     raise;
   end;
-  Result := TDriverResultSetFireDAC.Create(LResultSet);
-  if LResultSet.RecordCount = 0 then
-     Result.FetchingAll := True;
 end;
 
-function TDriverQueryFireDAC.GetCommandText: string;
+function TDriverQueryFireDAC.RowsAffected: Integer;
+begin
+  Result := FFDQuery.RowsAffected;
+end;
+
+function TDriverQueryFireDAC._GetCommandText: string;
 begin
   Result := FFDQuery.SQL.Text;
 end;
 
-procedure TDriverQueryFireDAC.SetCommandText(ACommandText: string);
+procedure TDriverQueryFireDAC._SetCommandText(ACommandText: string);
 begin
-  inherited;
   FFDQuery.SQL.Text := ACommandText;
 end;
 
@@ -287,6 +321,11 @@ begin
 end;
 
 { TDriverResultSetFireDAC }
+
+procedure TDriverResultSetFireDAC.ApplyUpdates;
+begin
+  FDataSet.ApplyUpdates;
+end;
 
 constructor TDriverResultSetFireDAC.Create(ADataSet: TFDQuery);
 begin
@@ -329,6 +368,21 @@ begin
     Result := FDataSet.Fields[AFieldIndex].Value;
 end;
 
+function TDriverResultSetFireDAC.IsCachedUpdates: Boolean;
+begin
+  Result := FDataSet.CachedUpdates;
+end;
+
+function TDriverResultSetFireDAC.IsReadOnly: Boolean;
+begin
+  Result := FDataSet.ReadOnly;
+end;
+
+function TDriverResultSetFireDAC.IsUniDirectional: Boolean;
+begin
+  Result := FDataSet.UniDirectional;
+end;
+
 function TDriverResultSetFireDAC.NotEof: Boolean;
 begin
   if not FFirstNext then
@@ -336,6 +390,36 @@ begin
   else
     FDataSet.Next;
   Result := not FDataSet.Eof;
+end;
+
+function TDriverResultSetFireDAC.RowsAffected: Integer;
+begin
+  Result := FDataSet.RowsAffected;
+end;
+
+function TDriverResultSetFireDAC._GetCommandText: string;
+begin
+  Result := FDataSet.SQL.Text;
+end;
+
+procedure TDriverResultSetFireDAC._SetCachedUpdates(const Value: Boolean);
+begin
+  FDataSet.CachedUpdates := Value/
+end;
+
+procedure TDriverResultSetFireDAC._SetCommandText(const ACommandText: string);
+begin
+  FDataSet.SQL.Text := ACommandText;
+end;
+
+procedure TDriverResultSetFireDAC._SetReadOnly(const Value: Boolean);
+begin
+  FDataSet.ReadOnly := Value;
+end;
+
+procedure TDriverResultSetFireDAC._SetUniDirectional(const Value: Boolean);
+begin
+  FDataSet.UniDirectional := Value;
 end;
 
 end.

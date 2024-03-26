@@ -60,6 +60,7 @@ type
     procedure ExecuteScript(const AScript: string); override;
     procedure AddScript(const AScript: string); override;
     procedure ExecuteScripts; override;
+    procedure ApplyUpdates(const ADataSets: array of IDBResultSet); override;
     function InTransaction: Boolean; override;
     function IsConnected: Boolean; override;
     function GetDriverName: TDriverName; override;
@@ -175,6 +176,12 @@ procedure TFactoryUniDAC.AddScript(const AScript: string);
 begin
   inherited;
   FDriverConnection.AddScript(AScript);
+end;
+
+procedure TFactoryUniDAC.ApplyUpdates(const ADataSets: array of IDBResultSet);
+begin
+  inherited;
+  FDriverConnection.ApplyUpdates(ADataSets);
 end;
 
 procedure TFactoryUniDAC.Commit;

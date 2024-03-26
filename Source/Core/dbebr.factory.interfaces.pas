@@ -20,10 +20,7 @@
 {
   @abstract(ORMBr Framework.)
   @created(20 Jul 2016)
-  @author(Isaque Pinheiro <isaquepsp@gmail.com>)
-  @author(Skype : ispinheiro)
-  @abstract(Website : http://www.ormbr.com.br)
-  @abstract(Telagram : https://t.me/ormbr)
+  @author(Isaque Pinheiro <https://www.isaquepinheiro.com.br>)
 }
 
 unit dbebr.factory.interfaces;
@@ -41,6 +38,7 @@ type
     Command: String;
     Params: TParams;
   end;
+
   TMonitorProc = TProc<TMonitorParam>;
 
   TDriverName = (dnMSSQL, dnMySQL, dnFirebird, dnSQLite, dnInterbase, dnDB2,
@@ -83,13 +81,70 @@ type
   IDBResultSet = interface
     ['{A8ECADF6-A9AF-4610-8429-3B0A5CD0295C}']
     function _GetFetchingAll: Boolean;
-    procedure _SetFetchingAll(const Value: Boolean);
     function _GetFilter: String;
-    procedure _SetFilter(const Value: String);
+    function _GetFiltered: Boolean;
     function _GetFilterOptions: TFilterOptions;
-    procedure _SetFilterOptions(Value: TFilterOptions);
     function _GetActive: Boolean;
+    function _GetCommandText: string;
+    function _GetAfterCancel: TDataSetNotifyEvent;
+    function _GetAfterClose: TDataSetNotifyEvent;
+    function _GetAfterDelete: TDataSetNotifyEvent;
+    function _GetAfterEdit: TDataSetNotifyEvent;
+    function _GetAfterInsert: TDataSetNotifyEvent;
+    function _GetAfterOpen: TDataSetNotifyEvent;
+    function _GetAfterPost: TDataSetNotifyEvent;
+    function _GetAfterRefresh: TDataSetNotifyEvent;
+    function _GetAfterScroll: TDataSetNotifyEvent;
+    function _GetAutoCalcFields: Boolean;
+    function _GetBeforeCancel: TDataSetNotifyEvent;
+    function _GetBeforeClose: TDataSetNotifyEvent;
+    function _GetBeforeDelete: TDataSetNotifyEvent;
+    function _GetBeforeEdit: TDataSetNotifyEvent;
+    function _GetBeforeInsert: TDataSetNotifyEvent;
+    function _GetBeforeOpen: TDataSetNotifyEvent;
+    function _GetBeforePost: TDataSetNotifyEvent;
+    function _GetBeforeRefresh: TDataSetNotifyEvent;
+    function _GetBeforeScroll: TDataSetNotifyEvent;
+    function _GetOnCalcFields: TDataSetNotifyEvent;
+    function _GetOnDeleteError: TDataSetErrorEvent;
+    function _GetOnEditError: TDataSetErrorEvent;
+    function _GetOnFilterRecord: TFilterRecordEvent;
+    function _GetOnNewRecord: TDataSetNotifyEvent;
+    function _GetOnPostError: TDataSetErrorEvent;
+    procedure _SetFetchingAll(const Value: Boolean);
+    procedure _SetFilter(const Value: String);
+    procedure _SetFiltered(const Value: Boolean);
+    procedure _SetFilterOptions(Value: TFilterOptions);
     procedure _SetActive(const Value: Boolean);
+    procedure _SetCommandText(const ACommandText: string);
+    procedure _SetUniDirectional(const Value: Boolean);
+    procedure _SetReadOnly(const Value: Boolean);
+    procedure _SetCachedUpdates(const Value: Boolean);
+    procedure _SetAfterCancel(const Value: TDataSetNotifyEvent);
+    procedure _SetAfterOpen(const Value: TDataSetNotifyEvent);
+    procedure _SetAfterClose(const Value: TDataSetNotifyEvent);
+    procedure _SetAfterDelete(const Value: TDataSetNotifyEvent);
+    procedure _SetAfterEdit(const Value: TDataSetNotifyEvent);
+    procedure _SetAfterInsert(const Value: TDataSetNotifyEvent);
+    procedure _SetAfterPost(const Value: TDataSetNotifyEvent);
+    procedure _SetAfterRefresh(const Value: TDataSetNotifyEvent);
+    procedure _SetAfterScroll(const Value: TDataSetNotifyEvent);
+    procedure _SetAutoCalcFields(const Value: Boolean);
+    procedure _SetBeforeCancel(const Value: TDataSetNotifyEvent);
+    procedure _SetBeforeDelete(const Value: TDataSetNotifyEvent);
+    procedure _SetBeforeEdit(const Value: TDataSetNotifyEvent);
+    procedure _SetBeforeInsert(const Value: TDataSetNotifyEvent);
+    procedure _SetBeforeOpen(const Value: TDataSetNotifyEvent);
+    procedure _SetBeforeClose(const Value: TDataSetNotifyEvent);
+    procedure _SetBeforePost(const Value: TDataSetNotifyEvent);
+    procedure _SetBeforeRefresh(const Value: TDataSetNotifyEvent);
+    procedure _SetBeforeScroll(const Value: TDataSetNotifyEvent);
+    procedure _SetOnFilterRecord(const Value: TFilterRecordEvent);
+    procedure _SetOnCalcFields(const Value: TDataSetNotifyEvent);
+    procedure _SetOnDeleteError(const Value: TDataSetErrorEvent);
+    procedure _SetOnEditError(const Value: TDataSetErrorEvent);
+    procedure _SetOnNewRecord(const Value: TDataSetNotifyEvent);
+    procedure _SetOnPostError(const Value: TDataSetErrorEvent);
     procedure Close;
     procedure Open;
     procedure Delete;
@@ -106,17 +161,19 @@ type
     procedure First;
     procedure Last;
     procedure FreeBookmark(Bookmark: TBookmark);
+    procedure ClearFields;
+    procedure ApplyUpdates;
+    procedure CancelUpdates;
     function Locate(const KeyFields: string; const KeyValues: Variant;
       Options: TLocateOptions): Boolean;
     function Lookup(const KeyFields: string; const KeyValues: Variant;
       const ResultFields: string): Variant;
-    function IsEmpty: Boolean;
     function GetBookmark: TBookmark;
     function FieldCount: Integer;
     function State: TDataSetState;
-    function Filtered: Boolean;
     function NotEof: Boolean;
     function RecordCount: Integer;
+    function RowsAffected: Integer;
     function FieldDefs: TFieldDefs;
     function Modified: Boolean;
     function GetFieldValue(const AFieldName: string): Variant; overload;
@@ -124,20 +181,60 @@ type
     function GetField(const AFieldName: string): TField;
     function GetFieldType(const AFieldName: string): TFieldType;
     function FieldByName(const AFieldName: string): TAsField;
-    function DataSet: TDataSet;
+    function AggFields: TFields;
+    function UpdateStatus: TUpdateStatus;
+    function CanModify: Boolean;
+    function IsEmpty: Boolean;
+    function IsUniDirectional: Boolean;
+    function IsReadOnly: Boolean;
+    function IsCachedUpdates: Boolean;
+    function DataSource: TDataSource;
+    function DataSet: TDataSet; //deprecated 'Instead, use the direct methods';
+    // Propertys
     property FetchingAll: Boolean read _GetFetchingAll write _SetFetchingAll;
     property Filter: String read _GetFilter write _SetFilter;
     property FilterOptions: TFilterOptions read _GetFilterOptions write _SetFilterOptions;
+    property Filtered: Boolean read _GetFiltered write _SetFiltered;
     property Active: Boolean read _GetActive write _SetActive;
+    property CommandText: String read _GetCommandText write _SetCommandText;
+    property UniDirectional: Boolean write _SetUniDirectional;
+    property ReadOnly: Boolean write _SetReadOnly;
+    property CachedUpdates: Boolean write _SetCachedUpdates;
+    property AutoCalcFields: Boolean read _GetAutoCalcFields write _SetAutoCalcFields;
+    property BeforeOpen: TDataSetNotifyEvent read _GetBeforeOpen write _SetBeforeOpen;
+    property AfterOpen: TDataSetNotifyEvent read _GetAfterOpen write _SetAfterOpen;
+    property BeforeClose: TDataSetNotifyEvent read _GetBeforeClose write _SetBeforeClose;
+    property AfterClose: TDataSetNotifyEvent read _GetAfterClose write _SetAfterClose;
+    property BeforeInsert: TDataSetNotifyEvent read _GetBeforeInsert write _SetBeforeInsert;
+    property AfterInsert: TDataSetNotifyEvent read _GetAfterInsert write _SetAfterInsert;
+    property BeforeEdit: TDataSetNotifyEvent read _GetBeforeEdit write _SetBeforeEdit;
+    property AfterEdit: TDataSetNotifyEvent read _GetAfterEdit write _SetAfterEdit;
+    property BeforePost: TDataSetNotifyEvent read _GetBeforePost write _SetBeforePost;
+    property AfterPost: TDataSetNotifyEvent read _GetAfterPost write _SetAfterPost;
+    property BeforeCancel: TDataSetNotifyEvent read _GetBeforeCancel write _SetBeforeCancel;
+    property AfterCancel: TDataSetNotifyEvent read _GetAfterCancel write _SetAfterCancel;
+    property BeforeDelete: TDataSetNotifyEvent read _GetBeforeDelete write _SetBeforeDelete;
+    property AfterDelete: TDataSetNotifyEvent read _GetAfterDelete write _SetAfterDelete;
+    property BeforeScroll: TDataSetNotifyEvent read _GetBeforeScroll write _SetBeforeScroll;
+    property AfterScroll: TDataSetNotifyEvent read _GetAfterScroll write _SetAfterScroll;
+    property BeforeRefresh: TDataSetNotifyEvent read _GetBeforeRefresh write _SetBeforeRefresh;
+    property AfterRefresh: TDataSetNotifyEvent read _GetAfterRefresh write _SetAfterRefresh;
+    property OnCalcFields: TDataSetNotifyEvent read _GetOnCalcFields write _SetOnCalcFields;
+    property OnDeleteError: TDataSetErrorEvent read _GetOnDeleteError write _SetOnDeleteError;
+    property OnEditError: TDataSetErrorEvent read _GetOnEditError write _SetOnEditError;
+    property OnFilterRecord: TFilterRecordEvent read _GetOnFilterRecord write _SetOnFilterRecord;
+    property OnNewRecord: TDataSetNotifyEvent read _GetOnNewRecord write _SetOnNewRecord;
+    property OnPostError: TDataSetErrorEvent read _GetOnPostError write _SetOnPostError;
   end;
 
   IDBQuery = interface
     ['{0588C65B-2571-48BB-BE03-BD51ABB6897F}']
-    procedure SetCommandText(ACommandText: string);
-    function GetCommandText: string;
+    procedure _SetCommandText(const ACommandText: string);
+    function _GetCommandText: string;
     procedure ExecuteDirect;
     function ExecuteQuery: IDBResultSet;
-    property CommandText: string read GetCommandText write SetCommandText;
+    function RowsAffected: Integer;
+    property CommandText: string read _GetCommandText write _SetCommandText;
   end;
 
   ICommandMonitor = interface
@@ -171,10 +268,11 @@ type
     procedure AddScript(const AScript: string);
     procedure ExecuteScripts;
     procedure SetCommandMonitor(AMonitor: ICommandMonitor);
+    procedure ApplyUpdates(const ADataSets: array of IDBResultSet);
     function IsConnected: Boolean;
     function GetDriverName: TDriverName;
     function CreateQuery: IDBQuery;
-    function CreateResultSet(const ASQL: String): IDBResultSet;
+    function CreateResultSet(const ASQL: String = ''): IDBResultSet;
     function CommandMonitor: ICommandMonitor;
     function MonitorCallback: TMonitorProc;
     function Options: IOptions;

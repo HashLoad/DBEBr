@@ -59,6 +59,8 @@ type
     function InTransaction: Boolean; virtual; abstract;
     function CreateQuery: IDBQuery; virtual; abstract;
     function CreateResultSet(const ASQL: String): IDBResultSet; virtual; abstract;
+    // Concrete class methods implementation
+    procedure ApplyUpdates(const ADataSets: array of IDBResultSet); virtual;
     property DriverName: TDriverName read FDriverName;
   end;
 
@@ -83,12 +85,14 @@ type
 
   TDriverQuery = class(TInterfacedObject, IDBQuery)
   protected
-    procedure SetCommandText(ACommandText: String); virtual; abstract;
-    function GetCommandText: String; virtual; abstract;
+    // Concrete class methods implementation
+    procedure _SetCommandText(const ACommandText: String); virtual;
+    function _GetCommandText: String; virtual;
   public
     procedure ExecuteDirect; virtual; abstract;
     function ExecuteQuery: IDBResultSet; virtual; abstract;
-    property CommandText: String read GetCommandText write SetCommandText;
+    // Concrete class methods implementation
+    function RowsAffected: Integer; virtual;
   end;
 
   TDriverResultSetBase = class(TInterfacedObject, IDBResultSet)
@@ -102,11 +106,69 @@ type
     FFetchingAll: Boolean;
     FFirstNext: Boolean;
     function _GetFilter: String; virtual; abstract;
-    procedure _SetFilter(const Value: String); virtual; abstract;
+    function _GetFiltered: Boolean; virtual; abstract;
     function _GetFilterOptions: TFilterOptions; virtual; abstract;
-    procedure _SetFilterOptions(Value: TFilterOptions); virtual; abstract;
     function _GetActive: Boolean; virtual; abstract;
+    function _GetAfterCancel: TDataSetNotifyEvent; virtual; abstract;
+    function _GetAfterClose: TDataSetNotifyEvent; virtual; abstract;
+    function _GetAfterDelete: TDataSetNotifyEvent; virtual; abstract;
+    function _GetAfterEdit: TDataSetNotifyEvent; virtual; abstract;
+    function _GetAfterInsert: TDataSetNotifyEvent; virtual; abstract;
+    function _GetAfterOpen: TDataSetNotifyEvent; virtual; abstract;
+    function _GetAfterPost: TDataSetNotifyEvent; virtual; abstract;
+    function _GetAfterRefresh: TDataSetNotifyEvent; virtual; abstract;
+    function _GetAfterScroll: TDataSetNotifyEvent; virtual; abstract;
+    function _GetAutoCalcFields: Boolean; virtual; abstract;
+    function _GetBeforeCancel: TDataSetNotifyEvent; virtual; abstract;
+    function _GetBeforeClose: TDataSetNotifyEvent; virtual; abstract;
+    function _GetBeforeDelete: TDataSetNotifyEvent; virtual; abstract;
+    function _GetBeforeEdit: TDataSetNotifyEvent; virtual; abstract;
+    function _GetBeforeInsert: TDataSetNotifyEvent; virtual; abstract;
+    function _GetBeforeOpen: TDataSetNotifyEvent; virtual; abstract;
+    function _GetBeforePost: TDataSetNotifyEvent; virtual; abstract;
+    function _GetBeforeRefresh: TDataSetNotifyEvent; virtual; abstract;
+    function _GetBeforeScroll: TDataSetNotifyEvent; virtual; abstract;
+    function _GetOnCalcFields: TDataSetNotifyEvent; virtual; abstract;
+    function _GetOnDeleteError: TDataSetErrorEvent; virtual; abstract;
+    function _GetOnEditError: TDataSetErrorEvent; virtual; abstract;
+    function _GetOnFilterRecord: TFilterRecordEvent; virtual; abstract;
+    function _GetOnNewRecord: TDataSetNotifyEvent; virtual; abstract;
+    function _GetOnPostError: TDataSetErrorEvent; virtual; abstract;
+    procedure _SetFilter(const Value: String); virtual; abstract;
+    procedure _SetFiltered(const Value: Boolean); virtual; abstract;
+    procedure _SetFilterOptions(Value: TFilterOptions); virtual; abstract;
     procedure _SetActive(const Value: Boolean); virtual; abstract;
+    procedure _SetAfterCancel(const Value: TDataSetNotifyEvent); virtual; abstract;
+    procedure _SetAfterOpen(const Value: TDataSetNotifyEvent); virtual; abstract;
+    procedure _SetAfterClose(const Value: TDataSetNotifyEvent); virtual; abstract;
+    procedure _SetAfterDelete(const Value: TDataSetNotifyEvent); virtual; abstract;
+    procedure _SetAfterEdit(const Value: TDataSetNotifyEvent); virtual; abstract;
+    procedure _SetAfterInsert(const Value: TDataSetNotifyEvent); virtual; abstract;
+    procedure _SetAfterPost(const Value: TDataSetNotifyEvent); virtual; abstract;
+    procedure _SetAfterRefresh(const Value: TDataSetNotifyEvent); virtual; abstract;
+    procedure _SetAfterScroll(const Value: TDataSetNotifyEvent); virtual; abstract;
+    procedure _SetAutoCalcFields(const Value: Boolean); virtual; abstract;
+    procedure _SetBeforeCancel(const Value: TDataSetNotifyEvent); virtual; abstract;
+    procedure _SetBeforeDelete(const Value: TDataSetNotifyEvent); virtual; abstract;
+    procedure _SetBeforeEdit(const Value: TDataSetNotifyEvent); virtual; abstract;
+    procedure _SetBeforeInsert(const Value: TDataSetNotifyEvent); virtual; abstract;
+    procedure _SetBeforeOpen(const Value: TDataSetNotifyEvent); virtual; abstract;
+    procedure _SetBeforeClose(const Value: TDataSetNotifyEvent); virtual; abstract;
+    procedure _SetBeforePost(const Value: TDataSetNotifyEvent); virtual; abstract;
+    procedure _SetBeforeRefresh(const Value: TDataSetNotifyEvent); virtual; abstract;
+    procedure _SetBeforeScroll(const Value: TDataSetNotifyEvent); virtual; abstract;
+    procedure _SetOnFilterRecord(const Value: TFilterRecordEvent); virtual; abstract;
+    procedure _SetOnCalcFields(const Value: TDataSetNotifyEvent); virtual; abstract;
+    procedure _SetOnDeleteError(const Value: TDataSetErrorEvent); virtual; abstract;
+    procedure _SetOnEditError(const Value: TDataSetErrorEvent); virtual; abstract;
+    procedure _SetOnNewRecord(const Value: TDataSetNotifyEvent); virtual; abstract;
+    procedure _SetOnPostError(const Value: TDataSetErrorEvent); virtual; abstract;
+    // Concrete class methods implementation
+    procedure _SetCommandText(const ACommandText: string); virtual;
+    function _GetCommandText: string; virtual;
+    procedure _SetUniDirectional(const Value: Boolean); virtual;
+    procedure _SetReadOnly(const Value: Boolean); virtual;
+    procedure _SetCachedUpdates(const Value: Boolean); virtual;
   public
     constructor Create; overload; virtual;
     destructor Destroy; override;
@@ -126,15 +188,14 @@ type
     procedure First; virtual; abstract;
     procedure Last; virtual; abstract;
     procedure FreeBookmark(Bookmark: TBookmark); virtual; abstract;
+    procedure ClearFields; virtual; abstract;
     function Locate(const KeyFields: string; const KeyValues: Variant;
       Options: TLocateOptions): Boolean; virtual; abstract;
     function Lookup(const KeyFields: string; const KeyValues: Variant;
       const ResultFields: string): Variant; virtual; abstract;
-    function IsEmpty: Boolean; virtual; abstract;
     function GetBookmark: TBookmark; virtual; abstract;
     function FieldCount: Integer; virtual; abstract;
     function State: TDataSetState; virtual; abstract;
-    function Filtered: Boolean; virtual; abstract;
     function Modified: Boolean; virtual; abstract;
     function NotEof: Boolean; virtual; abstract;
     function GetFieldValue(const AFieldName: String): Variant; overload; virtual; abstract;
@@ -144,18 +205,82 @@ type
     function FieldByName(const AFieldName: String): TAsField; virtual;
     function RecordCount: Integer; virtual;
     function FieldDefs: TFieldDefs; virtual; abstract;
+    function AggFields: TFields; virtual; abstract;
+    function UpdateStatus: TUpdateStatus; virtual; abstract;
+    function CanModify: Boolean; virtual; abstract;
+    function IsEmpty: Boolean; virtual; abstract;
+    function IsUniDirectional: Boolean; virtual; abstract;
+    function IsReadOnly: Boolean; virtual; abstract;
+    function IsCachedUpdates: Boolean; virtual; abstract;
+    function DataSource: TDataSource; virtual; abstract;
     function DataSet: TDataSet; virtual; abstract;
+    // Concrete class methods implementation
+    procedure ApplyUpdates; virtual;
+    procedure CancelUpdates; virtual;
+    function RowsAffected: Integer; virtual;
   end;
 
   TDriverResultSet<T: TDataSet> = class abstract(TDriverResultSetBase)
   protected
     FDataSet: T;
     function _GetFilter: String; override;
-    procedure _SetFilter(const Value: String); override;
+    function _GetFiltered: Boolean; override;
     function _GetFilterOptions: TFilterOptions; override;
-    procedure _SetFilterOptions(Value: TFilterOptions); override;
     function _GetActive: Boolean; override;
+    function _GetAfterCancel: TDataSetNotifyEvent; override;
+    function _GetAfterClose: TDataSetNotifyEvent; override;
+    function _GetAfterDelete: TDataSetNotifyEvent; override;
+    function _GetAfterEdit: TDataSetNotifyEvent; override;
+    function _GetAfterInsert: TDataSetNotifyEvent; override;
+    function _GetAfterOpen: TDataSetNotifyEvent; override;
+    function _GetAfterPost: TDataSetNotifyEvent; override;
+    function _GetAfterRefresh: TDataSetNotifyEvent; override;
+    function _GetAfterScroll: TDataSetNotifyEvent; override;
+    function _GetAutoCalcFields: Boolean; override;
+    function _GetBeforeCancel: TDataSetNotifyEvent; override;
+    function _GetBeforeClose: TDataSetNotifyEvent; override;
+    function _GetBeforeDelete: TDataSetNotifyEvent; override;
+    function _GetBeforeEdit: TDataSetNotifyEvent; override;
+    function _GetBeforeInsert: TDataSetNotifyEvent; override;
+    function _GetBeforeOpen: TDataSetNotifyEvent; override;
+    function _GetBeforePost: TDataSetNotifyEvent; override;
+    function _GetBeforeRefresh: TDataSetNotifyEvent; override;
+    function _GetBeforeScroll: TDataSetNotifyEvent; override;
+    function _GetOnCalcFields: TDataSetNotifyEvent; override;
+    function _GetOnDeleteError: TDataSetErrorEvent; override;
+    function _GetOnEditError: TDataSetErrorEvent; override;
+    function _GetOnFilterRecord: TFilterRecordEvent; override;
+    function _GetOnNewRecord: TDataSetNotifyEvent; override;
+    function _GetOnPostError: TDataSetErrorEvent; override;
+    procedure _SetFilter(const Value: String); override;
+    procedure _SetFiltered(const Value: Boolean); override;
+    procedure _SetFilterOptions(Value: TFilterOptions); override;
     procedure _SetActive(const Value: Boolean); override;
+    procedure _SetAfterCancel(const Value: TDataSetNotifyEvent); override;
+    procedure _SetAfterOpen(const Value: TDataSetNotifyEvent); override;
+    procedure _SetAfterClose(const Value: TDataSetNotifyEvent); override;
+    procedure _SetAfterDelete(const Value: TDataSetNotifyEvent); override;
+    procedure _SetAfterEdit(const Value: TDataSetNotifyEvent); override;
+    procedure _SetAfterInsert(const Value: TDataSetNotifyEvent); override;
+    procedure _SetAfterPost(const Value: TDataSetNotifyEvent); override;
+    procedure _SetAfterRefresh(const Value: TDataSetNotifyEvent); override;
+    procedure _SetAfterScroll(const Value: TDataSetNotifyEvent); override;
+    procedure _SetAutoCalcFields(const Value: Boolean); override;
+    procedure _SetBeforeCancel(const Value: TDataSetNotifyEvent); override;
+    procedure _SetBeforeDelete(const Value: TDataSetNotifyEvent); override;
+    procedure _SetBeforeEdit(const Value: TDataSetNotifyEvent); override;
+    procedure _SetBeforeInsert(const Value: TDataSetNotifyEvent); override;
+    procedure _SetBeforeOpen(const Value: TDataSetNotifyEvent); override;
+    procedure _SetBeforeClose(const Value: TDataSetNotifyEvent); override;
+    procedure _SetBeforePost(const Value: TDataSetNotifyEvent); override;
+    procedure _SetBeforeRefresh(const Value: TDataSetNotifyEvent); override;
+    procedure _SetBeforeScroll(const Value: TDataSetNotifyEvent); override;
+    procedure _SetOnFilterRecord(const Value: TFilterRecordEvent); override;
+    procedure _SetOnCalcFields(const Value: TDataSetNotifyEvent); override;
+    procedure _SetOnDeleteError(const Value: TDataSetErrorEvent); override;
+    procedure _SetOnEditError(const Value: TDataSetErrorEvent); override;
+    procedure _SetOnNewRecord(const Value: TDataSetNotifyEvent); override;
+    procedure _SetOnPostError(const Value: TDataSetErrorEvent); override;
   public
     constructor Create(ADataSet: T); overload; virtual;
     procedure Close; override;
@@ -174,6 +299,7 @@ type
     procedure First; override;
     procedure Last; override;
     procedure FreeBookmark(Bookmark: TBookmark); override;
+    procedure ClearFields; override;
     function Locate(const KeyFields: string; const KeyValues: Variant;
       Options: TLocateOptions): Boolean; override;
     function Lookup(const KeyFields: string; const KeyValues: Variant;
@@ -182,9 +308,12 @@ type
     function GetBookmark: TBookmark; override;
     function FieldCount: Integer; override;
     function State: TDataSetState; override;
-    function Filtered: Boolean; override;
     function Modified: Boolean; override;
     function FieldDefs: TFieldDefs; override;
+    function AggFields: TFields; override;
+    function UpdateStatus: TUpdateStatus; override;
+    function CanModify: Boolean; override;
+    function DataSource: TDataSource; override;
     function DataSet: TDataSet; override;
   end;
 
@@ -230,7 +359,7 @@ begin
   Create;
   // Guarda RecordCount do último SELECT executado no IDBResultSet
   try
-  FRecordCount := FDataSet.RecordCount;
+    FRecordCount := FDataSet.RecordCount;
   except
   end;
 end;
@@ -240,6 +369,16 @@ begin
   Result := FDataSet;
 end;
 
+function TDriverResultSet<T>.DataSource: TDataSource;
+begin
+  Result := FDataSet.DataSource;
+end;
+
+function TDriverResultSet<T>.AggFields: TFields;
+begin
+  Result := FDataSet.AggFields;
+end;
+
 procedure TDriverResultSet<T>.Append;
 begin
   FDataSet.Append;
@@ -247,13 +386,16 @@ end;
 
 procedure TDriverResultSet<T>.Cancel;
 begin
-  inherited;
   FDataSet.Cancel;
+end;
+
+function TDriverResultSet<T>.CanModify: Boolean;
+begin
+  Result := FDataSet.CanModify;
 end;
 
 procedure TDriverResultSet<T>.Delete;
 begin
-  inherited;
   FDataSet.Delete;
 end;
 
@@ -274,21 +416,25 @@ end;
 
 procedure TDriverResultSet<T>.Clear;
 begin
-  inherited;
+  if FDataSet.IsEmpty then
+    Exit;
   FDataSet.DisableControls;
-  FDataSet.First;
   try
-    repeat
-      FDataSet.Delete
-    until (not FDataSet.Eof);
+    FDataSet.First;
+    while not FDataSet.Eof do
+      FDataSet.Delete;
   finally
     FDataSet.EnableControls;
   end;
 end;
 
+procedure TDriverResultSet<T>.ClearFields;
+begin
+  FDataSet.ClearFields;
+end;
+
 procedure TDriverResultSet<T>.Close;
 begin
-  inherited;
   FDataSet.Close;
 end;
 
@@ -299,13 +445,7 @@ end;
 
 function TDriverResultSet<T>.FieldDefs: TFieldDefs;
 begin
-  inherited;
   Result := FDataSet.FieldDefs;
-end;
-
-function TDriverResultSet<T>.Filtered: Boolean;
-begin
-  Result := FDataSet.Filtered;
 end;
 
 procedure TDriverResultSet<T>.First;
@@ -362,7 +502,6 @@ end;
 
 procedure TDriverResultSet<T>.Open;
 begin
-  inherited;
   FDataSet.Open;
 end;
 
@@ -381,9 +520,109 @@ begin
   Result := FDataSet.State;
 end;
 
+function TDriverResultSet<T>.UpdateStatus: TUpdateStatus;
+begin
+  Result := FDataSet.UpdateStatus;
+end;
+
 function TDriverResultSet<T>._GetActive: Boolean;
 begin
   Result := FDataSet.Active;
+end;
+
+function TDriverResultSet<T>._GetAfterCancel: TDataSetNotifyEvent;
+begin
+  Result := FDataSet.AfterCancel;
+end;
+
+function TDriverResultSet<T>._GetAfterClose: TDataSetNotifyEvent;
+begin
+  Result := FDataSet.AfterClose;
+end;
+
+function TDriverResultSet<T>._GetAfterDelete: TDataSetNotifyEvent;
+begin
+  Result := FDataSet.AfterDelete;
+end;
+
+function TDriverResultSet<T>._GetAfterEdit: TDataSetNotifyEvent;
+begin
+  Result := FDataSet.AfterEdit;
+end;
+
+function TDriverResultSet<T>._GetAfterInsert: TDataSetNotifyEvent;
+begin
+  Result := FDataSet.AfterInsert;
+end;
+
+function TDriverResultSet<T>._GetAfterOpen: TDataSetNotifyEvent;
+begin
+  Result := FDataSet.AfterOpen;
+end;
+
+function TDriverResultSet<T>._GetAfterPost: TDataSetNotifyEvent;
+begin
+  Result := FDataSet.AfterPost;
+end;
+
+function TDriverResultSet<T>._GetAfterRefresh: TDataSetNotifyEvent;
+begin
+  Result := FDataSet.AfterRefresh;
+end;
+
+function TDriverResultSet<T>._GetAfterScroll: TDataSetNotifyEvent;
+begin
+  Result := FDataSet.AfterScroll;
+end;
+
+function TDriverResultSet<T>._GetAutoCalcFields: Boolean;
+begin
+  Result := FDataSet.AutoCalcFields;
+end;
+
+function TDriverResultSet<T>._GetBeforeCancel: TDataSetNotifyEvent;
+begin
+  Result := FDataSet.BeforeCancel;
+end;
+
+function TDriverResultSet<T>._GetBeforeClose: TDataSetNotifyEvent;
+begin
+  Result := FDataSet.BeforeClose;
+end;
+
+function TDriverResultSet<T>._GetBeforeDelete: TDataSetNotifyEvent;
+begin
+  Result := FDataSet.BeforeDelete;
+end;
+
+function TDriverResultSet<T>._GetBeforeEdit: TDataSetNotifyEvent;
+begin
+  Result := FDataSet.BeforeEdit;
+end;
+
+function TDriverResultSet<T>._GetBeforeInsert: TDataSetNotifyEvent;
+begin
+  Result := FDataSet.BeforeInsert;
+end;
+
+function TDriverResultSet<T>._GetBeforeOpen: TDataSetNotifyEvent;
+begin
+  Result := FDataSet.BeforeOpen;
+end;
+
+function TDriverResultSet<T>._GetBeforePost: TDataSetNotifyEvent;
+begin
+  Result := FDataSet.BeforePost;
+end;
+
+function TDriverResultSet<T>._GetBeforeRefresh: TDataSetNotifyEvent;
+begin
+  Result := FDataSet.BeforeRefresh;
+end;
+
+function TDriverResultSet<T>._GetBeforeScroll: TDataSetNotifyEvent;
+begin
+  Result := FDataSet.BeforeScroll;
 end;
 
 function TDriverResultSet<T>._GetFilter: String;
@@ -391,9 +630,44 @@ begin
   Result := FDataSet.Filter;
 end;
 
+function TDriverResultSet<T>._GetFiltered: Boolean;
+begin
+  Result := FDataSet.Filtered;
+end;
+
 function TDriverResultSet<T>._GetFilterOptions: TFilterOptions;
 begin
   Result := FDataSet.FilterOptions;
+end;
+
+function TDriverResultSet<T>._GetOnCalcFields: TDataSetNotifyEvent;
+begin
+  Result := FDataSet.OnCalcFields;
+end;
+
+function TDriverResultSet<T>._GetOnDeleteError: TDataSetErrorEvent;
+begin
+  Result := FDataSet.OnDeleteError;
+end;
+
+function TDriverResultSet<T>._GetOnEditError: TDataSetErrorEvent;
+begin
+  Result := FDataSet.OnEditError;
+end;
+
+function TDriverResultSet<T>._GetOnFilterRecord: TFilterRecordEvent;
+begin
+  Result := FDataSet.OnFilterRecord;
+end;
+
+function TDriverResultSet<T>._GetOnNewRecord: TDataSetNotifyEvent;
+begin
+  Result := FDataSet.OnNewRecord;
+end;
+
+function TDriverResultSet<T>._GetOnPostError: TDataSetErrorEvent;
+begin
+  Result := FDataSet.OnPostError;
 end;
 
 procedure TDriverResultSet<T>._SetActive(const Value: Boolean);
@@ -401,9 +675,121 @@ begin
   FDataSet.Active := Value;
 end;
 
+procedure TDriverResultSet<T>._SetAfterCancel(const Value: TDataSetNotifyEvent);
+begin
+  FDataSet.AfterCancel := Value;
+end;
+
+procedure TDriverResultSet<T>._SetAfterClose(const Value: TDataSetNotifyEvent);
+begin
+  FDataSet.AfterClose := Value;
+end;
+
+procedure TDriverResultSet<T>._SetAfterDelete(const Value: TDataSetNotifyEvent);
+begin
+  FDataSet.AfterDelete := Value;
+end;
+
+procedure TDriverResultSet<T>._SetAfterEdit(const Value: TDataSetNotifyEvent);
+begin
+  FDataSet.AfterEdit := Value;
+end;
+
+procedure TDriverResultSet<T>._SetAfterInsert(const Value: TDataSetNotifyEvent);
+begin
+  FDataSet.AfterInsert := Value;
+end;
+
+procedure TDriverResultSet<T>._SetAfterOpen(const Value: TDataSetNotifyEvent);
+begin
+  FDataSet.AfterOpen := Value;
+end;
+
+procedure TDriverResultSet<T>._SetAfterPost(const Value: TDataSetNotifyEvent);
+begin
+  FDataSet.AfterPost := Value;
+end;
+
+procedure TDriverResultSet<T>._SetAfterRefresh(
+  const Value: TDataSetNotifyEvent);
+begin
+  FDataSet.AfterRefresh := Value;
+end;
+
+procedure TDriverResultSet<T>._SetAfterScroll(const Value: TDataSetNotifyEvent);
+begin
+  FDataSet.AfterScroll := Value;
+end;
+
+procedure TDriverResultSet<T>._SetAutoCalcFields(const Value: Boolean);
+begin
+  FDataSet.AutoCalcFields := Value;
+end;
+
+procedure TDriverResultSet<T>._SetBeforeCancel(
+  const Value: TDataSetNotifyEvent);
+begin
+  FDataSet.BeforeCancel := Value;
+end;
+
+procedure TDriverResultSet<T>._SetBeforeClose(const Value: TDataSetNotifyEvent);
+begin
+  FDataSet.BeforeClose := Value;
+end;
+
+procedure TDriverResultSet<T>._SetBeforeDelete(
+  const Value: TDataSetNotifyEvent);
+begin
+  FDataSet.BeforeDelete := Value;
+end;
+
+procedure TDriverResultSet<T>._SetBeforeEdit(const Value: TDataSetNotifyEvent);
+begin
+  FDataSet.BeforeEdit := Value;
+end;
+
+procedure TDriverResultSet<T>._SetBeforeInsert(
+  const Value: TDataSetNotifyEvent);
+begin
+  FDataSet.BeforeInsert := Value;
+end;
+
+procedure TDriverResultSet<T>._SetBeforeOpen(const Value: TDataSetNotifyEvent);
+begin
+  FDataSet.BeforeOpen := Value;
+end;
+
+procedure TDriverResultSet<T>._SetBeforePost(const Value: TDataSetNotifyEvent);
+begin
+  FDataSet.BeforePost := Value;
+end;
+
+procedure TDriverResultSet<T>._SetBeforeRefresh(
+  const Value: TDataSetNotifyEvent);
+begin
+  FDataSet.BeforeRefresh := Value;
+end;
+
+procedure TDriverResultSet<T>._SetBeforeScroll(
+  const Value: TDataSetNotifyEvent);
+begin
+  FDataSet.BeforeScroll := Value;
+end;
+
+procedure TDriverResultSet<T>._SetOnFilterRecord(
+  const Value: TFilterRecordEvent);
+begin
+  FDataSet.OnFilterRecord := Value;
+end;
+
 procedure TDriverResultSet<T>._SetFilter(const Value: String);
 begin
   FDataSet.Filter := Value;
+end;
+
+procedure TDriverResultSet<T>._SetFiltered(const Value: Boolean);
+begin
+  FDataSet.Filtered := Value;
 end;
 
 procedure TDriverResultSet<T>._SetFilterOptions(Value: TFilterOptions);
@@ -411,11 +797,88 @@ begin
   FDataSet.FilterOptions := Value;
 end;
 
+procedure TDriverResultSet<T>._SetOnCalcFields(
+  const Value: TDataSetNotifyEvent);
+begin
+  FDataSet.OnCalcFields := Value;
+end;
+
+procedure TDriverResultSet<T>._SetOnDeleteError(
+  const Value: TDataSetErrorEvent);
+begin
+  FDataSet.OnDeleteError := Value;
+end;
+
+procedure TDriverResultSet<T>._SetOnEditError(const Value: TDataSetErrorEvent);
+begin
+  FDataSet.OnEditError := Value;
+end;
+
+procedure TDriverResultSet<T>._SetOnNewRecord(const Value: TDataSetNotifyEvent);
+begin
+  FDataSet.OnNewRecord := Value;
+end;
+
+procedure TDriverResultSet<T>._SetOnPostError(const Value: TDataSetErrorEvent);
+begin
+  FDataSet.OnPostError := Value;
+end;
+
 { TDriverResultSetBase }
 
 function TDriverResultSetBase.RecordCount: Integer;
 begin
   Result := FRecordCount;
+end;
+
+function TDriverResultSetBase.RowsAffected: Integer;
+begin
+  raise EAbstractError.Create('The RowsAffected() method must be implemented in the concrete class.');
+end;
+
+function TDriverResultSetBase._GetCommandText: string;
+begin
+  raise EAbstractError.Create('The _GetCommandText() method must be implemented in the concrete class.');
+end;
+
+function TDriverResultSetBase._GetFetchingAll: Boolean;
+begin
+  Result := FFetchingAll;
+end;
+
+procedure TDriverResultSetBase._SetCachedUpdates(const Value: Boolean);
+begin
+  raise EAbstractError.Create('The _SetCachedUpdates() method must be implemented in the concrete class.');
+end;
+
+procedure TDriverResultSetBase._SetCommandText(const ACommandText: string);
+begin
+  raise EAbstractError.Create('The _SetCommandText() method must be implemented in the concrete class.');
+end;
+
+procedure TDriverResultSetBase._SetFetchingAll(const Value: Boolean);
+begin
+  FFetchingAll := Value;
+end;
+
+procedure TDriverResultSetBase._SetReadOnly(const Value: Boolean);
+begin
+  raise EAbstractError.Create('The _SetReadOnly() method must be implemented in the concrete class.');
+end;
+
+procedure TDriverResultSetBase._SetUniDirectional(const Value: Boolean);
+begin
+  raise EAbstractError.Create('The _SetUniDirectional() method must be implemented in the concrete class.');
+end;
+
+procedure TDriverResultSetBase.ApplyUpdates;
+begin
+  raise EAbstractError.Create('The ApplyUpdates() method must be implemented in the concrete class.');
+end;
+
+procedure TDriverResultSetBase.CancelUpdates;
+begin
+  raise EAbstractError.Create('The CancelUpdates() method must be implemented in the concrete class.');
 end;
 
 constructor TDriverResultSetBase.Create;
@@ -433,16 +896,6 @@ function TDriverResultSetBase.FieldByName(const AFieldName: String): TAsField;
 begin
   FField.AsFieldName := AFieldName;
   Result := FField;
-end;
-
-function TDriverResultSetBase._GetFetchingAll: Boolean;
-begin
-  Result := FFetchingAll;
-end;
-
-procedure TDriverResultSetBase._SetFetchingAll(const Value: Boolean);
-begin
-  FFetchingAll := Value;
 end;
 
 { TAsField }
@@ -690,6 +1143,30 @@ end;
 function TOptions.StoreGUIDAsOctet: Boolean;
 begin
   Result := FStoreGUIDAsOctet;
+end;
+
+{ TDriverQuery }
+
+function TDriverQuery.RowsAffected: Integer;
+begin
+  raise EAbstractError.Create('The RowsAffected() method must be implemented in the concrete class.');
+end;
+
+function TDriverQuery._GetCommandText: String;
+begin
+  raise EAbstractError.Create('The _GetCommandText() method must be implemented in the concrete class.');
+end;
+
+procedure TDriverQuery._SetCommandText(const ACommandText: String);
+begin
+  raise EAbstractError.Create('The _SetCommandText() method must be implemented in the concrete class.');
+end;
+
+{ TDriverConnection }
+
+procedure TDriverConnection.ApplyUpdates(const ADataSets: array of IDBResultSet);
+begin
+  raise EAbstractError.Create('The ApplyUpdates() method must be implemented in the concrete class.');
 end;
 
 end.

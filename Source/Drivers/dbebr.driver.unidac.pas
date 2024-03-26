@@ -62,34 +62,48 @@ type
     procedure ExecuteScript(const AScript: string); override;
     procedure AddScript(const AScript: string); override;
     procedure ExecuteScripts; override;
+    procedure ApplyUpdates(const ADataSets: array of IDBResultSet); override;
     function IsConnected: Boolean; override;
     function InTransaction: Boolean; override;
     function CreateQuery: IDBQuery; override;
-    function CreateResultSet(const ASQL: String): IDBResultSet; override;
+    function CreateResultSet(const ASQL: String = ''): IDBResultSet; override;
   end;
 
   TDriverQueryUniDAC = class(TDriverQuery)
   private
-    FFDQuery: TUniQuery;
+    FFDQuery: TUniSQL;
   protected
-    procedure SetCommandText(ACommandText: string); override;
-    function GetCommandText: string; override;
+    procedure _SetCommandText(const ACommandText: string); override;
+    function _GetCommandText: string; override;
   public
     constructor Create(AConnection: TUniConnection);
     destructor Destroy; override;
     procedure ExecuteDirect; override;
     function ExecuteQuery: IDBResultSet; override;
+    function RowsAffected: Integer; override;
   end;
 
   TDriverResultSetUniDAC = class(TDriverResultSet<TUniQuery>)
+  protected
+    procedure _SetUniDirectional(const Value: Boolean); override;
+    procedure _SetReadOnly(const Value: Boolean); override;
+    procedure _SetCachedUpdates(const Value: Boolean); override;
+    procedure _SetCommandText(const ACommandText: string); override;
+    function _GetCommandText: string; override;
   public
     constructor Create(ADataSet: TUniQuery); override;
     destructor Destroy; override;
+    procedure ApplyUpdates; override;
+    procedure CancelUpdates; override;
     function NotEof: Boolean; override;
     function GetFieldValue(const AFieldName: string): Variant; overload; override;
     function GetFieldValue(const AFieldIndex: Integer): Variant; overload; override;
     function GetFieldType(const AFieldName: string): TFieldType; overload; override;
     function GetField(const AFieldName: string): TField; override;
+    function RowsAffected: Integer; override;
+    function IsUniDirectional: Boolean; override;
+    function IsReadOnly: Boolean; override;
+    function IsCachedUpdates: Boolean; override;
   end;
 
 implementation
@@ -133,10 +147,10 @@ end;
 
 procedure TDriverUniDAC.ExecuteDirect(const ASQL: string; const AParams: TParams);
 var
-  LExeSQL: TUniQuery;
+  LExeSQL: TUniSQL;
   LFor: Integer;
 begin
-  LExeSQL := TUniQuery.Create(nil);
+  LExeSQL := TUniSQL.Create(nil);
   try
     LExeSQL.Connection := FConnection;
     LExeSQL.SQL.Text := ASQL;
@@ -145,12 +159,9 @@ begin
       LExeSQL.ParamByName(AParams[LFor].Name).DataType := AParams[LFor].DataType;
       LExeSQL.ParamByName(AParams[LFor].Name).Value := AParams[LFor].Value;
     end;
-    try
+    if not LExeSQL.Prepared then
       LExeSQL.Prepare;
-      LExeSQL.ExecSQL;
-    except
-      raise;
-    end;
+    LExeSQL.Execute;
   finally
     LExeSQL.Free;
   end;
@@ -160,12 +171,10 @@ procedure TDriverUniDAC.ExecuteScript(const AScript: string);
 begin
   inherited;
   FSQLScript.SQL.Clear;
-  with FSQLScript.SQL do
-  begin
-    if MatchText(FConnection.ProviderName, ['Firebird', 'InterBase']) then // Firebird/Interbase
-      Add('SET AUTOCOMMIT OFF');
-    Add(AScript);
-  end;
+  if MatchText(FConnection.ProviderName, ['Firebird', 'InterBase']) then // Firebird/Interbase
+    FSQLScript.SQL.Add('SET AUTOCOMMIT OFF');
+
+  FSQLScript.SQL.Add(AScript);
   FSQLScript.Execute;
 end;
 
@@ -184,12 +193,21 @@ end;
 procedure TDriverUniDAC.AddScript(const AScript: string);
 begin
   inherited;
-  with FSQLScript.SQL do
-  begin
-    if MatchText(FConnection.ProviderName, ['Firebird', 'InterBase']) then // Firebird/Interbase
-      Add('SET AUTOCOMMIT OFF');
-    Add(AScript);
-  end;
+  if MatchText(FConnection.ProviderName, ['Firebird', 'InterBase']) then // Firebird/Interbase
+    FSQLScript.SQL.Add('SET AUTOCOMMIT OFF');
+  FSQLScript.SQL.Add(AScript);
+end;
+
+procedure TDriverUniDAC.ApplyUpdates(const ADataSets: array of IDBResultSet);
+var
+  LDataSets: array of TCustomDADataSet;
+  LFor: Integer;
+begin
+  SetLength(LDataSets, Length(ADataSets));
+  for LFor := Low(ADataSets) to High(ADataSets) do
+    LDataSets[LFor] := TCustomDADataSet(ADataSets[LFor].DataSet);
+
+  FConnection.ApplyUpdates(LDataSets);
 end;
 
 procedure TDriverUniDAC.Connect;
@@ -229,8 +247,7 @@ constructor TDriverQueryUniDAC.Create(AConnection: TUniConnection);
 begin
   if AConnection = nil then
     Exit;
-
-  FFDQuery := TUniQuery.Create(nil);
+  FFDQuery := TUniSQL.Create(nil);
   try
     FFDQuery.Connection := AConnection;
   except
@@ -254,39 +271,62 @@ begin
   try
     LResultSet.Connection := FFDQuery.Connection;
     LResultSet.SQL.Text := FFDQuery.SQL.Text;
-
     for LFor := 0 to FFDQuery.Params.Count - 1 do
     begin
       LResultSet.Params[LFor].DataType := FFDQuery.Params[LFor].DataType;
       LResultSet.Params[LFor].Value := FFDQuery.Params[LFor].Value;
     end;
-    LResultSet.Open;
+    if LResultSet.SQL.Text <> '' then
+    begin
+      if not LResultSet.Prepared then
+        LResultSet.Prepare;
+      LResultSet.Open;
+    end;
+    Result := TDriverResultSetUniDAC.Create(LResultSet);
+    if LResultSet.Active then
+    begin
+      if LResultSet.RecordCount = 0 then
+        Result.FetchingAll := True;
+    end;
   except
-    LResultSet.Free;
+    if Assigned(LResultSet) then
+      LResultSet.Free;
     raise;
   end;
-  Result := TDriverResultSetUniDAC.Create(LResultSet);
-  if LResultSet.RecordCount = 0 then
-    Result.FetchingAll := True;
 end;
 
-function TDriverQueryUniDAC.GetCommandText: string;
+function TDriverQueryUniDAC.RowsAffected: Integer;
+begin
+  Result := FFDQuery.RowsAffected;
+end;
+
+function TDriverQueryUniDAC._GetCommandText: string;
 begin
   Result := FFDQuery.SQL.Text;
 end;
 
-procedure TDriverQueryUniDAC.SetCommandText(ACommandText: string);
+procedure TDriverQueryUniDAC._SetCommandText(const ACommandText: string);
 begin
-  inherited;
   FFDQuery.SQL.Text := ACommandText;
 end;
 
 procedure TDriverQueryUniDAC.ExecuteDirect;
 begin
-  FFDQuery.ExecSQL;
+  FFDQuery.Execute;
 end;
 
 { TDriverResultSetUniDAC }
+
+procedure TDriverResultSetUniDAC.ApplyUpdates;
+begin
+  FDataSet.ApplyUpdates;
+end;
+
+procedure TDriverResultSetUniDAC.CancelUpdates;
+begin
+  FDataSet.CancelUpdates;
+  inherited;
+end;
 
 constructor TDriverResultSetUniDAC.Create(ADataSet: TUniQuery);
 begin
@@ -329,6 +369,21 @@ begin
     Result := FDataSet.Fields[AFieldIndex].Value;
 end;
 
+function TDriverResultSetUniDAC.IsCachedUpdates: Boolean;
+begin
+  Result := FDataSet.CachedUpdates;
+end;
+
+function TDriverResultSetUniDAC.IsReadOnly: Boolean;
+begin
+  Result := FDataSet.ReadOnly;
+end;
+
+function TDriverResultSetUniDAC.IsUniDirectional: Boolean;
+begin
+  Result := FDataSet.UniDirectional;
+end;
+
 function TDriverResultSetUniDAC.NotEof: Boolean;
 begin
   if not FFirstNext then
@@ -336,6 +391,36 @@ begin
   else
     FDataSet.Next;
   Result := not FDataSet.Eof;
+end;
+
+function TDriverResultSetUniDAC.RowsAffected: Integer;
+begin
+  Result := FDataSet.RowsAffected;
+end;
+
+function TDriverResultSetUniDAC._GetCommandText: string;
+begin
+  Result := FDataSet.SQL.Text;
+end;
+
+procedure TDriverResultSetUniDAC._SetCachedUpdates(const Value: Boolean);
+begin
+  FDataSet.CachedUpdates := Value;
+end;
+
+procedure TDriverResultSetUniDAC._SetCommandText(const ACommandText: string);
+begin
+  FDataSet.SQL.Text := ACommandText;
+end;
+
+procedure TDriverResultSetUniDAC._SetReadOnly(const Value: Boolean);
+begin
+  FDataSet.ReadOnly := Value;
+end;
+
+procedure TDriverResultSetUniDAC._SetUniDirectional(const Value: Boolean);
+begin
+  FDataSet.UniDirectional := Value;
 end;
 
 end.
