@@ -17,7 +17,8 @@
        arquivo LICENSE na pasta principal.
 }
 
-{ @abstract(DBEBr Framework)
+{
+  @abstract(DBEBr Framework)
   @created(25 julho 2017)
   @author(Marcos J O Nielsen <marcos@softniels.com.br>)
   @author(Skype : marcos@softniels.com.br)
