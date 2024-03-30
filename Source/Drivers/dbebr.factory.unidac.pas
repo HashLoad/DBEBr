@@ -49,23 +49,6 @@ type
       const ADriverName: TDriverName;
       const AMonitorCallback: TMonitorProc); overload;
     destructor Destroy; override;
-    procedure Connect; override;
-    procedure Disconnect; override;
-    procedure StartTransaction; override;
-    procedure Commit; override;
-    procedure Rollback; override;
-    procedure ExecuteDirect(const ASQL: string); overload; override;
-    procedure ExecuteDirect(const ASQL: string;
-      const AParams: TParams); overload; override;
-    procedure ExecuteScript(const AScript: string); override;
-    procedure AddScript(const AScript: string); override;
-    procedure ExecuteScripts; override;
-    procedure ApplyUpdates(const ADataSets: array of IDBResultSet); override;
-    function InTransaction: Boolean; override;
-    function IsConnected: Boolean; override;
-    function GetDriverName: TDriverName; override;
-    function CreateQuery: IDBQuery; override;
-    function CreateResultSet(const ASQL: String): IDBResultSet; override;
   end;
 
 implementation
@@ -76,17 +59,11 @@ uses
 
 { TFactoryUniDAC }
 
-procedure TFactoryUniDAC.Connect;
-begin
-  if not IsConnected then
-    FDriverConnection.Connect;
-end;
-
 constructor TFactoryUniDAC.Create(const AConnection: TComponent;
   const ADriverName: TDriverName);
 begin
-  FDriverConnection  := TDriverUniDAC.Create(AConnection, ADriverName);
   FDriverTransaction := TDriverUniDACTransaction.Create(AConnection);
+  FDriverConnection  := TDriverUniDAC.Create(AConnection, FDriverTransaction, ADriverName);
   FAutoTransaction := False;
 end;
 
@@ -104,95 +81,10 @@ begin
   FMonitorCallback := AMonitorCallback;
 end;
 
-function TFactoryUniDAC.CreateQuery: IDBQuery;
-begin
-  Result := FDriverConnection.CreateQuery;
-end;
-
-function TFactoryUniDAC.CreateResultSet(const ASQL: String): IDBResultSet;
-begin
-  Result := FDriverConnection.CreateResultSet(ASQL);
-end;
-
 destructor TFactoryUniDAC.Destroy;
 begin
-  FDriverTransaction.Free;
   FDriverConnection.Free;
-  inherited;
-end;
-
-procedure TFactoryUniDAC.Disconnect;
-begin
-  inherited;
-  if IsConnected then
-    FDriverConnection.Disconnect;
-end;
-
-procedure TFactoryUniDAC.ExecuteDirect(const ASQL: string);
-begin
-  inherited;
-end;
-
-procedure TFactoryUniDAC.ExecuteDirect(const ASQL: string;
-  const AParams: TParams);
-begin
-  inherited;
-end;
-
-procedure TFactoryUniDAC.ExecuteScript(const AScript: string);
-begin
-  inherited;
-end;
-
-procedure TFactoryUniDAC.ExecuteScripts;
-begin
-  inherited;
-end;
-
-function TFactoryUniDAC.GetDriverName: TDriverName;
-begin
-  inherited;
-  Result := FDriverConnection.DriverName;
-end;
-
-function TFactoryUniDAC.IsConnected: Boolean;
-begin
-  inherited;
-  Result := FDriverConnection.IsConnected;
-end;
-
-function TFactoryUniDAC.InTransaction: Boolean;
-begin
-  Result := FDriverTransaction.InTransaction;
-end;
-
-procedure TFactoryUniDAC.StartTransaction;
-begin
-  inherited;
-  FDriverTransaction.StartTransaction;
-end;
-
-procedure TFactoryUniDAC.AddScript(const AScript: string);
-begin
-  inherited;
-  FDriverConnection.AddScript(AScript);
-end;
-
-procedure TFactoryUniDAC.ApplyUpdates(const ADataSets: array of IDBResultSet);
-begin
-  inherited;
-  FDriverConnection.ApplyUpdates(ADataSets);
-end;
-
-procedure TFactoryUniDAC.Commit;
-begin
-  FDriverTransaction.Commit;
-  inherited;
-end;
-
-procedure TFactoryUniDAC.Rollback;
-begin
-  FDriverTransaction.Rollback;
+  FDriverTransaction.Free;
   inherited;
 end;
 

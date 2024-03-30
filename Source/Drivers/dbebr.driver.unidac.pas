@@ -39,7 +39,6 @@ uses
   Uni,
   DBAccess,
   UniProvider,
-  SQLiteUniProvider,
   UniScript,
   // DBEBr
   dbebr.driver.connection,
@@ -48,12 +47,14 @@ uses
 type
   // Classe de conexão concreta com UniDAC
   TDriverUniDAC = class(TDriverConnection)
+  private
+    function _GetTransactionActive: TUniTransaction;
   protected
     FConnection: TUniConnection;
     FSQLScript : TUniScript;
   public
     constructor Create(const AConnection: TComponent;
-      const ADriverName: TDriverName); override;
+      const ADriverTransaction: TDriverTransaction; const ADriverName: TDriverName); override;
     destructor Destroy; override;
     procedure Connect; override;
     procedure Disconnect; override;
@@ -64,19 +65,20 @@ type
     procedure ExecuteScripts; override;
     procedure ApplyUpdates(const ADataSets: array of IDBResultSet); override;
     function IsConnected: Boolean; override;
-    function InTransaction: Boolean; override;
     function CreateQuery: IDBQuery; override;
     function CreateResultSet(const ASQL: String = ''): IDBResultSet; override;
   end;
 
   TDriverQueryUniDAC = class(TDriverQuery)
   private
-    FFDQuery: TUniSQL;
+    FSQLQuery: TUniSQL;
+    function _GetTransactionActive: TUniTransaction;
   protected
     procedure _SetCommandText(const ACommandText: string); override;
     function _GetCommandText: string; override;
   public
-    constructor Create(AConnection: TUniConnection);
+    constructor Create(const AConnection: TUniConnection;
+      const ADriverTransaction: TDriverTransaction);
     destructor Destroy; override;
     procedure ExecuteDirect; override;
     function ExecuteQuery: IDBResultSet; override;
@@ -111,10 +113,10 @@ implementation
 { TDriverUniDAC }
 
 constructor TDriverUniDAC.Create(const AConnection: TComponent;
-  const ADriverName: TDriverName);
+  const ADriverTransaction: TDriverTransaction; const ADriverName: TDriverName);
 begin
-  inherited;
   FConnection := AConnection as TUniConnection;
+  FDriverTransaction := ADriverTransaction;
   FDriverName := ADriverName;
   FSQLScript  := TUniScript.Create(nil);
   try
@@ -128,6 +130,7 @@ end;
 
 destructor TDriverUniDAC.Destroy;
 begin
+  FDriverTransaction := nil;
   FConnection := nil;
   FSQLScript.Free;
   inherited;
@@ -135,14 +138,24 @@ end;
 
 procedure TDriverUniDAC.Disconnect;
 begin
-  inherited;
   FConnection.Connected := False;
 end;
 
 procedure TDriverUniDAC.ExecuteDirect(const ASQL: string);
+var
+  LExeSQL: TUniSQL;
 begin
-  inherited;
-  FConnection.ExecSQL(ASQL);
+  LExeSQL := TUniSQL.Create(nil);
+  try
+    LExeSQL.Connection := FConnection;
+    LExeSQL.Transaction := _GetTransactionActive;
+    LExeSQL.SQL.Text := ASQL;
+    if not LExeSQL.Prepared then
+      LExeSQL.Prepare;
+    LExeSQL.Execute;
+  finally
+    LExeSQL.Free;
+  end;
 end;
 
 procedure TDriverUniDAC.ExecuteDirect(const ASQL: string; const AParams: TParams);
@@ -153,6 +166,7 @@ begin
   LExeSQL := TUniSQL.Create(nil);
   try
     LExeSQL.Connection := FConnection;
+    LExeSQL.Transaction := _GetTransactionActive;
     LExeSQL.SQL.Text := ASQL;
     for LFor := 0 to AParams.Count - 1 do
     begin
@@ -169,7 +183,7 @@ end;
 
 procedure TDriverUniDAC.ExecuteScript(const AScript: string);
 begin
-  inherited;
+  FSQLScript.Transaction := FDriverTransaction.TransactionActive as TUniTransaction;
   FSQLScript.SQL.Clear;
   if MatchText(FConnection.ProviderName, ['Firebird', 'InterBase']) then // Firebird/Interbase
     FSQLScript.SQL.Add('SET AUTOCOMMIT OFF');
@@ -180,10 +194,10 @@ end;
 
 procedure TDriverUniDAC.ExecuteScripts;
 begin
-  inherited;
   if FSQLScript.SQL.Count = 0 then
     Exit;
   try
+    FSQLScript.Transaction := _GetTransactionActive;
     FSQLScript.Execute;
   finally
     FSQLScript.SQL.Clear;
@@ -192,7 +206,6 @@ end;
 
 procedure TDriverUniDAC.AddScript(const AScript: string);
 begin
-  inherited;
   if MatchText(FConnection.ProviderName, ['Firebird', 'InterBase']) then // Firebird/Interbase
     FSQLScript.SQL.Add('SET AUTOCOMMIT OFF');
   FSQLScript.SQL.Add(AScript);
@@ -212,53 +225,53 @@ end;
 
 procedure TDriverUniDAC.Connect;
 begin
-  inherited;
   FConnection.Connected := True;
-end;
-
-function TDriverUniDAC.InTransaction: Boolean;
-begin
-  Result := FConnection.InTransaction;
 end;
 
 function TDriverUniDAC.IsConnected: Boolean;
 begin
-  inherited;
   Result := FConnection.Connected = True;
+end;
+
+function TDriverUniDAC._GetTransactionActive: TUniTransaction;
+begin
+  Result := FDriverTransaction.TransactionActive as TUniTransaction;
 end;
 
 function TDriverUniDAC.CreateQuery: IDBQuery;
 begin
-  Result := TDriverQueryUniDAC.Create(FConnection);
+  Result := TDriverQueryUniDAC.Create(FConnection, FDriverTransaction);
 end;
 
 function TDriverUniDAC.CreateResultSet(const ASQL: String): IDBResultSet;
 var
   LDBQuery: IDBQuery;
 begin
-  LDBQuery := TDriverQueryUniDAC.Create(FConnection);
+  LDBQuery := TDriverQueryUniDAC.Create(FConnection, FDriverTransaction);
   LDBQuery.CommandText := ASQL;
   Result := LDBQuery.ExecuteQuery;
 end;
 
-{ TDriverDBExpressQuery }
+{ TDriverQueryUniDAC }
 
-constructor TDriverQueryUniDAC.Create(AConnection: TUniConnection);
+constructor TDriverQueryUniDAC.Create(const AConnection: TUniConnection;
+  const ADriverTransaction: TDriverTransaction);
 begin
   if AConnection = nil then
     Exit;
-  FFDQuery := TUniSQL.Create(nil);
+  FDriverTransaction := ADriverTransaction;
+  FSQLQuery := TUniSQL.Create(nil);
   try
-    FFDQuery.Connection := AConnection;
+    FSQLQuery.Connection := AConnection;
   except
-    FFDQuery.Free;
+    FSQLQuery.Free;
     raise;
   end;
 end;
 
 destructor TDriverQueryUniDAC.Destroy;
 begin
-  FFDQuery.Free;
+  FSQLQuery.Free;
   inherited;
 end;
 
@@ -269,12 +282,13 @@ var
 begin
   LResultSet := TUniQuery.Create(nil);
   try
-    LResultSet.Connection := FFDQuery.Connection;
-    LResultSet.SQL.Text := FFDQuery.SQL.Text;
-    for LFor := 0 to FFDQuery.Params.Count - 1 do
+    LResultSet.Connection := FSQLQuery.Connection;
+    LResultSet.Transaction := _GetTransactionActive;
+    LResultSet.SQL.Text := FSQLQuery.SQL.Text;
+    for LFor := 0 to FSQLQuery.Params.Count - 1 do
     begin
-      LResultSet.Params[LFor].DataType := FFDQuery.Params[LFor].DataType;
-      LResultSet.Params[LFor].Value := FFDQuery.Params[LFor].Value;
+      LResultSet.Params[LFor].DataType := FSQLQuery.Params[LFor].DataType;
+      LResultSet.Params[LFor].Value := FSQLQuery.Params[LFor].Value;
     end;
     if LResultSet.SQL.Text <> '' then
     begin
@@ -297,22 +311,28 @@ end;
 
 function TDriverQueryUniDAC.RowsAffected: Integer;
 begin
-  Result := FFDQuery.RowsAffected;
+  Result := FSQLQuery.RowsAffected;
 end;
 
 function TDriverQueryUniDAC._GetCommandText: string;
 begin
-  Result := FFDQuery.SQL.Text;
+  Result := FSQLQuery.SQL.Text;
+end;
+
+function TDriverQueryUniDAC._GetTransactionActive: TUniTransaction;
+begin
+  Result := FDriverTransaction.TransactionActive as TUniTransaction;
 end;
 
 procedure TDriverQueryUniDAC._SetCommandText(const ACommandText: string);
 begin
-  FFDQuery.SQL.Text := ACommandText;
+  FSQLQuery.SQL.Text := ACommandText;
 end;
 
 procedure TDriverQueryUniDAC.ExecuteDirect;
 begin
-  FFDQuery.Execute;
+  FSQLQuery.Transaction := _GetTransactionActive;;
+  FSQLQuery.Execute;
 end;
 
 { TDriverResultSetUniDAC }

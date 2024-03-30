@@ -9,7 +9,7 @@ uses
 
   Uni,
   UniScript,
-
+  SQLiteUniProvider,
   dbebr.factory.interfaces;
 
 type
@@ -17,6 +17,7 @@ type
   TTestDriverConnection = class(TObject)
   strict private
     FConnection: TUniConnection;
+    FDBTransaction: TUniTransaction;
     FDBConnection: IDBConnection;
     FDBQuery: IDBQuery;
     FDBResultSet: IDBResultSet;
@@ -78,13 +79,21 @@ var
 begin
   LRandon := IntToStr( Random(9999) );
 
-  FDBConnection.ExecuteDirect( Format(cSQLUPDATE, [QuotedStr(cDESCRIPTION + LRandon), '1']) );
+  FDBConnection.UseTransaction('TESTE');
+  FDBConnection.StartTransaction;
+  try
+    FDBConnection.ExecuteDirect( Format(cSQLUPDATE, [QuotedStr(cDESCRIPTION + LRandon), '1']) );
 
-  FDBQuery := FDBConnection.CreateQuery;
-  FDBQuery.CommandText := Format(cSQLSELECT, ['1']);
-  LValue := FDBQuery.ExecuteQuery.FieldByName('CLIENT_NAME').AsString;
+    FDBQuery := FDBConnection.CreateQuery;
+    FDBQuery.CommandText := Format(cSQLSELECT, ['1']);
+    LValue := FDBQuery.ExecuteQuery.FieldByName('CLIENT_NAME').AsString;
 
-  Assert.AreEqual(LValue, cDESCRIPTION + LRandon, LValue + ' <> ' + cDESCRIPTION + LRandon);
+    FDBConnection.Commit;
+
+    Assert.AreEqual(LValue, cDESCRIPTION + LRandon, LValue + ' <> ' + cDESCRIPTION + LRandon);
+  except
+    FDBConnection.Rollback;
+  end;
 end;
 
 procedure TTestDriverConnection.TestExecuteDirectParams;
@@ -164,8 +173,15 @@ begin
   FConnection.LoginPrompt := False;
   FConnection.ProviderName := 'SQLite';
   FConnection.Database := '.\database.db3';
+  FConnection.DefaultTransaction.Name := 'DEFAULT';
+
+  // Transação para uso alternativo
+  FDBTransaction := TUniTransaction.Create(nil);
+  FDBTransaction.DefaultConnection := FConnection;
+  FDBTransaction.Name := 'TESTE';
 
   FDBConnection := TFactoryUniDAC.Create(FConnection, dnSQLite);
+  FDBConnection.AddTransaction('TESTE', FDBTransaction);
 end;
 
 procedure TTestDriverConnection.TestStartTransaction;
@@ -177,7 +193,9 @@ end;
 procedure TTestDriverConnection.TearDown;
 begin
   if Assigned(FConnection) then
-    FreeAndNil(FConnection);
+    FConnection.Free;
+  if Assigned(FDBTransaction) then
+    FDBTransaction.Free;
 end;
 
 procedure TTestDriverConnection.TestAddScript;

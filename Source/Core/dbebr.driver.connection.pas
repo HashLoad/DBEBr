@@ -36,17 +36,21 @@ uses
   Classes,
   SysUtils,
   Variants,
+  Generics.Collections,
   // DBEBr
   dbebr.factory.interfaces;
 
 type
+  TDriverTransaction = class;
+
   // Classe de conexões abstract
   TDriverConnection = class abstract
   protected
+    FDriverTransaction: TDriverTransaction;
     FDriverName: TDriverName;
   public
     constructor Create(const AConnection: TComponent;
-      const ADriverName: TDriverName); virtual; abstract;
+      const ADriverTransaction: TDriverTransaction; const ADriverName: TDriverName); virtual; abstract;
     procedure Connect; virtual; abstract;
     procedure Disconnect; virtual; abstract;
     procedure ExecuteDirect(const ASQL: String); overload; virtual; abstract;
@@ -56,21 +60,27 @@ type
     procedure AddScript(const AScript: String); virtual; abstract;
     procedure ExecuteScripts; virtual; abstract;
     function IsConnected: Boolean; virtual; abstract;
-    function InTransaction: Boolean; virtual; abstract;
     function CreateQuery: IDBQuery; virtual; abstract;
     function CreateResultSet(const ASQL: String): IDBResultSet; virtual; abstract;
+    function GetDriverName: TDriverName; virtual;
     // Concrete class methods implementation
     procedure ApplyUpdates(const ADataSets: array of IDBResultSet); virtual;
-    property DriverName: TDriverName read FDriverName;
   end;
 
   // Classe de trasações abstract
-  TDriverTransaction = class abstract
+  TDriverTransaction = class abstract(TInterfacedObject, IDBTransaction)
+  protected
+    FTransactionList: TDictionary<String, TComponent>;
+    FTransactionActive: TComponent;
+    function _GetTransaction(const AKey: String): TComponent; virtual;
   public
-    constructor Create(AConnection: TComponent); virtual; abstract;
+    constructor Create(const AConnection: TComponent); virtual; abstract;
     procedure StartTransaction; virtual; abstract;
     procedure Commit; virtual; abstract;
     procedure Rollback; virtual; abstract;
+    procedure AddTransaction(const AKey: String; const ATransaction: TComponent); virtual;
+    procedure UseTransaction(const AKey: String); virtual;
+    function TransactionActive: TComponent; virtual;
     function InTransaction: Boolean; virtual; abstract;
   end;
 
@@ -85,6 +95,7 @@ type
 
   TDriverQuery = class(TInterfacedObject, IDBQuery)
   protected
+    FDriverTransaction: TDriverTransaction;
     // Concrete class methods implementation
     procedure _SetCommandText(const ACommandText: String); virtual;
     function _GetCommandText: String; virtual;
@@ -357,8 +368,8 @@ implementation
 constructor TDriverResultSet<T>.Create(ADataSet: T);
 begin
   Create;
-  // Guarda RecordCount do último SELECT executado no IDBResultSet
   try
+    // Guarda RecordCount do último SELECT executado no IDBResultSet
     FRecordCount := FDataSet.RecordCount;
   except
   end;
@@ -1167,6 +1178,39 @@ end;
 procedure TDriverConnection.ApplyUpdates(const ADataSets: array of IDBResultSet);
 begin
   raise EAbstractError.Create('The ApplyUpdates() method must be implemented in the concrete class.');
+end;
+
+function TDriverConnection.GetDriverName: TDriverName;
+begin
+  Result := FDriverName;
+end;
+
+{ TDriverTransaction }
+
+procedure TDriverTransaction.AddTransaction(const AKey: String;
+  const ATransaction: TComponent);
+begin
+  if not FTransactionList.ContainsKey(AKey) then
+    FTransactionList.Add(AKey, ATransaction)
+  else
+    raise Exception.Create('Transaction with the same name already exists.');
+end;
+
+function TDriverTransaction.TransactionActive: TComponent;
+begin
+  Result := FTransactionActive;
+end;
+
+procedure TDriverTransaction.UseTransaction(const AKey: String);
+begin
+  if not FTransactionList.TryGetValue(AKey, FTransactionActive) then
+    raise Exception.Create('Transaction not found.');
+end;
+
+function TDriverTransaction._GetTransaction(const AKey: String): TComponent;
+begin
+  if not FTransactionList.TryGetValue(AKey, Result) then
+    raise Exception.Create('Transaction not found.');
 end;
 
 end.

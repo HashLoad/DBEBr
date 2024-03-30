@@ -247,15 +247,19 @@ type
     ['{A3C489B1-F2D8-4E4D-9EC2-152C730ED33D}']
     function StoreGUIDAsOctet(const AValue: Boolean): IOptions; overload;
     function StoreGUIDAsOctet: Boolean; overload;
-
   end;
 
   IDBTransaction = interface
     ['{EB46599C-A021-40E4-94E2-C7507781562B}']
+    function _GetTransaction(const AKey: String): TComponent;
     procedure StartTransaction;
     procedure Commit;
     procedure Rollback;
+    procedure AddTransaction(const AKey: String; const ATransaction: TComponent);
+    procedure UseTransaction(const AKey: String);
+    function TransactionActive: TComponent;
     function InTransaction: Boolean;
+    property Transaction[const AKey: String]: TComponent read _GetTransaction;
   end;
 
   IDBConnection = interface(IDBTransaction)

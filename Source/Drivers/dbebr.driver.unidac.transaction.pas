@@ -30,22 +30,20 @@ unit dbebr.driver.unidac.transaction;
 interface
 
 uses
-  System.Classes,
-  Data.DB,
-  // UniDAC
+  DB,
+  Classes,
+  SysUtils,
+  Generics.Collections,
   Uni,
-
-  // DBEBr
   dbebr.driver.connection,
   dbebr.factory.interfaces;
 
 type
-  // Classe de conexão concreta com UniDAC
   TDriverUniDACTransaction = class(TDriverTransaction)
-  protected
+  private
     FConnection: TUniConnection;
   public
-    constructor Create(AConnection: TComponent); override;
+    constructor Create(const AConnection: TComponent); override;
     destructor Destroy; override;
     procedure StartTransaction; override;
     procedure Commit; override;
@@ -55,40 +53,44 @@ type
 
 implementation
 
-{ TDriverUniDACTransaction }
-
-constructor TDriverUniDACTransaction.Create(AConnection: TComponent);
+constructor TDriverUniDACTransaction.Create(const AConnection: TComponent);
 begin
+  FTransactionList := TDictionary<String, TComponent>.Create;
   FConnection := AConnection as TUniConnection;
+  FConnection.DefaultTransaction.Name := 'DEFAULT';
+  FTransactionList.Add('DEFAULT', FConnection.DefaultTransaction);
+  FTransactionActive := FConnection.DefaultTransaction;
 end;
 
 destructor TDriverUniDACTransaction.Destroy;
 begin
-  FConnection := nil;
+  FTransactionActive := nil;
+  FTransactionList.Clear;
+  FTransactionList.Free;
   inherited;
-end;
-
-function TDriverUniDACTransaction.InTransaction: Boolean;
-begin
-  Result := FConnection.InTransaction;
 end;
 
 procedure TDriverUniDACTransaction.StartTransaction;
 begin
-  inherited;
-  FConnection.StartTransaction;
+  (FTransactionActive as TUniTransaction).StartTransaction;
 end;
 
 procedure TDriverUniDACTransaction.Commit;
 begin
-  inherited;
-  FConnection.Commit;
+  (FTransactionActive as TUniTransaction).Commit;
 end;
 
 procedure TDriverUniDACTransaction.Rollback;
 begin
-  inherited;
-  FConnection.Rollback;
+  (FTransactionActive as TUniTransaction).Rollback;
+end;
+
+function TDriverUniDACTransaction.InTransaction: Boolean;
+begin
+  if not Assigned(FTransactionActive) then
+    raise Exception.Create('The active transaction is not defined. Please make sure to start a transaction before checking if it is in progress.');
+  Result := (FTransactionActive as TUniTransaction).Active;
 end;
 
 end.
+
