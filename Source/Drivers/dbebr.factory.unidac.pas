@@ -31,7 +31,9 @@ interface
 
 uses
   DB,
+  Rtti,
   Classes,
+  Uni,
   // DBEBr
   dbebr.factory.connection,
   dbebr.factory.interfaces;
@@ -40,12 +42,12 @@ type
   // Fábrica de conexão concreta com UniDAC
   TFactoryUniDAC = class(TFactoryConnection)
   public
-    constructor Create(const AConnection: TComponent;
+    constructor Create(const AConnection: TUniConnection;
       const ADriverName: TDriverName); overload;
-    constructor Create(const AConnection: TComponent;
+    constructor Create(const AConnection: TUniConnection;
       const ADriverName: TDriverName;
       const AMonitor: ICommandMonitor); overload;
-    constructor Create(const AConnection: TComponent;
+    constructor Create(const AConnection: TUniConnection;
       const ADriverName: TDriverName;
       const AMonitorCallback: TMonitorProc); overload;
     destructor Destroy; override;
@@ -59,7 +61,7 @@ uses
 
 { TFactoryUniDAC }
 
-constructor TFactoryUniDAC.Create(const AConnection: TComponent;
+constructor TFactoryUniDAC.Create(const AConnection: TUniConnection;
   const ADriverName: TDriverName);
 begin
   FDriverTransaction := TDriverUniDACTransaction.Create(AConnection);
@@ -67,14 +69,14 @@ begin
   FAutoTransaction := False;
 end;
 
-constructor TFactoryUniDAC.Create(const AConnection: TComponent;
+constructor TFactoryUniDAC.Create(const AConnection: TUniConnection;
   const ADriverName: TDriverName; const AMonitor: ICommandMonitor);
 begin
   Create(AConnection, ADriverName);
   FCommandMonitor := AMonitor;
 end;
 
-constructor TFactoryUniDAC.Create(const AConnection: TComponent;
+constructor TFactoryUniDAC.Create(const AConnection: TUniConnection;
   const ADriverName: TDriverName; const AMonitorCallback: TMonitorProc);
 begin
   Create(AConnection, ADriverName);
