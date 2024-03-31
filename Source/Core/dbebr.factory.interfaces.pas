@@ -37,6 +37,7 @@ type
   TMonitorParam = record
     Command: String;
     Params: TParams;
+    constructor Create(const ACommand: String; AParams: TParams);
   end;
 
   TMonitorProc = TProc<TMonitorParam>;
@@ -290,5 +291,13 @@ const
                             'ElevateDB','NexusDB','MariaDB');
 
 implementation
+
+{ TMonitorParam }
+
+constructor TMonitorParam.Create(const ACommand: String; AParams: TParams);
+begin
+  Command := ACommand;
+  Params := AParams;
+end;
 
 end.

@@ -173,7 +173,6 @@ begin
   FConnection.LoginPrompt := False;
   FConnection.ProviderName := 'SQLite';
   FConnection.Database := '.\database.db3';
-  FConnection.DefaultTransaction.Name := 'DEFAULT';
 
   // Transação para uso alternativo
   FDBTransaction := TUniTransaction.Create(nil);

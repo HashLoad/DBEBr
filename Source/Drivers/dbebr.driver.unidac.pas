@@ -53,9 +53,14 @@ type
   protected
     FConnection: TUniConnection;
     FSQLScript : TUniScript;
+    FCommandMonitor: ICommandMonitor;
+    FMonitorCallback: TMonitorProc;
   public
     constructor Create(const AConnection: TComponent;
-      const ADriverTransaction: TDriverTransaction; const ADriverName: TDriverName); override;
+      const ADriverTransaction: TDriverTransaction;
+      const ADriverName: TDriverName;
+      const AMonitor: ICommandMonitor;
+      const AMonitorCallback: TMonitorProc); override;
     destructor Destroy; override;
     procedure Connect; override;
     procedure Disconnect; override;
@@ -68,18 +73,23 @@ type
     function IsConnected: Boolean; override;
     function CreateQuery: IDBQuery; override;
     function CreateResultSet(const ASQL: String = ''): IDBResultSet; override;
+    function GetSQLScripts: String; override;
   end;
 
   TDriverQueryUniDAC = class(TDriverQuery)
   private
     FSQLQuery: TUniSQL;
+    FCommandMonitor: ICommandMonitor;
+    FMonitorCallback: TMonitorProc;
     function _GetTransactionActive: TUniTransaction;
   protected
     procedure _SetCommandText(const ACommandText: string); override;
     function _GetCommandText: string; override;
   public
     constructor Create(const AConnection: TUniConnection;
-      const ADriverTransaction: TDriverTransaction);
+      const ADriverTransaction: TDriverTransaction;
+      const AMonitor: ICommandMonitor;
+      const AMonitorCallback: TMonitorProc);
     destructor Destroy; override;
     procedure ExecuteDirect; override;
     function ExecuteQuery: IDBResultSet; override;
@@ -114,11 +124,16 @@ implementation
 { TDriverUniDAC }
 
 constructor TDriverUniDAC.Create(const AConnection: TComponent;
-  const ADriverTransaction: TDriverTransaction; const ADriverName: TDriverName);
+  const ADriverTransaction: TDriverTransaction;
+  const ADriverName: TDriverName;
+  const AMonitor: ICommandMonitor;
+  const AMonitorCallback: TMonitorProc);
 begin
   FConnection := AConnection as TUniConnection;
   FDriverTransaction := ADriverTransaction;
   FDriverName := ADriverName;
+  FCommandMonitor := AMonitor;
+  FMonitorCallback := AMonitorCallback;
   FSQLScript  := TUniScript.Create(nil);
   try
     FSQLScript.Connection := FConnection;
@@ -205,6 +220,11 @@ begin
   end;
 end;
 
+function TDriverUniDAC.GetSQLScripts: String;
+begin
+  Result := FSQLScript.SQL.Text;
+end;
+
 procedure TDriverUniDAC.AddScript(const AScript: string);
 begin
   if MatchText(FConnection.ProviderName, ['Firebird', 'InterBase']) then // Firebird/Interbase
@@ -241,14 +261,20 @@ end;
 
 function TDriverUniDAC.CreateQuery: IDBQuery;
 begin
-  Result := TDriverQueryUniDAC.Create(FConnection, FDriverTransaction);
+  Result := TDriverQueryUniDAC.Create(FConnection,
+                                      FDriverTransaction,
+                                      FCommandMonitor,
+                                      FMonitorCallback);
 end;
 
 function TDriverUniDAC.CreateResultSet(const ASQL: String): IDBResultSet;
 var
   LDBQuery: IDBQuery;
 begin
-  LDBQuery := TDriverQueryUniDAC.Create(FConnection, FDriverTransaction);
+  LDBQuery := TDriverQueryUniDAC.Create(FConnection,
+                                        FDriverTransaction,
+                                        FCommandMonitor,
+                                        FMonitorCallback);
   LDBQuery.CommandText := ASQL;
   Result := LDBQuery.ExecuteQuery;
 end;
@@ -256,11 +282,15 @@ end;
 { TDriverQueryUniDAC }
 
 constructor TDriverQueryUniDAC.Create(const AConnection: TUniConnection;
-  const ADriverTransaction: TDriverTransaction);
+  const ADriverTransaction: TDriverTransaction;
+  const AMonitor: ICommandMonitor;
+  const AMonitorCallback: TMonitorProc);
 begin
   if AConnection = nil then
     Exit;
   FDriverTransaction := ADriverTransaction;
+  FCommandMonitor := AMonitor;
+  FMonitorCallback := AMonitorCallback;
   FSQLQuery := TUniSQL.Create(nil);
   try
     FSQLQuery.Connection := AConnection;
@@ -303,6 +333,11 @@ begin
       if LResultSet.RecordCount = 0 then
         Result.FetchingAll := True;
     end;
+    // Log
+    if Assigned(FCommandMonitor) then
+      FCommandMonitor.Command(FSQLQuery.SQL.Text, FSQLQuery.Params);
+    if Assigned(FMonitorCallback) then
+      FMonitorCallback(TMonitorParam.Create(FSQLQuery.SQL.Text, FSQLQuery.Params));
   except
     if Assigned(LResultSet) then
       LResultSet.Free;
@@ -334,6 +369,11 @@ procedure TDriverQueryUniDAC.ExecuteDirect;
 begin
   FSQLQuery.Transaction := _GetTransactionActive;;
   FSQLQuery.Execute;
+  // Log
+  if Assigned(FCommandMonitor) then
+    FCommandMonitor.Command(FSQLQuery.SQL.Text, nil);
+  if Assigned(FMonitorCallback) then
+    FMonitorCallback(TMonitorParam.Create(FSQLQuery.SQL.Text, nil));
 end;
 
 { TDriverResultSetUniDAC }

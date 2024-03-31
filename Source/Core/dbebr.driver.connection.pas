@@ -17,7 +17,8 @@
        arquivo LICENSE na pasta principal.
 }
 
-{ @abstract(DBEBr Framework)
+{
+  @abstract(DBEBr Framework)
   @created(20 Jul 2016)
   @author(Isaque Pinheiro <https://www.isaquepinheiro.com.br>)
 }
@@ -50,7 +51,10 @@ type
     FDriverName: TDriverName;
   public
     constructor Create(const AConnection: TComponent;
-      const ADriverTransaction: TDriverTransaction; const ADriverName: TDriverName); virtual; abstract;
+      const ADriverTransaction: TDriverTransaction;
+      const ADriverName: TDriverName;
+      const AMonitor: ICommandMonitor;
+      const AMonitorCallback: TMonitorProc); virtual; abstract;
     procedure Connect; virtual; abstract;
     procedure Disconnect; virtual; abstract;
     procedure ExecuteDirect(const ASQL: String); overload; virtual; abstract;
@@ -64,6 +68,7 @@ type
     function CreateResultSet(const ASQL: String): IDBResultSet; virtual; abstract;
     function GetDriverName: TDriverName; virtual;
     // Concrete class methods implementation
+    function GetSQLScripts: String; virtual;
     procedure ApplyUpdates(const ADataSets: array of IDBResultSet); virtual;
   end;
 
@@ -1185,15 +1190,22 @@ begin
   Result := FDriverName;
 end;
 
+function TDriverConnection.GetSQLScripts: String;
+begin
+  raise EAbstractError.Create('The GetSQLScripts() method must be implemented in the concrete class.');
+end;
+
 { TDriverTransaction }
 
 procedure TDriverTransaction.AddTransaction(const AKey: String;
   const ATransaction: TComponent);
+var
+  LKeyUC: String;
 begin
-  if not FTransactionList.ContainsKey(AKey) then
-    FTransactionList.Add(AKey, ATransaction)
-  else
+  LKeyUC := LowerCase(AKey);
+  if FTransactionList.ContainsKey(LKeyUC) then
     raise Exception.Create('Transaction with the same name already exists.');
+  FTransactionList.Add(LKeyUC, ATransaction);
 end;
 
 function TDriverTransaction.TransactionActive: TComponent;
@@ -1202,14 +1214,20 @@ begin
 end;
 
 procedure TDriverTransaction.UseTransaction(const AKey: String);
+var
+  LKeyUC: String;
 begin
-  if not FTransactionList.TryGetValue(AKey, FTransactionActive) then
+  LKeyUC := LowerCase(AKey);
+  if not FTransactionList.TryGetValue(LKeyUC, FTransactionActive) then
     raise Exception.Create('Transaction not found.');
 end;
 
 function TDriverTransaction._GetTransaction(const AKey: String): TComponent;
+var
+  LKeyUC: String;
 begin
-  if not FTransactionList.TryGetValue(AKey, Result) then
+  LKeyUC := LowerCase(AKey);
+  if not FTransactionList.TryGetValue(LKeyUC, Result) then
     raise Exception.Create('Transaction not found.');
 end;
 

@@ -40,9 +40,9 @@ type
   protected
     FOptions: IOptions;
     FAutoTransaction: Boolean;
-    FCommandMonitor: ICommandMonitor;
     FDriverConnection: TDriverConnection;
     FDriverTransaction: TDriverTransaction;
+    FCommandMonitor: ICommandMonitor;
     FMonitorCallback: TMonitorProc;
     function _GetTransaction(const AKey: String): TComponent; virtual;
   public
@@ -166,6 +166,10 @@ begin
   finally
     if not LIsConnected then
       Disconnect;
+    if Assigned(FCommandMonitor) then
+      FCommandMonitor.Command(ASQL, nil);
+    if Assigned(FMonitorCallback) then
+      FMonitorCallback(TMonitorParam.Create(ASQL, AParams));
   end;
 end;
 
@@ -196,6 +200,10 @@ begin
   finally
     if not LIsConnected then
       Disconnect;
+    if Assigned(FCommandMonitor) then
+      FCommandMonitor.Command(ASQL, nil);
+    if Assigned(FMonitorCallback) then
+      FMonitorCallback(TMonitorParam.Create(ASQL, nil));
   end;
 end;
 
@@ -226,6 +234,10 @@ begin
   finally
     if not LIsConnected then
       Disconnect;
+    if Assigned(FCommandMonitor) then
+      FCommandMonitor.Command(AScript, nil);
+    if Assigned(FMonitorCallback) then
+      FMonitorCallback(TMonitorParam.Create(AScript, nil));
   end;
 end;
 
@@ -256,6 +268,10 @@ begin
   finally
     if not LIsConnected then
       Disconnect;
+    if Assigned(FCommandMonitor) then
+      FCommandMonitor.Command(FDriverConnection.GetSQLScripts, nil);
+    if Assigned(FMonitorCallback) then
+      FMonitorCallback(TMonitorParam.Create(FDriverConnection.GetSQLScripts, nil));
   end;
 end;
 

@@ -17,7 +17,8 @@
        arquivo LICENSE na pasta principal.
 }
 
-{ @abstract(DBEBr Framework)
+{
+  @abstract(DBEBr Framework)
   @created(25 julho 2017)
   @author(Marcos J O Nielsen <marcos@softniels.com.br>)
   @author(Skype : marcos@softniels.com.br)
@@ -33,6 +34,7 @@ uses
   DB,
   Rtti,
   Classes,
+  SysUtils,
   Uni,
   // DBEBr
   dbebr.factory.connection,
@@ -51,6 +53,7 @@ type
       const ADriverName: TDriverName;
       const AMonitorCallback: TMonitorProc); overload;
     destructor Destroy; override;
+    procedure AddTransaction(const AKey: String; const ATransaction: TComponent); override;
   end;
 
 implementation
@@ -65,7 +68,11 @@ constructor TFactoryUniDAC.Create(const AConnection: TUniConnection;
   const ADriverName: TDriverName);
 begin
   FDriverTransaction := TDriverUniDACTransaction.Create(AConnection);
-  FDriverConnection  := TDriverUniDAC.Create(AConnection, FDriverTransaction, ADriverName);
+  FDriverConnection  := TDriverUniDAC.Create(AConnection,
+                                             FDriverTransaction,
+                                             ADriverName,
+                                             FCommandMonitor,
+                                             FMonitorCallback);
   FAutoTransaction := False;
 end;
 
@@ -74,6 +81,15 @@ constructor TFactoryUniDAC.Create(const AConnection: TUniConnection;
 begin
   Create(AConnection, ADriverName);
   FCommandMonitor := AMonitor;
+end;
+
+procedure TFactoryUniDAC.AddTransaction(const AKey: String;
+  const ATransaction: TComponent);
+begin
+  if not (ATransaction is TUniTransaction) then
+    raise Exception.Create('Invalid transaction type. Expected TUniTransaction.');
+
+  inherited AddTransaction(AKey, ATransaction);
 end;
 
 constructor TFactoryUniDAC.Create(const AConnection: TUniConnection;
