@@ -166,10 +166,6 @@ begin
   finally
     if not LIsConnected then
       Disconnect;
-    if Assigned(FCommandMonitor) then
-      FCommandMonitor.Command(ASQL, nil);
-    if Assigned(FMonitorCallback) then
-      FMonitorCallback(TMonitorParam.Create(ASQL, AParams));
   end;
 end;
 
@@ -200,10 +196,6 @@ begin
   finally
     if not LIsConnected then
       Disconnect;
-    if Assigned(FCommandMonitor) then
-      FCommandMonitor.Command(ASQL, nil);
-    if Assigned(FMonitorCallback) then
-      FMonitorCallback(TMonitorParam.Create(ASQL, nil));
   end;
 end;
 
@@ -234,10 +226,6 @@ begin
   finally
     if not LIsConnected then
       Disconnect;
-    if Assigned(FCommandMonitor) then
-      FCommandMonitor.Command(AScript, nil);
-    if Assigned(FMonitorCallback) then
-      FMonitorCallback(TMonitorParam.Create(AScript, nil));
   end;
 end;
 
@@ -268,10 +256,6 @@ begin
   finally
     if not LIsConnected then
       Disconnect;
-    if Assigned(FCommandMonitor) then
-      FCommandMonitor.Command(FDriverConnection.GetSQLScripts, nil);
-    if Assigned(FMonitorCallback) then
-      FMonitorCallback(TMonitorParam.Create(FDriverConnection.GetSQLScripts, nil));
   end;
 end;
 

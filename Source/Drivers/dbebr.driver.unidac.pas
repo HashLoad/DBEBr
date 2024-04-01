@@ -170,6 +170,11 @@ begin
       LExeSQL.Prepare;
     LExeSQL.Execute;
   finally
+    // Log
+    if Assigned(FCommandMonitor) then
+      FCommandMonitor.Command('Transaction: ' + LExeSQL.Transaction.Name + ' - ' + LExeSQL.SQL.Text, nil);
+    if Assigned(FMonitorCallback) then
+      FMonitorCallback(TMonitorParam.Create('Transaction: ' + LExeSQL.Transaction.Name + ' - ' + LExeSQL.SQL.Text, nil));
     LExeSQL.Free;
   end;
 end;
@@ -193,19 +198,19 @@ begin
       LExeSQL.Prepare;
     LExeSQL.Execute;
   finally
+    // Log
+    if Assigned(FCommandMonitor) then
+      FCommandMonitor.Command('Transaction: ' + LExeSQL.Transaction.Name + ' - ' + LExeSQL.SQL.Text, LExeSQL.Params);
+    if Assigned(FMonitorCallback) then
+      FMonitorCallback(TMonitorParam.Create('Transaction: ' + LExeSQL.Transaction.Name + ' - ' + LExeSQL.SQL.Text, LExeSQL.Params));
     LExeSQL.Free;
   end;
 end;
 
 procedure TDriverUniDAC.ExecuteScript(const AScript: string);
 begin
-  FSQLScript.Transaction := _GetTransactionActive;
-  FSQLScript.SQL.Clear;
-  if MatchText(FConnection.ProviderName, ['Firebird', 'InterBase']) then // Firebird/Interbase
-    FSQLScript.SQL.Add('SET AUTOCOMMIT OFF');
-
-  FSQLScript.SQL.Add(AScript);
-  FSQLScript.Execute;
+  AddScript(AScript);
+  ExecuteScripts;
 end;
 
 procedure TDriverUniDAC.ExecuteScripts;
@@ -216,13 +221,18 @@ begin
     FSQLScript.Transaction := _GetTransactionActive;
     FSQLScript.Execute;
   finally
+    // Log
+    if Assigned(FCommandMonitor) then
+      FCommandMonitor.Command('Transaction: ' + FSQLScript.Transaction.Name + ' - ' + FSQLScript.SQL.Text, nil);
+    if Assigned(FMonitorCallback) then
+      FMonitorCallback(TMonitorParam.Create('Transaction: ' + FSQLScript.Transaction.Name + ' - ' + FSQLScript.SQL.Text, nil));
     FSQLScript.SQL.Clear;
   end;
 end;
 
 function TDriverUniDAC.GetSQLScripts: String;
 begin
-  Result := FSQLScript.SQL.Text;
+  Result := 'Transaction: ' + FSQLScript.Transaction.Name + ' ' +  FSQLScript.SQL.Text;
 end;
 
 procedure TDriverUniDAC.AddScript(const AScript: string);
@@ -316,28 +326,31 @@ begin
     LResultSet.Connection := FSQLQuery.Connection;
     LResultSet.Transaction := _GetTransactionActive;
     LResultSet.SQL.Text := FSQLQuery.SQL.Text;
-    for LFor := 0 to FSQLQuery.Params.Count - 1 do
-    begin
-      LResultSet.Params[LFor].DataType := FSQLQuery.Params[LFor].DataType;
-      LResultSet.Params[LFor].Value := FSQLQuery.Params[LFor].Value;
+    try
+      for LFor := 0 to FSQLQuery.Params.Count - 1 do
+      begin
+        LResultSet.Params[LFor].DataType := FSQLQuery.Params[LFor].DataType;
+        LResultSet.Params[LFor].Value := FSQLQuery.Params[LFor].Value;
+      end;
+      if LResultSet.SQL.Text <> '' then
+      begin
+        if not LResultSet.Prepared then
+          LResultSet.Prepare;
+        LResultSet.Open;
+      end;
+      Result := TDriverResultSetUniDAC.Create(LResultSet);
+      if LResultSet.Active then
+      begin
+        if LResultSet.RecordCount = 0 then
+          Result.FetchingAll := True;
+      end;
+    finally
+      // Log
+      if Assigned(FCommandMonitor) then
+        FCommandMonitor.Command('Transaction: ' + LResultSet.Transaction.Name + ' - ' + LResultSet.SQL.Text, LResultSet.Params);
+      if Assigned(FMonitorCallback) then
+        FMonitorCallback(TMonitorParam.Create('Transaction: ' + LResultSet.Transaction.Name + ' - ' + LResultSet.SQL.Text, LResultSet.Params));
     end;
-    if LResultSet.SQL.Text <> '' then
-    begin
-      if not LResultSet.Prepared then
-        LResultSet.Prepare;
-      LResultSet.Open;
-    end;
-    Result := TDriverResultSetUniDAC.Create(LResultSet);
-    if LResultSet.Active then
-    begin
-      if LResultSet.RecordCount = 0 then
-        Result.FetchingAll := True;
-    end;
-    // Log
-    if Assigned(FCommandMonitor) then
-      FCommandMonitor.Command('Transaction: ' + FSQLQuery.Transaction.Name + ' - ' + FSQLQuery.SQL.Text, FSQLQuery.Params);
-    if Assigned(FMonitorCallback) then
-      FMonitorCallback(TMonitorParam.Create('Transaction: ' + FSQLQuery.Transaction.Name + ' - ' + FSQLQuery.SQL.Text, FSQLQuery.Params));
   except
     if Assigned(LResultSet) then
       LResultSet.Free;
@@ -368,12 +381,15 @@ end;
 procedure TDriverQueryUniDAC.ExecuteDirect;
 begin
   FSQLQuery.Transaction := _GetTransactionActive;;
-  FSQLQuery.Execute;
-  // Log
-  if Assigned(FCommandMonitor) then
-    FCommandMonitor.Command('Transaction: ' + FSQLQuery.Transaction.Name + ' - ' + FSQLQuery.SQL.Text, nil);
-  if Assigned(FMonitorCallback) then
-    FMonitorCallback(TMonitorParam.Create('Transaction: ' + FSQLQuery.Transaction.Name + ' - ' + FSQLQuery.SQL.Text, nil));
+  try
+    FSQLQuery.Execute;
+  finally
+    // Log
+    if Assigned(FCommandMonitor) then
+      FCommandMonitor.Command('Transaction: ' + FSQLQuery.Transaction.Name + ' - ' + FSQLQuery.SQL.Text, nil);
+    if Assigned(FMonitorCallback) then
+      FMonitorCallback(TMonitorParam.Create('Transaction: ' + FSQLQuery.Transaction.Name + ' - ' + FSQLQuery.SQL.Text, nil));
+  end;
 end;
 
 { TDriverResultSetUniDAC }
