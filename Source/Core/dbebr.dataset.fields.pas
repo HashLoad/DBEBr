@@ -1,5 +1,5 @@
 {
-      ORM Brasil é um ORM simples e descomplicado para quem utiliza Delphi
+  DBE Brasil é um Engine de Conexão simples e descomplicado for Delphi/Lazarus
 
                    Copyright (c) 2016, Isaque Pinheiro
                           All rights reserved.
@@ -17,12 +17,10 @@
        arquivo LICENSE na pasta principal.
 }
 
-{ @abstract(ORMBr Framework.)
+{
+  @abstract(ORMBr Framework.)
   @created(20 Jul 2016)
-  @author(Isaque Pinheiro <isaquepsp@gmail.com>)
-  @author(Skype : ispinheiro)
-
-  ORM Brasil é um ORM simples e descomplicado para quem utiliza Delphi.
+  @author(Isaque Pinheiro <https://www.isaquepinheiro.com.br>)
 }
 
 unit dbebr.dataset.fields;
@@ -35,7 +33,7 @@ uses
   SysUtils;
 
 const
-  C_INERTNALFIELD = 'InternalField';
+  C_INTERNAL_FIELD = 'InternalField';
 
 type
   IFieldSingleton = interface
@@ -43,12 +41,12 @@ type
     function AddField(const ADataSet: TDataSet;
                       const AFieldName: String;
                       const AFieldType: TFieldType;
-                      const APrecision: Integer = 0;
-                      const ASize: Integer = 0): IFieldSingleton;
+                      const APrecision: UInt16 = 0;
+                      const ASize: UInt32 = 0): IFieldSingleton;
     function AddCalcField(const ADataSet: TDataSet;
                            const AFieldName: string;
                            const AFieldType: TFieldType;
-                           const ASize: Integer = 0): IFieldSingleton;
+                           const ASize: Uint32 = 0): IFieldSingleton;
     function AddAggregateField(const ADataSet: TDataSet;
                                 const AFieldName, AExpression: string;
                                 const AAlignment: TAlignment = taLeftJustify;
@@ -60,7 +58,7 @@ type
                              const ALookupKeyFields: string;
                              const ALookupResultField: string;
                              const AFieldType: TFieldType;
-                             const ASize: Integer = 0;
+                             const ASize: UInt32 = 0;
                              const ADisplayLabel: string = ''): IFieldSingleton;
   end;
 
@@ -78,12 +76,12 @@ type
     function AddField(const ADataSet: TDataSet;
                       const AFieldName: String;
                       const AFieldType: TFieldType;
-                      const APrecision: Integer = 0;
-                      const ASize: Integer = 0): IFieldSingleton;
+                      const APrecision: UInt16 = 0;
+                      const ASize: UInt32 = 0): IFieldSingleton;
     function AddCalcField(const ADataSet: TDataSet;
                            const AFieldName: string;
                            const AFieldType: TFieldType;
-                           const ASize: Integer = 0): IFieldSingleton;
+                           const ASize: UInt32 = 0): IFieldSingleton;
     function AddAggregateField(const ADataSet: TDataSet;
                                 const AFieldName, AExpression: string;
                                 const AAlignment: TAlignment = taLeftJustify;
@@ -95,7 +93,7 @@ type
                              const ALookupKeyFields: string;
                              const ALookupResultField: string;
                              const AFieldType: TFieldType;
-                             const ASize: Integer = 0;
+                             const ASize: UInt32 = 0;
                              const ADisplayLabel: string = ''): IFieldSingleton;
   end;
 
@@ -104,14 +102,20 @@ implementation
 function TFieldSingleton.AddField(const ADataSet: TDataSet;
   const AFieldName: String;
   const AFieldType: TFieldType;
-  const APrecision: Integer = 0;
-  const ASize: Integer = 0): IFieldSingleton;
+  const APrecision: UInt16 = 0;
+  const ASize: UInt32 = 0): IFieldSingleton;
 var
   LField: TField;
 begin
+  if ADataSet = nil then
+    raise Exception.Create('The dataset cannot be null.');
+
+  if ADataSet.FindField(AFieldName) <> nil then
+    raise Exception.Create('The field: ' + AFieldName + ' already exists in the dataset.');
+
   LField := GetFieldType(ADataSet, AFieldType);
   if LField = nil then
-    Exit;
+    raise Exception.Create('Unsupported field type.');
 
   LField.Name         := ADataSet.Name + AFieldName;
   LField.FieldName    := AFieldName;
@@ -144,14 +148,20 @@ function TFieldSingleton.AddLookupField(const AFieldName: string;
   const ALookupKeyFields: string;
   const ALookupResultField: string;
   const AFieldType: TFieldType;
-  const ASize: Integer;
+  const ASize: UInt32;
   const ADisplayLabel: string): IFieldSingleton;
 var
   LField: TField;
 begin
+  if ADataSet = nil then
+    raise Exception.Create('The dataset cannot be null.');
+
+  if ADataSet.FindField(AFieldName) <> nil then
+    raise Exception.Create('The field: ' + AFieldName + ' already exists in the dataset.');
+
   LField := GetFieldType(ADataSet, AFieldType);
   if LField = nil then
-    Exit;
+    raise Exception.Create('Unsupported field type.');
 
   LField.Name              := ADataSet.Name + '_' + AFieldName;
   LField.FieldName         := AFieldName;
@@ -249,16 +259,19 @@ end;
 function TFieldSingleton.AddCalcField(const ADataSet: TDataSet;
   const AFieldName: String;
   const AFieldType: TFieldType;
-  const ASize: Integer): IFieldSingleton;
+  const ASize: UInt32): IFieldSingleton;
 var
   LField: TField;
 begin
-  if (ADataSet.FindField(AFieldName) <> nil) then
-    raise Exception.Create('O Campo calculado : ' + AFieldName + ' já existe');
+  if ADataSet = nil then
+    raise Exception.Create('The dataset cannot be null.');
+
+  if ADataSet.FindField(AFieldName) <> nil then
+    raise Exception.Create('The calculated field: ' + AFieldName + ' already exists.');
 
   LField := GetFieldType(ADataSet, AFieldType);
   if LField = nil then
-    Exit;
+    raise Exception.Create('Unsupported field type.');
 
   LField.Name       := ADataSet.Name + AFieldName;
   LField.FieldName  := AFieldName;
@@ -283,12 +296,15 @@ function TFieldSingleton.AddAggregateField(const ADataSet: TDataSet;
 var
   LField: TAggregateField;
 begin
+  if ADataSet = nil then
+    raise Exception.Create('The dataset cannot be null.');
+
   if ADataSet.FindField(AFieldName) <> nil then
-     raise Exception.Create('O Campo agregado de nome : ' + AFieldName + ' já existe');
+     raise Exception.Create('The aggregated field named: ' + AFieldName + ' already exists.');
 
   LField := TAggregateField.Create(ADataSet);
   if LField = nil then
-    Exit;
+    raise Exception.Create('Unsupported field type.');
 
   LField.Name         := ADataSet.Name + AFieldName;
   LField.FieldKind    := fkAggregate;
