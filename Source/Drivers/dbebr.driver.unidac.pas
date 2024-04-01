@@ -50,6 +50,7 @@ type
   TDriverUniDAC = class(TDriverConnection)
   private
     function _GetTransactionActive: TUniTransaction;
+    procedure _SetMonitorLog(const ASQL: String; ATransactionName: String; AParams: TParams);
   protected
     FConnection: TUniConnection;
     FSQLScript : TUniScript;
@@ -82,6 +83,7 @@ type
     FCommandMonitor: ICommandMonitor;
     FMonitorCallback: TMonitorProc;
     function _GetTransactionActive: TUniTransaction;
+    procedure _SetMonitorLog(const ASQL: String; ATransactionName: String; AParams: TParams);
   protected
     procedure _SetCommandText(const ACommandText: string); override;
     function _GetCommandText: string; override;
@@ -170,11 +172,7 @@ begin
       LExeSQL.Prepare;
     LExeSQL.Execute;
   finally
-    // Log
-    if Assigned(FCommandMonitor) then
-      FCommandMonitor.Command('Transaction: ' + LExeSQL.Transaction.Name + ' - ' + LExeSQL.SQL.Text, nil);
-    if Assigned(FMonitorCallback) then
-      FMonitorCallback(TMonitorParam.Create('Transaction: ' + LExeSQL.Transaction.Name + ' - ' + LExeSQL.SQL.Text, nil));
+    _SetMonitorLog(LExeSQL.SQL.Text, LExeSQL.Transaction.Name, LExeSQL.Params);
     LExeSQL.Free;
   end;
 end;
@@ -198,11 +196,7 @@ begin
       LExeSQL.Prepare;
     LExeSQL.Execute;
   finally
-    // Log
-    if Assigned(FCommandMonitor) then
-      FCommandMonitor.Command('Transaction: ' + LExeSQL.Transaction.Name + ' - ' + LExeSQL.SQL.Text, LExeSQL.Params);
-    if Assigned(FMonitorCallback) then
-      FMonitorCallback(TMonitorParam.Create('Transaction: ' + LExeSQL.Transaction.Name + ' - ' + LExeSQL.SQL.Text, LExeSQL.Params));
+    _SetMonitorLog(LExeSQL.SQL.Text, LExeSQL.Transaction.Name, LExeSQL.Params);
     LExeSQL.Free;
   end;
 end;
@@ -221,11 +215,7 @@ begin
     FSQLScript.Transaction := _GetTransactionActive;
     FSQLScript.Execute;
   finally
-    // Log
-    if Assigned(FCommandMonitor) then
-      FCommandMonitor.Command('Transaction: ' + FSQLScript.Transaction.Name + ' - ' + FSQLScript.SQL.Text, nil);
-    if Assigned(FMonitorCallback) then
-      FMonitorCallback(TMonitorParam.Create('Transaction: ' + FSQLScript.Transaction.Name + ' - ' + FSQLScript.SQL.Text, nil));
+    _SetMonitorLog(FSQLScript.SQL.Text, FSQLScript.Transaction.Name, nil);
     FSQLScript.SQL.Clear;
   end;
 end;
@@ -267,6 +257,14 @@ end;
 function TDriverUniDAC._GetTransactionActive: TUniTransaction;
 begin
   Result := FDriverTransaction.TransactionActive as TUniTransaction;
+end;
+
+procedure TDriverUniDAC._SetMonitorLog(const ASQL: String; ATransactionName: String; AParams: TParams);
+begin
+  if Assigned(FCommandMonitor) then
+    FCommandMonitor.Command('Transaction: ' + ATransactionName + ' - ' + ASQL, AParams);
+  if Assigned(FMonitorCallback) then
+    FMonitorCallback(TMonitorParam.Create('Transaction: ' + ATransactionName + ' - ' + ASQL, AParams));
 end;
 
 function TDriverUniDAC.CreateQuery: IDBQuery;
@@ -345,11 +343,7 @@ begin
           Result.FetchingAll := True;
       end;
     finally
-      // Log
-      if Assigned(FCommandMonitor) then
-        FCommandMonitor.Command('Transaction: ' + LResultSet.Transaction.Name + ' - ' + LResultSet.SQL.Text, LResultSet.Params);
-      if Assigned(FMonitorCallback) then
-        FMonitorCallback(TMonitorParam.Create('Transaction: ' + LResultSet.Transaction.Name + ' - ' + LResultSet.SQL.Text, LResultSet.Params));
+      _SetMonitorLog(LResultSet.SQL.Text, LResultSet.Transaction.Name, LResultSet.Params);
     end;
   except
     if Assigned(LResultSet) then
@@ -378,17 +372,22 @@ begin
   FSQLQuery.SQL.Text := ACommandText;
 end;
 
+procedure TDriverQueryUniDAC._SetMonitorLog(const ASQL: String; ATransactionName: String;
+  AParams: TParams);
+begin
+  if Assigned(FCommandMonitor) then
+    FCommandMonitor.Command('Transaction: ' + ATransactionName + ' - ' + ASQL, AParams);
+  if Assigned(FMonitorCallback) then
+    FMonitorCallback(TMonitorParam.Create('Transaction: ' + ATransactionName + ' - ' + ASQL, AParams));
+end;
+
 procedure TDriverQueryUniDAC.ExecuteDirect;
 begin
   FSQLQuery.Transaction := _GetTransactionActive;;
   try
     FSQLQuery.Execute;
   finally
-    // Log
-    if Assigned(FCommandMonitor) then
-      FCommandMonitor.Command('Transaction: ' + FSQLQuery.Transaction.Name + ' - ' + FSQLQuery.SQL.Text, nil);
-    if Assigned(FMonitorCallback) then
-      FMonitorCallback(TMonitorParam.Create('Transaction: ' + FSQLQuery.Transaction.Name + ' - ' + FSQLQuery.SQL.Text, nil));
+    _SetMonitorLog(FSQLQuery.SQL.Text, FSQLQuery.Transaction.Name, FSQLQuery.Params);
   end;
 end;
 
