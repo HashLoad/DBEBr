@@ -262,9 +262,9 @@ end;
 procedure TDriverUniDAC._SetMonitorLog(const ASQL: String; ATransactionName: String; AParams: TParams);
 begin
   if Assigned(FCommandMonitor) then
-    FCommandMonitor.Command('Transaction: ' + ATransactionName + ' - ' + ASQL, AParams);
+    FCommandMonitor.Command('[Transaction: ' + ATransactionName + '] - ' + ASQL, AParams);
   if Assigned(FMonitorCallback) then
-    FMonitorCallback(TMonitorParam.Create('Transaction: ' + ATransactionName + ' - ' + ASQL, AParams));
+    FMonitorCallback(TMonitorParam.Create('[Transaction: ' + ATransactionName + '] - ' + ASQL, AParams));
 end;
 
 function TDriverUniDAC.CreateQuery: IDBQuery;
@@ -376,9 +376,9 @@ procedure TDriverQueryUniDAC._SetMonitorLog(const ASQL: String; ATransactionName
   AParams: TParams);
 begin
   if Assigned(FCommandMonitor) then
-    FCommandMonitor.Command('Transaction: ' + ATransactionName + ' - ' + ASQL, AParams);
+    FCommandMonitor.Command('[Transaction: ' + ATransactionName + '] - ' + ASQL, AParams);
   if Assigned(FMonitorCallback) then
-    FMonitorCallback(TMonitorParam.Create('Transaction: ' + ATransactionName + ' - ' + ASQL, AParams));
+    FMonitorCallback(TMonitorParam.Create('[Transaction: ' + ATransactionName + '] - ' + ASQL, AParams));
 end;
 
 procedure TDriverQueryUniDAC.ExecuteDirect;
