@@ -335,9 +335,9 @@ begin
     end;
     // Log
     if Assigned(FCommandMonitor) then
-      FCommandMonitor.Command(FSQLQuery.SQL.Text, FSQLQuery.Params);
+      FCommandMonitor.Command('Transaction: ' + FSQLQuery.Transaction.Name + ' - ' + FSQLQuery.SQL.Text, FSQLQuery.Params);
     if Assigned(FMonitorCallback) then
-      FMonitorCallback(TMonitorParam.Create(FSQLQuery.SQL.Text, FSQLQuery.Params));
+      FMonitorCallback(TMonitorParam.Create('Transaction: ' + FSQLQuery.Transaction.Name + ' - ' + FSQLQuery.SQL.Text, FSQLQuery.Params));
   except
     if Assigned(LResultSet) then
       LResultSet.Free;
@@ -371,9 +371,9 @@ begin
   FSQLQuery.Execute;
   // Log
   if Assigned(FCommandMonitor) then
-    FCommandMonitor.Command(FSQLQuery.SQL.Text, nil);
+    FCommandMonitor.Command('Transaction: ' + FSQLQuery.Transaction.Name + ' - ' + FSQLQuery.SQL.Text, nil);
   if Assigned(FMonitorCallback) then
-    FMonitorCallback(TMonitorParam.Create(FSQLQuery.SQL.Text, nil));
+    FMonitorCallback(TMonitorParam.Create('Transaction: ' + FSQLQuery.Transaction.Name + ' - ' + FSQLQuery.SQL.Text, nil));
 end;
 
 { TDriverResultSetUniDAC }

@@ -1227,6 +1227,8 @@ begin
   LKeyUC := LowerCase(AKey);
   if FTransactionList.ContainsKey(LKeyUC) then
     raise Exception.Create('Transaction with the same name already exists.');
+  if ATransaction.Name = EmptyStr then
+    ATransaction.Name := AKey;
   FTransactionList.Add(LKeyUC, ATransaction);
 end;
 
