@@ -99,7 +99,7 @@ type
     destructor Destroy; override;
     function NotEof: Boolean; override;
     function GetFieldValue(const AFieldName: string): Variant; overload; override;
-    function GetFieldValue(const AFieldIndex: Integer): Variant; overload; override;
+    function GetFieldValue(const AFieldIndex: UInt16): Variant; overload; override;
     function GetFieldType(const AFieldName: string): TFieldType; overload; override;
     function GetField(const AFieldName: string): TField; override;
   end;
@@ -323,7 +323,7 @@ end;
 function TDriverQueryMongoFireDAC.ExecuteQuery: IDBResultSet;
 var
   LResultSet: TFDMongoQuery;
-  LLimit, LSkip: Integer;
+  LLimit, LSkip: UInt16;
   LUtil: IUtilSingleton;
 begin
   LResultSet := TFDMongoQuery.Create(nil);
@@ -401,7 +401,7 @@ begin
 end;
 
 function TDriverResultSetMongoFireDAC.GetFieldValue(
-  const AFieldIndex: Integer): Variant;
+  const AFieldIndex: Uint16): Variant;
 begin
   if AFieldIndex > FDataSet.FieldCount - 1 then
     Exit(Variants.Null);

@@ -80,7 +80,7 @@ type
     destructor Destroy; override;
     function NotEof: Boolean; override;
     function GetFieldValue(const AFieldName: string): Variant; overload; override;
-    function GetFieldValue(const AFieldIndex: Integer): Variant; overload; override;
+    function GetFieldValue(const AFieldIndex: UInt16): Variant; overload; override;
     function GetFieldType(const AFieldName: string): TFieldType; overload; override;
     function GetField(const AFieldName: string): TField; override;
   end;
@@ -127,7 +127,7 @@ end;
 procedure TDriverNexusDB.ExecuteDirect(const ASQL: string; const AParams: TParams);
 var
   LExeSQL: TnxQuery;
-  LFor: Integer;
+  LFor: UInt16;
 begin
   LExeSQL := TnxQuery.Create(nil);
   try
@@ -238,7 +238,7 @@ end;
 function TDriverQueryFireDAC.ExecuteQuery: IDBResultSet;
 var
   LResultSet: TnxQuery;
-  LFor: Integer;
+  LFor: UInt16;
 begin
   LResultSet := TnxQuery.Create(nil);
   try

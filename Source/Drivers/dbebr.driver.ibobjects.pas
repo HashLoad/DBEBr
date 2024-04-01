@@ -84,7 +84,7 @@ type
     destructor Destroy; override;
     function NotEof: Boolean; override;
     function GetFieldValue(const AFieldName: string): Variant; overload; override;
-    function GetFieldValue(const AFieldIndex: Integer): Variant; overload; override;
+    function GetFieldValue(const AFieldIndex: UInt16): Variant; overload; override;
     function GetFieldType(const AFieldName: string): TFieldType; overload; override;
     function GetField(const AFieldName: string): TField; override;
   end;
@@ -134,7 +134,7 @@ end;
 procedure TDriverIBObjects.ExecuteDirect(const ASQL: string; const AParams: TParams);
 var
   LExeSQL: TIBOQuery;
-  LFor: Integer;
+  LFor: UInt16;
 begin
   LExeSQL := TIBOQuery.Create(nil);
   try
@@ -240,13 +240,12 @@ end;
 function TDriverQueryIBObjects.ExecuteQuery: IDBResultSet;
 var
   LResultSet: TIBOQuery;
-  LFor: Integer;
+  LFor: UInt16;
 begin
   LResultSet := TIBOQuery.Create(nil);
   try
     LResultSet.IB_Connection := FSQLQuery.IB_Connection;
     LResultSet.IB_Transaction := FSQLQuery.IB_Transaction;
-    LResultSet.UniDirectional := True;
     LResultSet.SQL.Text := FSQLQuery.SQL.Text;
 
     for LFor := 0 to FSQLQuery.Params.Count - 1 do

@@ -93,7 +93,7 @@ type
     destructor Destroy; override;
     procedure ExecuteDirect; override;
     function ExecuteQuery: IDBResultSet; override;
-    function RowsAffected: Integer; override;
+    function RowsAffected: UInt32; override;
   end;
 
   TDriverResultSetUniDAC = class(TDriverResultSet<TUniQuery>)
@@ -110,10 +110,10 @@ type
     procedure CancelUpdates; override;
     function NotEof: Boolean; override;
     function GetFieldValue(const AFieldName: string): Variant; overload; override;
-    function GetFieldValue(const AFieldIndex: Integer): Variant; overload; override;
+    function GetFieldValue(const AFieldIndex: UInt16): Variant; overload; override;
     function GetFieldType(const AFieldName: string): TFieldType; overload; override;
     function GetField(const AFieldName: string): TField; override;
-    function RowsAffected: Integer; override;
+    function RowsAffected: UInt32; override;
     function IsUniDirectional: Boolean; override;
     function IsReadOnly: Boolean; override;
     function IsCachedUpdates: Boolean; override;
@@ -177,7 +177,7 @@ end;
 procedure TDriverUniDAC.ExecuteDirect(const ASQL: string; const AParams: TParams);
 var
   LExeSQL: TUniSQL;
-  LFor: Integer;
+  LFor: Int16;
 begin
   LExeSQL := TUniSQL.Create(nil);
   try
@@ -199,7 +199,7 @@ end;
 
 procedure TDriverUniDAC.ExecuteScript(const AScript: string);
 begin
-  FSQLScript.Transaction := FDriverTransaction.TransactionActive as TUniTransaction;
+  FSQLScript.Transaction := _GetTransactionActive;
   FSQLScript.SQL.Clear;
   if MatchText(FConnection.ProviderName, ['Firebird', 'InterBase']) then // Firebird/Interbase
     FSQLScript.SQL.Add('SET AUTOCOMMIT OFF');
@@ -235,7 +235,7 @@ end;
 procedure TDriverUniDAC.ApplyUpdates(const ADataSets: array of IDBResultSet);
 var
   LDataSets: array of TCustomDADataSet;
-  LFor: Integer;
+  LFor: UInt16;
 begin
   SetLength(LDataSets, Length(ADataSets));
   for LFor := Low(ADataSets) to High(ADataSets) do
@@ -309,7 +309,7 @@ end;
 function TDriverQueryUniDAC.ExecuteQuery: IDBResultSet;
 var
   LResultSet: TUniQuery;
-  LFor : Integer;
+  LFor : Int16;
 begin
   LResultSet := TUniQuery.Create(nil);
   try
@@ -345,7 +345,7 @@ begin
   end;
 end;
 
-function TDriverQueryUniDAC.RowsAffected: Integer;
+function TDriverQueryUniDAC.RowsAffected: UInt32;
 begin
   Result := FSQLQuery.RowsAffected;
 end;
@@ -386,7 +386,6 @@ end;
 procedure TDriverResultSetUniDAC.CancelUpdates;
 begin
   FDataSet.CancelUpdates;
-  inherited;
 end;
 
 constructor TDriverResultSetUniDAC.Create(ADataSet: TUniQuery);
@@ -419,7 +418,7 @@ begin
   Result := FDataSet.FieldByName(AFieldName).DataType;
 end;
 
-function TDriverResultSetUniDAC.GetFieldValue(const AFieldIndex: Integer): Variant;
+function TDriverResultSetUniDAC.GetFieldValue(const AFieldIndex: UInt16): Variant;
 begin
   if AFieldIndex > FDataSet.FieldCount - 1 then
     Exit(Variants.Null);
@@ -454,7 +453,7 @@ begin
   Result := not FDataSet.Eof;
 end;
 
-function TDriverResultSetUniDAC.RowsAffected: Integer;
+function TDriverResultSetUniDAC.RowsAffected: UInt32;
 begin
   Result := FDataSet.RowsAffected;
 end;

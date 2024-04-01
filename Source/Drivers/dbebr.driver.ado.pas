@@ -79,7 +79,7 @@ type
     destructor Destroy; override;
     function NotEof: Boolean; override;
     function GetFieldValue(const AFieldName: string): Variant; overload; override;
-    function GetFieldValue(const AFieldIndex: Integer): Variant; overload; override;
+    function GetFieldValue(const AFieldIndex: UInt16): Variant; overload; override;
     function GetFieldType(const AFieldName: string): TFieldType; overload; override;
     function GetField(const AFieldName: string): TField; override;
   end;
@@ -125,7 +125,7 @@ end;
 procedure TDriverADO.ExecuteDirect(const ASQL: string; const AParams: TParams);
 var
   LExeSQL: TADOQuery;
-  LFor: Integer;
+  LFor: Int16;
 begin
   LExeSQL := TADOQuery.Create(nil);
   try
@@ -225,7 +225,7 @@ end;
 function TDriverQueryADO.ExecuteQuery: IDBResultSet;
 var
   LResultSet: TADOQuery;
-  LFor: Integer;
+  LFor: Int16;
 begin
   LResultSet := TADOQuery.Create(nil);
   try
@@ -295,7 +295,7 @@ begin
   Result := FDataSet.FieldByName(AFieldName).DataType;
 end;
 
-function TDriverResultSetADO.GetFieldValue(const AFieldIndex: Integer): Variant;
+function TDriverResultSetADO.GetFieldValue(const AFieldIndex: UInt16): Variant;
 begin
   if AFieldIndex > FDataSet.FieldCount -1  then
     Exit(Variants.Null);

@@ -78,7 +78,7 @@ type
   protected
     FConnection: TSQLiteDatabase;
     FDataSet: ISQLiteTable;
-    FRecordCount: Integer;
+    FRecordCount: UInt32;
     FFetchingAll: Boolean;
     FFirstNext: Boolean;
     FFieldDefs: TFieldDefs;
@@ -89,10 +89,10 @@ type
     destructor Destroy; override;
     procedure Close; override;
     function NotEof: Boolean; override;
-    function RecordCount: Integer; override;
+    function RecordCount: UInt32; override;
     function FieldDefs: TFieldDefs; override;
     function GetFieldValue(const AFieldName: string): Variant; overload; override;
-    function GetFieldValue(const AFieldIndex: Integer): Variant; overload; override;
+    function GetFieldValue(const AFieldIndex: UInt16): Variant; overload; override;
     function GetFieldType(const AFieldName: string): TFieldType; override;
     function GetField(const AFieldName: string): TField; override;
   end;
@@ -141,8 +141,8 @@ end;
 procedure TDriverSQLite3.ExecuteDirect(const ASQL: string; const AParams: TParams);
 var
   LExeSQL: ISQLitePreparedStatement;
-  LAffectedRows: Integer;
-  LFor: Integer;
+  LAffectedRows: UInt32;
+  LFor: UInt16;
 begin
   LExeSQL := TSQLitePreparedStatement.Create(FConnection);
   /// <summary>
@@ -168,7 +168,7 @@ end;
 
 procedure TDriverSQLite3.ExecuteScripts;
 var
-  LFor: Integer;
+  LFor: UInt32;
 begin
   inherited;
   try
@@ -276,7 +276,7 @@ constructor TDriverResultSetSQLite3.Create(const AConnection: TSQLiteDatabase;
   const ADataSet: ISQLiteTable);
 var
   LField: TField;
-  LFor: Integer;
+  LFor: UInt16;
 begin
   FConnection := AConnection;
   FDataSet := ADataSet;
@@ -341,7 +341,7 @@ begin
   Result := TFieldType(FDataSet.FindField(AFieldName).FieldType);
 end;
 
-function TDriverResultSetSQLite3.GetFieldValue(const AFieldIndex: Integer): Variant;
+function TDriverResultSetSQLite3.GetFieldValue(const AFieldIndex: UInt16): Variant;
 begin
   inherited;
   if Cardinal(AFieldIndex) > FDataSet.FieldCount -1 then
@@ -363,7 +363,7 @@ begin
   Result := not FDataSet.Eof;
 end;
 
-function TDriverResultSetSQLite3.RecordCount: Integer;
+function TDriverResultSetSQLite3.RecordCount: UInt32;
 begin
   inherited;
   Result := FDataSet.Row;
@@ -371,7 +371,7 @@ end;
 
 procedure TDriverResultSetSQLite3.CreateFieldDefs;
 var
-  LFor: Integer;
+  LFor: UInt16;
 begin
   FFieldDefs.Clear;
   for LFor := 0 to FDataSet.FieldCount -1 do

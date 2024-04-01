@@ -41,23 +41,11 @@ type
       const ADriverName: TDriverName); overload;
     constructor Create(const AConnection: TComponent;
       const ADriverName: TDriverName;
+      const AMonitor: ICommandMonitor); overload;
+    constructor Create(const AConnection: TComponent;
+      const ADriverName: TDriverName;
       const AMonitorCallback: TMonitorProc); overload;
     destructor Destroy; override;
-    procedure Connect; override;
-    procedure Disconnect; override;
-    procedure StartTransaction; override;
-    procedure Commit; override;
-    procedure Rollback; override;
-    procedure ExecuteDirect(const ASQL: string); overload; override;
-    procedure ExecuteDirect(const ASQL: string; const AParams: TParams); overload; override;
-    procedure ExecuteScript(const AScript: string); override;
-    procedure AddScript(const AScript: string); override;
-    procedure ExecuteScripts; override;
-    function InTransaction: Boolean; override;
-    function IsConnected: Boolean; override;
-    function GetDriverName: TDriverName; override;
-    function CreateQuery: IDBQuery; override;
-    function CreateResultSet: IDBResultSet; override;
   end;
 
 implementation
@@ -67,12 +55,6 @@ uses
   dbebr.driver.wire.mongodb.transaction;
 
 { TFactoryMongoWire }
-
-procedure TFactoryMongoWire.Connect;
-begin
-  if not IsConnected then
-    FDriverConnection.Connect;
-end;
 
 constructor TFactoryMongoWire.Create(AConnection: TComponent; ADriverName: TDriverName);
 begin
@@ -88,88 +70,17 @@ begin
   FMonitorCallback := AMonitorCallback;
 end;
 
-function TFactoryMongoWire.CreateQuery: IDBQuery;
+constructor TFactoryMongoWire.Create(const AConnection: TComponent;
+  const ADriverName: TDriverName; const AMonitor: ICommandMonitor);
 begin
-  Result := FDriverConnection.CreateQuery;
-end;
-
-function TFactoryMongoWire.CreateResultSet: IDBResultSet;
-begin
-  Result := FDriverConnection.CreateResultSet;
+  Create(AConnection, ADriverName);
+  FCommandMonitor := AMonitor;
 end;
 
 destructor TFactoryMongoWire.Destroy;
 begin
   FDriverTransaction.Free;
   FDriverConnection.Free;
-  inherited;
-end;
-
-procedure TFactoryMongoWire.Disconnect;
-begin
-  inherited;
-  if IsConnected then
-    FDriverConnection.Disconnect;
-end;
-
-procedure TFactoryMongoWire.ExecuteDirect(const ASQL: string);
-begin
-  inherited;
-end;
-
-procedure TFactoryMongoWire.ExecuteDirect(const ASQL: string; const AParams: TParams);
-begin
-  inherited;
-end;
-
-procedure TFactoryMongoWire.ExecuteScript(const AScript: string);
-begin
-  inherited;
-end;
-
-procedure TFactoryMongoWire.ExecuteScripts;
-begin
-  inherited;
-end;
-
-function TFactoryMongoWire.GetDriverName: TDriverName;
-begin
-  inherited;
-  Result := FDriverConnection.DriverName;
-end;
-
-function TFactoryMongoWire.IsConnected: Boolean;
-begin
-  inherited;
-  Result := FDriverConnection.IsConnected;
-end;
-
-function TFactoryMongoWire.InTransaction: Boolean;
-begin
-  Result := FDriverTransaction.InTransaction;
-end;
-
-procedure TFactoryMongoWire.StartTransaction;
-begin
-  inherited;
-  FDriverTransaction.StartTransaction;
-end;
-
-procedure TFactoryMongoWire.AddScript(const AScript: string);
-begin
-  inherited;
-  FDriverConnection.AddScript(AScript);
-end;
-
-procedure TFactoryMongoWire.Commit;
-begin
-  FDriverTransaction.Commit;
-  inherited;
-end;
-
-procedure TFactoryMongoWire.Rollback;
-begin
-  FDriverTransaction.Rollback;
   inherited;
 end;
 

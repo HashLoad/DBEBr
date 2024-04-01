@@ -212,17 +212,25 @@ procedure TTestDriverConnection.TestCreateQuery;
 var
   LValue: String;
   LRandon: String;
+  LRowsAffected: Integer;
 begin
   LRandon := IntToStr( Random(9999) );
 
+  // COMANDO - FDBQuery: IDBQuery;
   FDBQuery := FDBConnection.CreateQuery;
   FDBQuery.CommandText := Format(cSQLUPDATE, [QuotedStr(cDESCRIPTION + LRandon), '1']);
   FDBQuery.ExecuteDirect;
+  LRowsAffected := FDBQuery.RowsAffected;
 
-  FDBQuery.CommandText := Format(cSQLSELECT, ['1']);
-  LValue := FDBQuery.ExecuteQuery.FieldByName('CLIENT_NAME').AsString;
+  // SELECT - FDBResultSet: IDBResultSet;
+  FDBResultSet := FDBConnection.CreateResultSet;
+  FDBResultSet.CommandText := Format(cSQLSELECT, ['1']);
+  FDBResultSet.Open;
+
+  LValue := FDBResultSet.FieldByName('CLIENT_NAME').AsString;
 
   Assert.AreEqual(LValue, cDESCRIPTION + LRandon, LValue + ' <> ' + cDESCRIPTION + LRandon);
+  Assert.AreEqual(1, LRowsAffected, LRowsAffected.ToString + ' <> 1');
 end;
 
 procedure TTestDriverConnection.TestCreateResultSet;

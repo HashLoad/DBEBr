@@ -53,15 +53,15 @@ type
   public
     function IsNull: Boolean; virtual; abstract;
     function AsBlob: TMemoryStream; virtual; abstract;
-    function AsBlobPtr(out iNumBytes: Integer): Pointer; virtual; abstract;
+    function AsBlobPtr(out iNumBytes: UIntPtr): Pointer; virtual; abstract;
     function AsBlobText: string; virtual; abstract;
     function AsBlobTextDef(const Def: string = ''): string; virtual; abstract;
     function AsDateTime: TDateTime; virtual; abstract;
     function AsDateTimeDef(const Def: TDateTime = 0.0): TDateTime; virtual; abstract;
     function AsDouble: Double; virtual; abstract;
     function AsDoubleDef(const Def: Double = 0.0): Double; virtual; abstract;
-    function AsInteger: Int64; virtual; abstract;
-    function AsIntegerDef(const Def: Int64 = 0): Int64; virtual; abstract;
+    function AsInteger: UInt64; virtual; abstract;
+    function AsIntegerDef(const Def: UInt64 = 0): UInt64; virtual; abstract;
     function AsString: string; virtual; abstract;
     function AsStringDef(const Def: string = ''): string; virtual; abstract;
     function AsFloat: Double; virtual; abstract;
@@ -170,15 +170,15 @@ type
     function Lookup(const KeyFields: string; const KeyValues: Variant;
       const ResultFields: string): Variant;
     function GetBookmark: TBookmark;
-    function FieldCount: Integer;
+    function FieldCount: UInt16;
     function State: TDataSetState;
     function NotEof: Boolean;
-    function RecordCount: Integer;
-    function RowsAffected: Integer;
+    function RecordCount: UInt32;
+    function RowsAffected: UInt32;
     function FieldDefs: TFieldDefs;
     function Modified: Boolean;
     function GetFieldValue(const AFieldName: string): Variant; overload;
-    function GetFieldValue(const AFieldIndex: Integer): Variant; overload;
+    function GetFieldValue(const AFieldIndex: UInt16): Variant; overload;
     function GetField(const AFieldName: string): TField;
     function GetFieldType(const AFieldName: string): TFieldType;
     function FieldByName(const AFieldName: string): TAsField;
@@ -234,7 +234,7 @@ type
     function _GetCommandText: string;
     procedure ExecuteDirect;
     function ExecuteQuery: IDBResultSet;
-    function RowsAffected: Integer;
+    function RowsAffected: UInt32;
     property CommandText: string read _GetCommandText write _SetCommandText;
   end;
 

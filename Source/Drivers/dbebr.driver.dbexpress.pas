@@ -81,7 +81,7 @@ type
     destructor Destroy; override;
     function NotEof: Boolean; override;
     function GetFieldValue(const AFieldName: string): Variant; overload; override;
-    function GetFieldValue(const AFieldIndex: Integer): Variant; overload; override;
+    function GetFieldValue(const AFieldIndex: UInt16): Variant; overload; override;
     function GetFieldType(const AFieldName: string): TFieldType; overload; override;
     function GetField(const AFieldName: string): TField; override;
   end;
@@ -127,7 +127,7 @@ end;
 procedure TDriverDBExpress.ExecuteDirect(const ASQL: string; const AParams: TParams);
 var
   LExeSQL: TSQLQuery;
-  LFor: Integer;
+  LFor: Int16;
 begin
   LExeSQL := TSQLQuery.Create(nil);
   try
@@ -228,7 +228,7 @@ end;
 function TDriverQueryDBExpress.ExecuteQuery: IDBResultSet;
 var
   LResultSet: TSQLQuery;
-  LFor: Integer;
+  LFor: Int16;
 begin
   LResultSet := TSQLQuery.Create(nil);
   try
@@ -304,7 +304,7 @@ begin
   Result := FDataSet.FieldByName(AFieldName).DataType;
 end;
 
-function TDriverResultSetDBExpress.GetFieldValue(const AFieldIndex: Integer): Variant;
+function TDriverResultSetDBExpress.GetFieldValue(const AFieldIndex: UInt16): Variant;
 var
   LValue: Variant;
 begin

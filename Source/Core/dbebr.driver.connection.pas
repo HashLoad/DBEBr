@@ -108,7 +108,7 @@ type
     procedure ExecuteDirect; virtual; abstract;
     function ExecuteQuery: IDBResultSet; virtual; abstract;
     // Concrete class methods implementation
-    function RowsAffected: Integer; virtual;
+    function RowsAffected: UInt32; virtual;
   end;
 
   TDriverResultSetBase = class(TInterfacedObject, IDBResultSet)
@@ -118,7 +118,7 @@ type
   protected
     FField: TAsField;
     FFieldNameInternal: String;
-    FRecordCount: Integer;
+    FRecordCount: UInt32;
     FFetchingAll: Boolean;
     FFirstNext: Boolean;
     function _GetFilter: String; virtual; abstract;
@@ -203,37 +203,38 @@ type
     procedure Post; virtual; abstract;
     procedure First; virtual; abstract;
     procedure Last; virtual; abstract;
-    procedure FreeBookmark(Bookmark: TBookmark); virtual; abstract;
     procedure ClearFields; virtual; abstract;
+    procedure GotoBookmark(Bookmark: TBookmark); virtual; abstract;
+    procedure FreeBookmark(Bookmark: TBookmark); virtual; abstract;
     function Locate(const KeyFields: string; const KeyValues: Variant;
       Options: TLocateOptions): Boolean; virtual; abstract;
     function Lookup(const KeyFields: string; const KeyValues: Variant;
       const ResultFields: string): Variant; virtual; abstract;
     function GetBookmark: TBookmark; virtual; abstract;
-    function FieldCount: Integer; virtual; abstract;
+    function FieldCount: UInt16; virtual; abstract;
     function State: TDataSetState; virtual; abstract;
     function Modified: Boolean; virtual; abstract;
     function NotEof: Boolean; virtual; abstract;
     function GetFieldValue(const AFieldName: String): Variant; overload; virtual; abstract;
-    function GetFieldValue(const AFieldIndex: Integer): Variant; overload; virtual; abstract;
+    function GetFieldValue(const AFieldIndex: UInt16): Variant; overload; virtual; abstract;
     function GetFieldType(const AFieldName: String): TFieldType; overload; virtual; abstract;
     function GetField(const AFieldName: String): TField; virtual; abstract;
     function FieldByName(const AFieldName: String): TAsField; virtual;
-    function RecordCount: Integer; virtual;
+    function RecordCount: UInt32; virtual;
     function FieldDefs: TFieldDefs; virtual; abstract;
     function AggFields: TFields; virtual; abstract;
     function UpdateStatus: TUpdateStatus; virtual; abstract;
     function CanModify: Boolean; virtual; abstract;
     function IsEmpty: Boolean; virtual; abstract;
-    function IsUniDirectional: Boolean; virtual; abstract;
-    function IsReadOnly: Boolean; virtual; abstract;
-    function IsCachedUpdates: Boolean; virtual; abstract;
     function DataSource: TDataSource; virtual; abstract;
     function DataSet: TDataSet; virtual; abstract;
     // Concrete class methods implementation
     procedure ApplyUpdates; virtual;
     procedure CancelUpdates; virtual;
-    function RowsAffected: Integer; virtual;
+    function IsUniDirectional: Boolean; virtual;
+    function IsReadOnly: Boolean; virtual;
+    function IsCachedUpdates: Boolean; virtual;
+    function RowsAffected: UInt32; virtual;
   end;
 
   TDriverResultSet<T: TDataSet> = class abstract(TDriverResultSetBase)
@@ -314,15 +315,16 @@ type
     procedure Post; override;
     procedure First; override;
     procedure Last; override;
-    procedure FreeBookmark(Bookmark: TBookmark); override;
     procedure ClearFields; override;
+    procedure GotoBookmark(Bookmark: TBookmark); override;
+    procedure FreeBookmark(Bookmark: TBookmark); override;
     function Locate(const KeyFields: string; const KeyValues: Variant;
       Options: TLocateOptions): Boolean; override;
     function Lookup(const KeyFields: string; const KeyValues: Variant;
       const ResultFields: string): Variant; override;
     function IsEmpty: Boolean; override;
     function GetBookmark: TBookmark; override;
-    function FieldCount: Integer; override;
+    function FieldCount: UInt16; override;
     function State: TDataSetState; override;
     function Modified: Boolean; override;
     function FieldDefs: TFieldDefs; override;
@@ -341,15 +343,15 @@ type
     destructor Destroy; override;
     function IsNull: Boolean; override;
     function AsBlob: TMemoryStream; override;
-    function AsBlobPtr(out iNumBytes: Integer): Pointer; override;
+    function AsBlobPtr(out iNumBytes: UIntPtr): Pointer; override;
     function AsBlobText: String; override;
     function AsBlobTextDef(const Def: String = ''): String; override;
     function AsDateTime: TDateTime; override;
     function AsDateTimeDef(const Def: TDateTime = 0.0): TDateTime; override;
     function AsDouble: Double; override;
     function AsDoubleDef(const Def: Double = 0.0): Double; override;
-    function AsInteger: Int64; override;
-    function AsIntegerDef(const Def: Int64 = 0): Int64; override;
+    function AsInteger: UInt64; override;
+    function AsIntegerDef(const Def: UInt64 = 0): UInt64; override;
     function AsString: String; override;
     function AsStringDef(const Def: String = ''): String; override;
     function AsFloat: Double; override;
@@ -374,7 +376,7 @@ constructor TDriverResultSet<T>.Create(ADataSet: T);
 begin
   Create;
   try
-    // Guarda RecordCount do último SELECT executado no IDBResultSet
+    // Stores the RecordCount of the last SELECT executed in the IDBResultSet.
     FRecordCount := FDataSet.RecordCount;
   except
   end;
@@ -454,7 +456,7 @@ begin
   FDataSet.Close;
 end;
 
-function TDriverResultSet<T>.FieldCount: Integer;
+function TDriverResultSet<T>.FieldCount: UInt16;
 begin
   Result := FDataSet.FieldCount;
 end;
@@ -477,6 +479,11 @@ end;
 function TDriverResultSet<T>.GetBookmark: TBookmark;
 begin
   Result := FDataSet.GetBookmark;
+end;
+
+procedure TDriverResultSet<T>.GotoBookmark(Bookmark: TBookmark);
+begin
+  FDataSet.GotoBookmark(Bookmark);
 end;
 
 procedure TDriverResultSet<T>.Insert;
@@ -842,12 +849,12 @@ end;
 
 { TDriverResultSetBase }
 
-function TDriverResultSetBase.RecordCount: Integer;
+function TDriverResultSetBase.RecordCount: UInt32;
 begin
   Result := FRecordCount;
 end;
 
-function TDriverResultSetBase.RowsAffected: Integer;
+function TDriverResultSetBase.RowsAffected: UInt32;
 begin
   raise EAbstractError.Create('The RowsAffected() method must be implemented in the concrete class.');
 end;
@@ -914,6 +921,21 @@ begin
   Result := FField;
 end;
 
+function TDriverResultSetBase.IsCachedUpdates: Boolean;
+begin
+  raise EAbstractError.Create('The IsCachedUpdates() method must be implemented in the concrete class.');
+end;
+
+function TDriverResultSetBase.IsReadOnly: Boolean;
+begin
+  raise EAbstractError.Create('The IsReadOnly() method must be implemented in the concrete class.');
+end;
+
+function TDriverResultSetBase.IsUniDirectional: Boolean;
+begin
+  raise EAbstractError.Create('The IsUniDirectional() method must be implemented in the concrete class.');
+end;
+
 { TAsField }
 
 constructor TDBEBrField.Create(AOwner: TDriverResultSetBase);
@@ -933,7 +955,7 @@ begin
   Result := nil;
 end;
 
-function TDBEBrField.AsBlobPtr(out iNumBytes: Integer): Pointer;
+function TDBEBrField.AsBlobPtr(out iNumBytes: UIntPtr): Pointer;
 begin
 //  Result := Pointer( FOwner.GetFieldValue(FAsFieldName) );
   Result := nil;
@@ -1072,7 +1094,7 @@ begin
   end;
 end;
 
-function TDBEBrField.AsInteger: Int64;
+function TDBEBrField.AsInteger: UInt64;
 var
   LResult: Variant;
 begin
@@ -1082,7 +1104,7 @@ begin
     Result := LResult;
 end;
 
-function TDBEBrField.AsIntegerDef(const Def: Int64): Int64;
+function TDBEBrField.AsIntegerDef(const Def: UInt64): UInt64;
 begin
   try
     Result := FOwner.GetFieldValue(FAsFieldName);
@@ -1163,7 +1185,7 @@ end;
 
 { TDriverQuery }
 
-function TDriverQuery.RowsAffected: Integer;
+function TDriverQuery.RowsAffected: UInt32;
 begin
   raise EAbstractError.Create('The RowsAffected() method must be implemented in the concrete class.');
 end;

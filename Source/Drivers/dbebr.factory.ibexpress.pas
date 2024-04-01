@@ -45,21 +45,6 @@ type
       const ADriverName: TDriverName;
       const AMonitorCallback: TMonitorProc); overload;
     destructor Destroy; override;
-    procedure Connect; override;
-    procedure Disconnect; override;
-    procedure StartTransaction; override;
-    procedure Commit; override;
-    procedure Rollback; override;
-    procedure ExecuteDirect(const ASQL: string); override;
-    procedure ExecuteDirect(const ASQL: string; const AParams: TParams); override;
-    procedure ExecuteScript(const AScript: string); override;
-    procedure AddScript(const AScript: string); override;
-    procedure ExecuteScripts; override;
-    function InTransaction: Boolean; override;
-    function IsConnected: Boolean; override;
-    function GetDriverName: TDriverName; override;
-    function CreateQuery: IDBQuery; override;
-    function CreateResultSet(const ASQL: String): IDBResultSet; override;
   end;
 
 implementation
@@ -69,12 +54,6 @@ uses
   dbebr.driver.ibexpress.transaction;
 
 { TFactoryIBExpress }
-
-procedure TFactoryIBExpress.Connect;
-begin
-  if not IsConnected then
-    FDriverConnection.Connect;
-end;
 
 constructor TFactoryIBExpress.Create(const AConnection: TComponent;
   const ADriverName: TDriverName);
@@ -98,88 +77,10 @@ begin
   FMonitorCallback := AMonitorCallback;
 end;
 
-function TFactoryIBExpress.CreateQuery: IDBQuery;
-begin
-  Result := FDriverConnection.CreateQuery;
-end;
-
-function TFactoryIBExpress.CreateResultSet(const ASQL: String): IDBResultSet;
-begin
-  Result := FDriverConnection.CreateResultSet(ASQL);
-end;
-
 destructor TFactoryIBExpress.Destroy;
 begin
   FDriverTransaction.Free;
   FDriverConnection.Free;
-  inherited;
-end;
-
-procedure TFactoryIBExpress.Disconnect;
-begin
-  inherited;
-  if IsConnected then
-    FDriverConnection.Disconnect;
-end;
-
-procedure TFactoryIBExpress.ExecuteDirect(const ASQL: string);
-begin
-  inherited;
-end;
-
-procedure TFactoryIBExpress.ExecuteDirect(const ASQL: string; const AParams: TParams);
-begin
-  inherited;
-end;
-
-procedure TFactoryIBExpress.ExecuteScript(const AScript: string);
-begin
-  inherited;
-end;
-
-procedure TFactoryIBExpress.ExecuteScripts;
-begin
-  inherited;
-end;
-
-function TFactoryIBExpress.GetDriverName: TDriverName;
-begin
-  inherited;
-  Result := FDriverConnection.DriverName;
-end;
-
-function TFactoryIBExpress.IsConnected: Boolean;
-begin
-  inherited;
-  Result := FDriverConnection.IsConnected;
-end;
-
-function TFactoryIBExpress.InTransaction: Boolean;
-begin
-  Result := FDriverTransaction.InTransaction;
-end;
-
-procedure TFactoryIBExpress.StartTransaction;
-begin
-  inherited;
-  FDriverTransaction.StartTransaction;
-end;
-
-procedure TFactoryIBExpress.AddScript(const AScript: string);
-begin
-  inherited;
-  FDriverConnection.AddScript(AScript);
-end;
-
-procedure TFactoryIBExpress.Commit;
-begin
-  FDriverTransaction.Commit;
-  inherited;
-end;
-
-procedure TFactoryIBExpress.Rollback;
-begin
-  FDriverTransaction.Rollback;
   inherited;
 end;
 

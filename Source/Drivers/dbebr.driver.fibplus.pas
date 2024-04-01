@@ -86,7 +86,7 @@ type
     procedure Close; override;
     function NotEof: Boolean; override;
     function GetFieldValue(const AFieldName: string): Variant; overload; override;
-    function GetFieldValue(const AFieldIndex: Integer): Variant; overload; override;
+    function GetFieldValue(const AFieldIndex: UInt16): Variant; overload; override;
     function GetFieldType(const AFieldName: string): TFieldType; overload; override;
     function GetField(const AFieldName: string): TField; override;
     function FieldDefs: TFieldDefs; override;
@@ -138,7 +138,7 @@ end;
 procedure TDriverFIBPlus.ExecuteDirect(const ASQL: string; const AParams: TParams);
 var
   LExeSQL: TFIBQuery;
-  LFor: Integer;
+  LFor: Int16;
 begin
   inherited;
   LExeSQL := TFIBQuery.Create(nil);
@@ -246,7 +246,7 @@ end;
 function TDriverQueryFIBPlus.ExecuteQuery: IDBResultSet;
 var
   LResultSet: TFIBDataSet;
-  LFor: Integer;
+  LFor: Int16;
 begin
   inherited;
   LResultSet := TFIBDataSet.Create(nil);
@@ -355,7 +355,7 @@ begin
   Result := FDataSet.FieldByName(AFieldName).DataType;
 end;
 
-function TDriverResultSetFIBPlus.GetFieldValue(const AFieldIndex: Integer): Variant;
+function TDriverResultSetFIBPlus.GetFieldValue(const AFieldIndex: UINt16): Variant;
 begin
   inherited;
   if AFieldIndex > FDataSet.FieldCount -1  then

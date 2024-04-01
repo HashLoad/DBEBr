@@ -101,7 +101,7 @@ type
     destructor Destroy; override;
     function NotEof: Boolean; override;
     function GetFieldValue(const AFieldName: string): Variant; overload; override;
-    function GetFieldValue(const AFieldIndex: Integer): Variant; overload; override;
+    function GetFieldValue(const AFieldIndex: UInt16): Variant; overload; override;
     function GetFieldType(const AFieldName: string): TFieldType; overload; override;
     function GetField(const AFieldName: string): TField; override;
   end;
@@ -179,8 +179,8 @@ begin
 end;
 
 procedure TDriverMongoWire.ExecuteScripts;
-var
-  LFor: Integer;
+//var
+//  LFor: UInt16;
 begin
   inherited;
 //  try
@@ -396,7 +396,7 @@ begin
   Result := FDataSet.FieldByName(AFieldName).DataType;
 end;
 
-function TDriverResultSetMongoWire.GetFieldValue(const AFieldIndex: Integer): Variant;
+function TDriverResultSetMongoWire.GetFieldValue(const AFieldIndex: UInt16): Variant;
 begin
   if AFieldIndex > FDataSet.FieldCount - 1 then
     Exit(Variants.Null);

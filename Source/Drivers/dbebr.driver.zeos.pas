@@ -88,7 +88,7 @@ type
     destructor Destroy; override;
     function NotEof: Boolean; override;
     function GetFieldValue(const AFieldName: string): Variant; overload; override;
-    function GetFieldValue(const AFieldIndex: Integer): Variant; overload; override;
+    function GetFieldValue(const AFieldIndex: UInt16): Variant; overload; override;
     function GetFieldType(const AFieldName: string): TFieldType; overload; override;
     function GetField(const AFieldName: string): TField; override;
   end;
@@ -134,7 +134,7 @@ end;
 procedure TDriverZeos.ExecuteDirect(const ASQL: string; const AParams: TParams);
 var
   LExeSQL: TZReadOnlyQuery;
-  LFor: Integer;
+  LFor: UInt16;
 begin
   LExeSQL := TZReadOnlyQuery.Create(nil);
   try
@@ -236,7 +236,7 @@ end;
 function TDriverQueryZeos.ExecuteQuery: IDBResultSet;
 var
   LResultSet: TZReadOnlyQuery;
-  LFor: Integer;
+  LFor: UInt16;
 begin
   LResultSet := TZReadOnlyQuery.Create(nil);
   try
@@ -306,7 +306,7 @@ begin
   Result := FDataSet.FieldByName(AFieldName).DataType;
 end;
 
-function TDriverResultSetZeos.GetFieldValue(const AFieldIndex: Integer): Variant;
+function TDriverResultSetZeos.GetFieldValue(const AFieldIndex: UInt16): Variant;
 begin
   if AFieldIndex > FDataSet.FieldCount -1  then
     Exit(Variants.Null);

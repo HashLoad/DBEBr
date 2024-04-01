@@ -54,6 +54,8 @@ type
 
 implementation
 
+{ TDriverUniDACTransaction }
+
 constructor TDriverUniDACTransaction.Create(const AConnection: TComponent);
 begin
   FTransactionList := TDictionary<String, TComponent>.Create;
@@ -94,4 +96,3 @@ begin
 end;
 
 end.
-

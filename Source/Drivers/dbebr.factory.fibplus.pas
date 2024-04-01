@@ -41,24 +41,11 @@ type
       const ADriverName: TDriverName); overload;
     constructor Create(const AConnection: TComponent;
       const ADriverName: TDriverName;
+      const AMonitor: ICommandMonitor); overload;
+    constructor Create(const AConnection: TComponent;
+      const ADriverName: TDriverName;
       const AMonitorCallback: TMonitorProc); overload;
     destructor Destroy; override;
-    procedure Connect; override;
-    procedure Disconnect; override;
-    procedure StartTransaction; override;
-    procedure Commit; override;
-    procedure Rollback; override;
-    procedure ExecuteDirect(const ASQL: string); override;
-    procedure ExecuteDirect(const ASQL: string;
-      const AParams: TParams); override;
-    procedure ExecuteScript(const AScript: string); override;
-    procedure AddScript(const AScript: string); override;
-    procedure ExecuteScripts; override;
-    function InTransaction: Boolean; override;
-    function IsConnected: Boolean; override;
-    function GetDriverName: TDriverName; override;
-    function CreateQuery: IDBQuery; override;
-    function CreateResultSet(const ASQL: String): IDBResultSet; override;
   end;
 
 implementation
@@ -68,12 +55,6 @@ uses
   dbebr.driver.fibplus.transaction;
 
 { TFactoryFIBPlus }
-
-procedure TFactoryFIBPlus.Connect;
-begin
-  if not IsConnected then
-    FDriverConnection.Connect;
-end;
 
 constructor TFactoryFIBPlus.Create(const AConnection: TComponent;
   const ADriverName: TDriverName);
@@ -90,92 +71,17 @@ begin
   FMonitorCallback := AMonitorCallback;
 end;
 
-function TFactoryFIBPlus.CreateQuery: IDBQuery;
+constructor TFactoryFIBPlus.Create(const AConnection: TComponent;
+  const ADriverName: TDriverName; const AMonitor: ICommandMonitor);
 begin
-  Result := FDriverConnection.CreateQuery;
-end;
-
-function TFactoryFIBPlus.CreateResultSet(const ASQL: String): IDBResultSet;
-begin
-  Result := FDriverConnection.CreateResultSet(ASQL);
+  Create(AConnection, ADriverName);
+  FCommandMonitor := AMonitor;
 end;
 
 destructor TFactoryFIBPlus.Destroy;
 begin
   FDriverTransaction.Free;
   FDriverConnection.Free;
-  inherited;
-end;
-
-procedure TFactoryFIBPlus.Disconnect;
-begin
-  inherited;
-  if IsConnected then
-    FDriverConnection.Disconnect;
-end;
-
-procedure TFactoryFIBPlus.ExecuteDirect(const ASQL: string);
-begin
-  inherited;
-end;
-
-procedure TFactoryFIBPlus.ExecuteDirect(const ASQL: string;
-  const AParams: TParams);
-begin
-  inherited;
-end;
-
-procedure TFactoryFIBPlus.ExecuteScript(const AScript: string);
-begin
-  inherited;
-end;
-
-procedure TFactoryFIBPlus.ExecuteScripts;
-begin
-  inherited;
-end;
-
-function TFactoryFIBPlus.GetDriverName: TDriverName;
-begin
-  inherited;
-  Result := FDriverConnection.DriverName;
-end;
-
-function TFactoryFIBPlus.IsConnected: Boolean;
-begin
-  inherited;
-  Result := FDriverConnection.IsConnected;
-end;
-
-function TFactoryFIBPlus.InTransaction: Boolean;
-begin
-  Result := FDriverTransaction.InTransaction;
-end;
-
-procedure TFactoryFIBPlus.StartTransaction;
-begin
-  inherited;
-  if not FDriverTransaction.InTransaction then
-    FDriverTransaction.StartTransaction;
-end;
-
-procedure TFactoryFIBPlus.AddScript(const AScript: string);
-begin
-  inherited;
-  FDriverConnection.AddScript(AScript);
-end;
-
-procedure TFactoryFIBPlus.Commit;
-begin
-  if FDriverTransaction.InTransaction then
-    FDriverTransaction.Commit;
-  inherited;
-end;
-
-procedure TFactoryFIBPlus.Rollback;
-begin
-  if FDriverTransaction.InTransaction then
-    FDriverTransaction.Rollback;
   inherited;
 end;
 

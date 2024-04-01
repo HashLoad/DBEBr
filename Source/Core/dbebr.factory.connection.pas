@@ -282,6 +282,9 @@ end;
 
 function TFactoryConnection.InTransaction: Boolean;
 begin
+  Result := False;
+  if not IsConnected then
+    Exit;
   Result := FDriverTransaction.InTransaction;
 end;
 
