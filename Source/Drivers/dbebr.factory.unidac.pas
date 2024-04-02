@@ -79,8 +79,8 @@ end;
 constructor TFactoryUniDAC.Create(const AConnection: TUniConnection;
   const ADriverName: TDriverName; const AMonitor: ICommandMonitor);
 begin
-  Create(AConnection, ADriverName);
   FCommandMonitor := AMonitor;
+  Create(AConnection, ADriverName);
 end;
 
 procedure TFactoryUniDAC.AddTransaction(const AKey: String;
@@ -95,8 +95,8 @@ end;
 constructor TFactoryUniDAC.Create(const AConnection: TUniConnection;
   const ADriverName: TDriverName; const AMonitorCallback: TMonitorProc);
 begin
-  Create(AConnection, ADriverName);
   FMonitorCallback := AMonitorCallback;
+  Create(AConnection, ADriverName);
 end;
 
 destructor TFactoryUniDAC.Destroy;

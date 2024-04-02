@@ -50,12 +50,9 @@ type
   TDriverUniDAC = class(TDriverConnection)
   private
     function _GetTransactionActive: TUniTransaction;
-    procedure _SetMonitorLog(const ASQL: String; ATransactionName: String; AParams: TParams);
   protected
     FConnection: TUniConnection;
     FSQLScript : TUniScript;
-    FCommandMonitor: ICommandMonitor;
-    FMonitorCallback: TMonitorProc;
   public
     constructor Create(const AConnection: TComponent;
       const ADriverTransaction: TDriverTransaction;
@@ -80,10 +77,7 @@ type
   TDriverQueryUniDAC = class(TDriverQuery)
   private
     FSQLQuery: TUniSQL;
-    FCommandMonitor: ICommandMonitor;
-    FMonitorCallback: TMonitorProc;
     function _GetTransactionActive: TUniTransaction;
-    procedure _SetMonitorLog(const ASQL: String; ATransactionName: String; AParams: TParams);
   protected
     procedure _SetCommandText(const ACommandText: string); override;
     function _GetCommandText: string; override;
@@ -106,8 +100,10 @@ type
     procedure _SetCommandText(const ACommandText: string); override;
     function _GetCommandText: string; override;
   public
-    constructor Create(ADataSet: TUniQuery); override;
+    constructor Create(ADataSet: TUniQuery; const AMonitor: ICommandMonitor;
+      const AMonitorCallback: TMonitorProc); reintroduce;
     destructor Destroy; override;
+    procedure Open; override;
     procedure ApplyUpdates; override;
     procedure CancelUpdates; override;
     function NotEof: Boolean; override;
@@ -168,8 +164,8 @@ begin
     LExeSQL.Connection := FConnection;
     LExeSQL.Transaction := _GetTransactionActive;
     LExeSQL.SQL.Text := ASQL;
-    if not LExeSQL.Prepared then
-      LExeSQL.Prepare;
+//    if not LExeSQL.Prepared then
+//      LExeSQL.Prepare;
     LExeSQL.Execute;
   finally
     _SetMonitorLog(LExeSQL.SQL.Text, LExeSQL.Transaction.Name, LExeSQL.Params);
@@ -192,8 +188,8 @@ begin
       LExeSQL.ParamByName(AParams[LFor].Name).DataType := AParams[LFor].DataType;
       LExeSQL.ParamByName(AParams[LFor].Name).Value := AParams[LFor].Value;
     end;
-    if not LExeSQL.Prepared then
-      LExeSQL.Prepare;
+//    if not LExeSQL.Prepared then
+//      LExeSQL.Prepare;
     LExeSQL.Execute;
   finally
     _SetMonitorLog(LExeSQL.SQL.Text, LExeSQL.Transaction.Name, LExeSQL.Params);
@@ -234,14 +230,10 @@ end;
 
 procedure TDriverUniDAC.ApplyUpdates(const ADataSets: array of IDBResultSet);
 var
-  LDataSets: array of TCustomDADataSet;
-  LFor: UInt16;
+  LDataSet: IDBResultSet;
 begin
-  SetLength(LDataSets, Length(ADataSets));
-  for LFor := Low(ADataSets) to High(ADataSets) do
-    LDataSets[LFor] := TCustomDADataSet(ADataSets[LFor].DataSet);
-
-  FConnection.ApplyUpdates(LDataSets);
+  for LDataset in AdataSets do
+    LDataset.ApplyUpdates;
 end;
 
 procedure TDriverUniDAC.Connect;
@@ -257,14 +249,6 @@ end;
 function TDriverUniDAC._GetTransactionActive: TUniTransaction;
 begin
   Result := FDriverTransaction.TransactionActive as TUniTransaction;
-end;
-
-procedure TDriverUniDAC._SetMonitorLog(const ASQL: String; ATransactionName: String; AParams: TParams);
-begin
-  if Assigned(FCommandMonitor) then
-    FCommandMonitor.Command('[Transaction: ' + ATransactionName + '] - ' + ASQL, AParams);
-  if Assigned(FMonitorCallback) then
-    FMonitorCallback(TMonitorParam.Create('[Transaction: ' + ATransactionName + '] - ' + ASQL, AParams));
 end;
 
 function TDriverUniDAC.CreateQuery: IDBQuery;
@@ -330,20 +314,21 @@ begin
         LResultSet.Params[LFor].DataType := FSQLQuery.Params[LFor].DataType;
         LResultSet.Params[LFor].Value := FSQLQuery.Params[LFor].Value;
       end;
-      if LResultSet.SQL.Text <> '' then
+      if LResultSet.SQL.Text <> EmptyStr then
       begin
-        if not LResultSet.Prepared then
-          LResultSet.Prepare;
+//        if not LResultSet.Prepared then
+//          LResultSet.Prepare;
         LResultSet.Open;
       end;
-      Result := TDriverResultSetUniDAC.Create(LResultSet);
+      Result := TDriverResultSetUniDAC.Create(LResultSet, FCommandMonitor, FMonitorCallback);
       if LResultSet.Active then
       begin
         if LResultSet.RecordCount = 0 then
           Result.FetchingAll := True;
       end;
     finally
-      _SetMonitorLog(LResultSet.SQL.Text, LResultSet.Transaction.Name, LResultSet.Params);
+      if LResultSet.SQL.Text <> EmptyStr then
+        _SetMonitorLog(LResultSet.SQL.Text, LResultSet.Transaction.Name, LResultSet.Params);
     end;
   except
     if Assigned(LResultSet) then
@@ -372,22 +357,27 @@ begin
   FSQLQuery.SQL.Text := ACommandText;
 end;
 
-procedure TDriverQueryUniDAC._SetMonitorLog(const ASQL: String; ATransactionName: String;
-  AParams: TParams);
-begin
-  if Assigned(FCommandMonitor) then
-    FCommandMonitor.Command('[Transaction: ' + ATransactionName + '] - ' + ASQL, AParams);
-  if Assigned(FMonitorCallback) then
-    FMonitorCallback(TMonitorParam.Create('[Transaction: ' + ATransactionName + '] - ' + ASQL, AParams));
-end;
-
 procedure TDriverQueryUniDAC.ExecuteDirect;
+var
+  LExeSQL: TUniSQL;
+  LFor: Int16;
 begin
-  FSQLQuery.Transaction := _GetTransactionActive;;
+  LExeSQL := TUniSQL.Create(nil);
   try
-    FSQLQuery.Execute;
+    LExeSQL.Connection := FSQLQuery.Connection;
+    LExeSQL.Transaction := _GetTransactionActive;
+    LExeSQL.SQL.Text := FSQLQuery.SQL.Text;
+    for LFor := 0 to FSQLQuery.Params.Count - 1 do
+    begin
+      LExeSQL.Params[LFor].DataType := FSQLQuery.Params[LFor].DataType;
+      LExeSQL.Params[LFor].Value := FSQLQuery.Params[LFor].Value;
+    end;
+//    if not LExeSQL.Prepared then
+//      LExeSQL.Prepare;
+    LExeSQL.Execute;
   finally
-    _SetMonitorLog(FSQLQuery.SQL.Text, FSQLQuery.Transaction.Name, FSQLQuery.Params);
+    _SetMonitorLog(LExeSQL.SQL.Text, LExeSQL.Transaction.Name, LExeSQL.Params);
+    LExeSQL.Free;
   end;
 end;
 
@@ -403,10 +393,10 @@ begin
   FDataSet.CancelUpdates;
 end;
 
-constructor TDriverResultSetUniDAC.Create(ADataSet: TUniQuery);
+constructor TDriverResultSetUniDAC.Create(ADataSet: TUniQuery; const AMonitor: ICommandMonitor;
+      const AMonitorCallback: TMonitorProc);
 begin
-  FDataSet := ADataSet;
-  inherited;
+  inherited Create(ADataSet, AMonitor, AMonitorCallback);
 end;
 
 destructor TDriverResultSetUniDAC.Destroy;
@@ -466,6 +456,15 @@ begin
   else
     FDataSet.Next;
   Result := not FDataSet.Eof;
+end;
+
+procedure TDriverResultSetUniDAC.Open;
+begin
+  try
+    inherited Open;
+  finally
+    _SetMonitorLog(FDataSet.SQL.Text, FDataSet.Transaction.Name, FDataSet.Params);
+  end;
 end;
 
 function TDriverResultSetUniDAC.RowsAffected: UInt32;

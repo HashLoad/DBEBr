@@ -91,8 +91,7 @@ begin
   FDriverTransaction.AddTransaction(AKey, ATransaction);
 end;
 
-procedure TFactoryConnection.ApplyUpdates(
-  const ADataSets: array of IDBResultSet);
+procedure TFactoryConnection.ApplyUpdates(const ADataSets: array of IDBResultSet);
 begin
   FDriverConnection.ApplyUpdates(ADataSets);
 end;

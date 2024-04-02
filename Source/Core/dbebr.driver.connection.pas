@@ -48,7 +48,11 @@ type
   TDriverConnection = class abstract
   protected
     FDriverTransaction: TDriverTransaction;
+    FCommandMonitor: ICommandMonitor;
+    FMonitorCallback: TMonitorProc;
     FDriverName: TDriverName;
+    procedure _SetMonitorLog(const ASQL: String; const ATransactionName: String;
+      const AParams: TParams);
   public
     constructor Create(const AConnection: TComponent;
       const ADriverTransaction: TDriverTransaction;
@@ -101,6 +105,10 @@ type
   TDriverQuery = class(TInterfacedObject, IDBQuery)
   protected
     FDriverTransaction: TDriverTransaction;
+    FCommandMonitor: ICommandMonitor;
+    FMonitorCallback: TMonitorProc;
+    procedure _SetMonitorLog(const ASQL: String; const ATransactionName: String;
+      const AParams: TParams);
     // Concrete class methods implementation
     procedure _SetCommandText(const ACommandText: String); virtual;
     function _GetCommandText: String; virtual;
@@ -121,6 +129,8 @@ type
     FRecordCount: UInt32;
     FFetchingAll: Boolean;
     FFirstNext: Boolean;
+    FCommandMonitor: ICommandMonitor;
+    FMonitorCallback: TMonitorProc;
     function _GetFilter: String; virtual; abstract;
     function _GetFiltered: Boolean; virtual; abstract;
     function _GetFilterOptions: TFilterOptions; virtual; abstract;
@@ -240,10 +250,16 @@ type
   TDriverResultSet<T: TDataSet> = class abstract(TDriverResultSetBase)
   protected
     FDataSet: T;
+    procedure _SetMonitorLog(const ASQL: String; ATransactionName: String; AParams: TParams);
     function _GetFilter: String; override;
     function _GetFiltered: Boolean; override;
     function _GetFilterOptions: TFilterOptions; override;
     function _GetActive: Boolean; override;
+    procedure _SetFilter(const Value: String); override;
+    procedure _SetFiltered(const Value: Boolean); override;
+    procedure _SetFilterOptions(Value: TFilterOptions); override;
+    procedure _SetActive(const Value: Boolean); override;
+  protected
     function _GetAfterCancel: TDataSetNotifyEvent; override;
     function _GetAfterClose: TDataSetNotifyEvent; override;
     function _GetAfterDelete: TDataSetNotifyEvent; override;
@@ -269,10 +285,6 @@ type
     function _GetOnFilterRecord: TFilterRecordEvent; override;
     function _GetOnNewRecord: TDataSetNotifyEvent; override;
     function _GetOnPostError: TDataSetErrorEvent; override;
-    procedure _SetFilter(const Value: String); override;
-    procedure _SetFiltered(const Value: Boolean); override;
-    procedure _SetFilterOptions(Value: TFilterOptions); override;
-    procedure _SetActive(const Value: Boolean); override;
     procedure _SetAfterCancel(const Value: TDataSetNotifyEvent); override;
     procedure _SetAfterOpen(const Value: TDataSetNotifyEvent); override;
     procedure _SetAfterClose(const Value: TDataSetNotifyEvent); override;
@@ -299,7 +311,8 @@ type
     procedure _SetOnNewRecord(const Value: TDataSetNotifyEvent); override;
     procedure _SetOnPostError(const Value: TDataSetErrorEvent); override;
   public
-    constructor Create(ADataSet: T); overload; virtual;
+    constructor Create(const ADataSet: T; const AMonitor: ICommandMonitor;
+      const AMonitorCallback: TMonitorProc); overload; virtual;
     procedure Close; override;
     procedure Open; override;
     procedure Delete; override;
@@ -372,14 +385,15 @@ implementation
 
 { TDriverResultSet<T> }
 
-constructor TDriverResultSet<T>.Create(ADataSet: T);
+constructor TDriverResultSet<T>.Create(const ADataSet: T; const AMonitor: ICommandMonitor;
+      const AMonitorCallback: TMonitorProc);
 begin
-  Create;
-  try
-    // Stores the RecordCount of the last SELECT executed in the IDBResultSet.
-    FRecordCount := FDataSet.RecordCount;
-  except
-  end;
+  FCommandMonitor := AMonitor;
+  FMonitorCallback := AMonitorCallback;
+  FDataSet := ADataSet;
+  inherited Create;
+  // Stores the RecordCount of the last SELECT executed in the IDBResultSet.
+  try FRecordCount := FDataSet.RecordCount; except end;
 end;
 
 function TDriverResultSet<T>.DataSet: TDataSet;
@@ -453,6 +467,7 @@ end;
 
 procedure TDriverResultSet<T>.Close;
 begin
+  _GetCommandText;
   FDataSet.Close;
 end;
 
@@ -733,8 +748,7 @@ begin
   FDataSet.AfterPost := Value;
 end;
 
-procedure TDriverResultSet<T>._SetAfterRefresh(
-  const Value: TDataSetNotifyEvent);
+procedure TDriverResultSet<T>._SetAfterRefresh(const Value: TDataSetNotifyEvent);
 begin
   FDataSet.AfterRefresh := Value;
 end;
@@ -818,6 +832,15 @@ end;
 procedure TDriverResultSet<T>._SetFilterOptions(Value: TFilterOptions);
 begin
   FDataSet.FilterOptions := Value;
+end;
+
+procedure TDriverResultSet<T>._SetMonitorLog(const ASQL: String; ATransactionName: String;
+  AParams: TParams);
+begin
+  if Assigned(FCommandMonitor) then
+    FCommandMonitor.Command('[Transaction: ' + ATransactionName + '] - ' + TrimRight(ASQL), AParams);
+  if Assigned(FMonitorCallback) then
+    FMonitorCallback(TMonitorParam.Create('[Transaction: ' + ATransactionName + '] - ' + TrimRight(ASQL), AParams));
 end;
 
 procedure TDriverResultSet<T>._SetOnCalcFields(
@@ -1200,6 +1223,14 @@ begin
   raise EAbstractError.Create('The _SetCommandText() method must be implemented in the concrete class.');
 end;
 
+procedure TDriverQuery._SetMonitorLog(const ASQL, ATransactionName: String; const AParams: TParams);
+begin
+  if Assigned(FCommandMonitor) then
+    FCommandMonitor.Command('[Transaction: ' + ATransactionName + '] - ' + TrimRight(ASQL), AParams);
+  if Assigned(FMonitorCallback) then
+    FMonitorCallback(TMonitorParam.Create('[Transaction: ' + ATransactionName + '] - ' + TrimRight(ASQL), AParams));
+end;
+
 { TDriverConnection }
 
 procedure TDriverConnection.ApplyUpdates(const ADataSets: array of IDBResultSet);
@@ -1217,6 +1248,15 @@ begin
   raise EAbstractError.Create('The GetSQLScripts() method must be implemented in the concrete class.');
 end;
 
+procedure TDriverConnection._SetMonitorLog(const ASQL, ATransactionName: String;
+  const AParams: TParams);
+begin
+  if Assigned(FCommandMonitor) then
+    FCommandMonitor.Command('[Transaction: ' + ATransactionName + '] - ' + TrimRight(ASQL), AParams);
+  if Assigned(FMonitorCallback) then
+    FMonitorCallback(TMonitorParam.Create('[Transaction: ' + ATransactionName + '] - ' + TrimRight(ASQL), AParams));
+end;
+
 { TDriverTransaction }
 
 procedure TDriverTransaction.AddTransaction(const AKey: String;
@@ -1224,7 +1264,7 @@ procedure TDriverTransaction.AddTransaction(const AKey: String;
 var
   LKeyUC: String;
 begin
-  LKeyUC := LowerCase(AKey);
+  LKeyUC := UpperCase(AKey);
   if FTransactionList.ContainsKey(LKeyUC) then
     raise Exception.Create('Transaction with the same name already exists.');
   if ATransaction.Name = EmptyStr then
@@ -1241,7 +1281,7 @@ procedure TDriverTransaction.UseTransaction(const AKey: String);
 var
   LKeyUC: String;
 begin
-  LKeyUC := LowerCase(AKey);
+  LKeyUC := UpperCase(AKey);
   if not FTransactionList.TryGetValue(LKeyUC, FTransactionActive) then
     raise Exception.Create('Transaction not found.');
 end;
@@ -1250,7 +1290,7 @@ function TDriverTransaction._GetTransaction(const AKey: String): TComponent;
 var
   LKeyUC: String;
 begin
-  LKeyUC := LowerCase(AKey);
+  LKeyUC := UpperCase(AKey);
   if not FTransactionList.TryGetValue(LKeyUC, Result) then
     raise Exception.Create('Transaction not found.');
 end;
