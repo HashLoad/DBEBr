@@ -40,12 +40,14 @@ type
     constructor Create(const ACommand: String; AParams: TParams);
   end;
 
-  TMonitorProc = TProc<TMonitorParam>;
+  TMonitorProc = reference to procedure(const AMonitorCommand: TMonitorParam);
 
+//  {$SCOPEDENUMS ON}
   TDriverName = (dnMSSQL, dnMySQL, dnFirebird, dnSQLite, dnInterbase, dnDB2,
                  dnOracle, dnInformix, dnPostgreSQL, dnADS, dnASA,
                  dnFirebase, dnFirebird3, dnAbsoluteDB, dnMongoDB,
                  dnElevateDB, dnNexusDB, dnMariaDB);
+//  {$SCOPEDENUMS OFF}
 
   TAsField = class abstract
   protected

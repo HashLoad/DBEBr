@@ -18,7 +18,7 @@
 }
 
 {
-  @abstract(ORMBr Framework.)
+  @abstract(DBEBr Framework.)
   @created(20 Jul 2016)
   @author(Isaque Pinheiro <https://www.isaquepinheiro.com.br>)
 }
