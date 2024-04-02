@@ -30,22 +30,25 @@ uses
   DB,
   Classes,
   SysUtils,
+  FireDAC.Comp.Client,
+  // DBEBr
   dbebr.factory.connection,
   dbebr.factory.interfaces;
 
 type
-  // Fábrica de conexão concreta com dbExpress
+  // Fábrica de conexão concreta com MongoFireDAC
   TFactoryMongoFireDAC = class(TFactoryConnection)
   public
-    constructor Create(const AConnection: TComponent;
+    constructor Create(const AConnection: TFDConnection;
       const  ADriverName: TDriverName); overload;
-    constructor Create(const AConnection: TComponent;
+    constructor Create(const AConnection: TFDConnection;
       const ADriverName: TDriverName;
       const AMonitor: ICommandMonitor); overload;
-    constructor Create(const AConnection: TComponent;
+    constructor Create(const AConnection: TFDConnection;
       const ADriverName: TDriverName;
       const AMonitorCallback: TMonitorProc); overload;
     destructor Destroy; override;
+    procedure AddTransaction(const AKey: String; const ATransaction: TComponent); override;
   end;
 
 implementation
@@ -56,31 +59,45 @@ uses
 
 { TFactoryMongoFireDAC }
 
-constructor TFactoryMongoFireDAC.Create(const AConnection: TComponent;
+constructor TFactoryMongoFireDAC.Create(const AConnection: TFDConnection;
   const  ADriverName: TDriverName);
 begin
-  FDriverConnection  := TDriverMongoFireDAC.Create(AConnection, ADriverName);
   FDriverTransaction := TDriverMongoFireDACTransaction.Create(AConnection);
+  FDriverConnection  := TDriverMongoFireDAC.Create(AConnection,
+                                                   FDriverTransaction,
+                                                   ADriverName,
+                                                   FCommandMonitor,
+                                                   FMonitorCallback);
+  FAutoTransaction := False;
 end;
 
-constructor TFactoryMongoFireDAC.Create(const AConnection: TComponent;
-  const ADriverName: TDriverName; const AMonitorCallback: TMonitorProc);
-begin
-  Create(AConnection, ADriverName);
-  FMonitorCallback := AMonitorCallback;
-end;
-
-constructor TFactoryMongoFireDAC.Create(const AConnection: TComponent;
+constructor TFactoryMongoFireDAC.Create(const AConnection: TFDConnection;
   const ADriverName: TDriverName; const AMonitor: ICommandMonitor);
 begin
   Create(AConnection, ADriverName);
   FCommandMonitor := AMonitor;
 end;
 
+procedure TFactoryMongoFireDAC.AddTransaction(const AKey: String;
+  const ATransaction: TComponent);
+begin
+  if not (ATransaction is TFDConnection) then
+    raise Exception.Create('Invalid transaction type. Expected TFDConnection.');
+
+  inherited AddTransaction(AKey, ATransaction);
+end;
+
+constructor TFactoryMongoFireDAC.Create(const AConnection: TFDConnection;
+  const ADriverName: TDriverName; const AMonitorCallback: TMonitorProc);
+begin
+  Create(AConnection, ADriverName);
+  FMonitorCallback := AMonitorCallback;
+end;
+
 destructor TFactoryMongoFireDAC.Destroy;
 begin
-  FDriverTransaction.Free;
   FDriverConnection.Free;
+  FDriverTransaction.Free;
   inherited;
 end;
 

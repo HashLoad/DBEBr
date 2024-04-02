@@ -26,10 +26,10 @@
     <Transaction>2019/03/11 11:30:13.000.980,=C:\Users\isaque.pinheiro\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
     <Transaction>2019/03/11 11:31:20.000.783,D:\ORMBr\Test\Tests.Exemples.pas=C:\Users\isaque.pinheiro\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
     <Transaction>2019/03/11 11:31:35.000.668,D:\ORMBr\Test\TestsDBExpress.dproj=C:\Users\isaque.pinheiro\Documents\Embarcadero\Studio\Projects\Project2.dproj</Transaction>
-    <Transaction>2019/03/11 11:32:33.000.331,=D:\ORMBr\Source\Drivers\ormbr.driver.dbexpress.pas</Transaction>
     <Transaction>2019/03/11 11:32:33.000.451,=D:\ORMBr\Source\Drivers\ormbr.factory.dbexpress.pas</Transaction>
-    <Transaction>2019/03/11 11:32:33.000.392,=D:\ORMBr\Source\Drivers\ormbr.factory.connection.pas</Transaction>
+    <Transaction>2019/03/11 11:32:33.000.331,=D:\ORMBr\Source\Drivers\ormbr.driver.dbexpress.pas</Transaction>
     <Transaction>2019/03/11 11:32:33.000.509,=D:\ORMBr\Source\Drivers\ormbr.factory.interfaces.pas</Transaction>
+    <Transaction>2019/03/11 11:32:33.000.392,=D:\ORMBr\Source\Drivers\ormbr.factory.connection.pas</Transaction>
     <Transaction>2019/03/11 11:32:33.000.272,=D:\ORMBr\Source\Drivers\ormbr.driver.connection.pas</Transaction>
     <Transaction>2019/03/11 11:33:03.000.996,=D:\ORMBr\Test\Unit1.pas</Transaction>
     <Transaction>2019/03/11 11:34:12.000.027,=D:\ORMBr\Test\Tests.Driver.DBExpress.pas</Transaction>
@@ -57,20 +57,18 @@
     <Transaction>2019/03/11 15:19:52.000.106,D:\ORMBr\Source\Drivers\ormbr.driver.zeos.transaction.pas=</Transaction>
     <Transaction>2019/03/11 15:19:52.000.194,D:\ORMBr\Source\Drivers\ormbr.factory.zeos.pas=</Transaction>
     <Transaction>2019/03/11 15:19:52.000.070,D:\ORMBr\Source\Drivers\ormbr.driver.zeos.pas=</Transaction>
-    <Transaction>2019/03/11 15:20:11.000.495,=D:\ORMBr\Source\Drivers\ormbr.driver.dbexpress.pas</Transaction>
     <Transaction>2019/03/11 15:20:11.000.567,=D:\ORMBr\Source\Drivers\ormbr.factory.dbexpress.pas</Transaction>
+    <Transaction>2019/03/11 15:20:11.000.495,=D:\ORMBr\Source\Drivers\ormbr.driver.dbexpress.pas</Transaction>
     <Transaction>2019/03/11 15:20:11.000.544,=D:\ORMBr\Source\Drivers\ormbr.driver.dbexpress.transaction.pas</Transaction>
     <Transaction>2019/03/11 15:22:23.000.167,D:\ORMBr\Test\Tests.Driver.DBExpress.pas=D:\ORMBr\Test\Tests.Driver.Zeos.pas</Transaction>
     <Transaction>2019/11/03 11:07:48.000.607,=D:\PROJETOS-Brasil\DBEBr\Source\Core\dbebr.driver.connection.pas</Transaction>
     <Transaction>2019/11/03 11:07:48.000.673,=D:\PROJETOS-Brasil\DBEBr\Source\Core\dbebr.factory.interfaces.pas</Transaction>
     <Transaction>2019/11/03 11:07:48.000.639,=D:\PROJETOS-Brasil\DBEBr\Source\Core\dbebr.factory.connection.pas</Transaction>
     <Transaction>2019/11/03 11:08:09.000.348,=D:\PROJETOS-Brasil\DBEBr\Source\Drivers\dbebr.driver.dbexpress.transaction.pas</Transaction>
-    <Transaction>2019/11/03 11:08:09.000.283,=D:\PROJETOS-Brasil\DBEBr\Source\Drivers\dbebr.driver.dbexpress.pas</Transaction>
     <Transaction>2019/11/03 11:08:09.000.440,=D:\PROJETOS-Brasil\DBEBr\Source\Drivers\dbebr.factory.dbexpress.pas</Transaction>
+    <Transaction>2019/11/03 11:08:09.000.283,=D:\PROJETOS-Brasil\DBEBr\Source\Drivers\dbebr.driver.dbexpress.pas</Transaction>
   </Transactions>
 	<ProjectSortOrder AutoSort="0" SortType="0">
-    <File Path="Tests.Driver.DBExpress.pas"/>
-    <File Path="Tests.Consts.pas"/>
     <File Path="..\..\DBEBr"/>
     <File Path="..\Source"/>
     <File Path="..\Source\Core"/>
@@ -81,5 +79,7 @@
     <File Path="..\Source\Drivers\dbebr.driver.dbexpress.pas"/>
     <File Path="..\Source\Drivers\dbebr.driver.dbexpress.transaction.pas"/>
     <File Path="..\Source\Drivers\dbebr.factory.dbexpress.pas"/>
+    <File Path="Tests.Consts.pas"/>
+    <File Path="Tests.Driver.DBExpress.pas"/>
   </ProjectSortOrder>
 </BorlandProject>

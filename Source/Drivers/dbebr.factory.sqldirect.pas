@@ -30,22 +30,25 @@ uses
   DB,
   Classes,
   SysUtils,
+  SDEngine,
+  // DBEBr
   dbebr.factory.connection,
   dbebr.factory.interfaces;
 
 type
-  // Fábrica de conexão concreta com dbExpress
+  // Fábrica de conexão concreta com SQLDirect
   TFactorySQLDirect = class(TFactoryConnection)
   public
-    constructor Create(const AConnection: TComponent;
+    constructor Create(const AConnection: TSDDatabase;
       const ADriverName: TDriverName); overload;
-    constructor Create(const AConnection: TComponent;
+    constructor Create(const AConnection: TSDDatabase;
       const ADriverName: TDriverName;
       const AMonitor: ICommandMonitor); overload;
-    constructor Create(const AConnection: TComponent;
+    constructor Create(const AConnection: TSDDatabase;
       const ADriverName: TDriverName;
       const AMonitorCallback: TMonitorProc); overload;
     destructor Destroy; override;
+    procedure AddTransaction(const AKey: String; const ATransaction: TComponent); override;
   end;
 
 implementation
@@ -56,32 +59,45 @@ uses
 
 { TFactorySQLDirect }
 
-constructor TFactorySQLDirect.Create(const AConnection: TComponent;
+constructor TFactorySQLDirect.Create(const AConnection: TSDDatabase;
   const ADriverName: TDriverName);
 begin
-  inherited;
-  FDriverConnection  := TDriverSQLDirect.Create(AConnection, ADriverName);
   FDriverTransaction := TDriverSQLDirectTransaction.Create(AConnection);
+  FDriverConnection  := TDriverSQLDirect.Create(AConnection,
+                                                FDriverTransaction,
+                                                ADriverName,
+                                                FCommandMonitor,
+                                                FMonitorCallback);
+  FAutoTransaction := False;
 end;
 
-constructor TFactorySQLDirect.Create(const AConnection: TComponent;
-  const ADriverName: TDriverName; const AMonitorCallback: TMonitorProc);
-begin
-  Create(AConnection, ADriverName);
-  FMonitorCallback := AMonitorCallback;
-end;
-
-constructor TFactorySQLDirect.Create(const AConnection: TComponent;
+constructor TFactorySQLDirect.Create(const AConnection: TSDDatabase;
   const ADriverName: TDriverName; const AMonitor: ICommandMonitor);
 begin
   Create(AConnection, ADriverName);
   FCommandMonitor := AMonitor;
 end;
 
+procedure TFactorySQLDirect.AddTransaction(const AKey: String;
+  const ATransaction: TComponent);
+begin
+  if not (ATransaction is TSDDatabase) then
+    raise Exception.Create('Invalid transaction type. Expected TSDDatabase.');
+
+  inherited AddTransaction(AKey, ATransaction);
+end;
+
+constructor TFactorySQLDirect.Create(const AConnection: TSDDatabase;
+  const ADriverName: TDriverName; const AMonitorCallback: TMonitorProc);
+begin
+  Create(AConnection, ADriverName);
+  FMonitorCallback := AMonitorCallback;
+end;
+
 destructor TFactorySQLDirect.Destroy;
 begin
-  FDriverTransaction.Free;
   FDriverConnection.Free;
+  FDriverTransaction.Free;
   inherited;
 end;
 

@@ -29,19 +29,22 @@ interface
 uses
   DB,
   Classes,
+  SysUtils,
+  ABSMain,
+  // DBEBr
   dbebr.factory.connection,
   dbebr.factory.interfaces;
 
 type
-  // Fábrica de conexão concreta com dbExpress
+  // Fábrica de conexão concreta com AbsoluteDB
   TFactoryAbsoluteDB = class(TFactoryConnection)
   public
-    constructor Create(const AConnection: TComponent;
+    constructor Create(const AConnection: TABSDatabase;
       const ADriverName: TDriverName); overload;
-    constructor Create(const AConnection: TComponent;
+    constructor Create(const AConnection: TABSDatabase;
       const ADriverName: TDriverName;
       const AMonitor: ICommandMonitor); overload;
-    constructor Create(const AConnection: TComponent;
+    constructor Create(const AConnection: TABSDatabase;
       const ADriverName: TDriverName;
       const AMonitorCallback: TMonitorProc); overload;
     destructor Destroy; override;
@@ -55,22 +58,35 @@ uses
 
 { TFactoryAbsoluteDB }
 
-constructor TFactoryAbsoluteDB.Create(const AConnection: TComponent;
+constructor TFactoryAbsoluteDB.Create(const AConnection: TABSDatabase;
   const ADriverName: TDriverName);
 begin
-  FDriverConnection  := TDriverAbsoluteDB.Create(AConnection, ADriverName);
   FDriverTransaction := TDriverAbsoluteDBTransaction.Create(AConnection);
+  FDriverConnection  := TDriverAbsoluteDB.Create(AConnection,
+                                                 FDriverTransaction,
+                                                 ADriverName,
+                                                 FCommandMonitor,
+                                                 FMonitorCallback);
   FAutoTransaction := False;
 end;
 
-constructor TFactoryAbsoluteDB.Create(const AConnection: TComponent;
+constructor TFactoryAbsoluteDB.Create(const AConnection: TABSDatabase;
   const ADriverName: TDriverName; const AMonitor: ICommandMonitor);
 begin
   Create(AConnection, ADriverName);
   FCommandMonitor := AMonitor;
 end;
 
-constructor TFactoryAbsoluteDB.Create(const AConnection: TComponent;
+procedure TFactoryAbsoluteDB.AddTransaction(const AKey: String;
+  const ATransaction: TComponent);
+begin
+  if not (ATransaction is TABSDatabase) then
+    raise Exception.Create('Invalid transaction type. Expected TABSDatabase.');
+
+  inherited AddTransaction(AKey, ATransaction);
+end;
+
+constructor TFactoryAbsoluteDB.Create(const AConnection: TABSDatabase;
   const ADriverName: TDriverName; const AMonitorCallback: TMonitorProc);
 begin
   Create(AConnection, ADriverName);
@@ -79,8 +95,8 @@ end;
 
 destructor TFactoryAbsoluteDB.Destroy;
 begin
-  FDriverTransaction.Free;
   FDriverConnection.Free;
+  FDriverTransaction.Free;
   inherited;
 end;
 

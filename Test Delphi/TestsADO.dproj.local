@@ -50,13 +50,13 @@
     <Transaction>2019/03/11 15:06:49.000.915,D:\ORMBr\Source\Drivers\ormbr.factory.firedac.pas=</Transaction>
     <Transaction>2019/03/11 15:06:49.000.881,D:\ORMBr\Source\Drivers\ormbr.driver.firedac.pas=</Transaction>
     <Transaction>2019/03/11 15:07:16.000.564,=D:\ORMBr\Source\Drivers\ormbr.driver.zeos.transaction.pas</Transaction>
-    <Transaction>2019/03/11 15:07:16.000.617,=D:\ORMBr\Source\Drivers\ormbr.factory.zeos.pas</Transaction>
     <Transaction>2019/03/11 15:07:16.000.507,=D:\ORMBr\Source\Drivers\ormbr.driver.zeos.pas</Transaction>
+    <Transaction>2019/03/11 15:07:16.000.617,=D:\ORMBr\Source\Drivers\ormbr.factory.zeos.pas</Transaction>
     <Transaction>2019/03/11 15:07:32.000.449,D:\ORMBr\Test\Tests.Driver.Zeos.pas=D:\ORMBr\Test\Tests.Driver.FireDAC.pas</Transaction>
     <Transaction>2019/03/11 16:08:31.000.663,D:\ORMBr\Test\TestsZeos.dproj=D:\ORMBr\Test\TestsADO.dproj</Transaction>
     <Transaction>2019/03/11 16:08:48.000.919,D:\ORMBr\Test\Tests.Driver.Zeos.pas=D:\ORMBr\Test\Tests.Driver.ADO.pas</Transaction>
-    <Transaction>2019/03/11 16:13:06.000.923,D:\ORMBr\Source\Drivers\ormbr.driver.zeos.pas=</Transaction>
     <Transaction>2019/03/11 16:13:06.000.924,D:\ORMBr\Source\Drivers\ormbr.driver.zeos.transaction.pas=</Transaction>
+    <Transaction>2019/03/11 16:13:06.000.923,D:\ORMBr\Source\Drivers\ormbr.driver.zeos.pas=</Transaction>
     <Transaction>2019/03/11 16:13:06.000.923,D:\ORMBr\Source\Drivers\ormbr.factory.zeos.pas=</Transaction>
     <Transaction>2019/03/11 16:13:22.000.610,=D:\ORMBr\Source\Drivers\ormbr.driver.ado.transaction.pas</Transaction>
     <Transaction>2019/03/11 16:13:22.000.559,=D:\ORMBr\Source\Drivers\ormbr.driver.ado.pas</Transaction>
@@ -67,12 +67,10 @@
     <Transaction>2019/11/03 11:09:15.000.927,=D:\PROJETOS-Brasil\DBEBr\Source\Core\dbebr.factory.connection.pas</Transaction>
     <Transaction>2019/11/03 11:09:15.000.958,=D:\PROJETOS-Brasil\DBEBr\Source\Core\dbebr.factory.interfaces.pas</Transaction>
     <Transaction>2019/11/03 11:09:29.000.952,=D:\PROJETOS-Brasil\DBEBr\Source\Drivers\dbebr.driver.ado.pas</Transaction>
-    <Transaction>2019/11/03 11:09:30.000.084,=D:\PROJETOS-Brasil\DBEBr\Source\Drivers\dbebr.factory.ado.pas</Transaction>
     <Transaction>2019/11/03 11:09:30.000.022,=D:\PROJETOS-Brasil\DBEBr\Source\Drivers\dbebr.driver.ado.transaction.pas</Transaction>
+    <Transaction>2019/11/03 11:09:30.000.084,=D:\PROJETOS-Brasil\DBEBr\Source\Drivers\dbebr.factory.ado.pas</Transaction>
   </Transactions>
 	<ProjectSortOrder AutoSort="0" SortType="0">
-    <File Path="Tests.Driver.ADO.pas"/>
-    <File Path="Tests.Consts.pas"/>
     <File Path="..\..\DBEBr"/>
     <File Path="..\Source"/>
     <File Path="..\Source\Core"/>
@@ -83,5 +81,7 @@
     <File Path="..\Source\Drivers\dbebr.driver.ado.pas"/>
     <File Path="..\Source\Drivers\dbebr.driver.ado.transaction.pas"/>
     <File Path="..\Source\Drivers\dbebr.factory.ado.pas"/>
+    <File Path="Tests.Consts.pas"/>
+    <File Path="Tests.Driver.ADO.pas"/>
   </ProjectSortOrder>
 </BorlandProject>

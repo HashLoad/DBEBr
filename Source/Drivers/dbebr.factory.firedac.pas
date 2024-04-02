@@ -30,6 +30,8 @@ uses
   DB,
   Classes,
   SysUtils,
+  FireDAC.Comp.Client,
+  // DBEBr
   dbebr.factory.connection,
   dbebr.factory.interfaces;
 
@@ -37,15 +39,16 @@ type
   // Fábrica de conexão concreta com FireDAC
   TFactoryFireDAC = class(TFactoryConnection)
   public
-    constructor Create(const AConnection: TComponent;
+    constructor Create(const AConnection: TFDConnection;
       const ADriverName: TDriverName); overload;
-    constructor Create(const AConnection: TComponent;
+    constructor Create(const AConnection: TFDConnection;
       const ADriverName: TDriverName;
       const AMonitor: ICommandMonitor); overload;
-    constructor Create(const AConnection: TComponent;
+    constructor Create(const AConnection: TFDConnection;
       const ADriverName: TDriverName;
       const AMonitorCallback: TMonitorProc); overload;
     destructor Destroy; override;
+    procedure AddTransaction(const AKey: String; const ATransaction: TComponent); override;
   end;
 
 implementation
@@ -56,23 +59,35 @@ uses
 
 { TFactoryFireDAC }
 
-constructor TFactoryFireDAC.Create(const AConnection: TComponent;
+constructor TFactoryFireDAC.Create(const AConnection: TFDConnection;
   const ADriverName: TDriverName);
 begin
-  FDriverConnection  := TDriverFireDAC.Create(AConnection, ADriverName);
   FDriverTransaction := TDriverFireDACTransaction.Create(AConnection);
+  FDriverConnection  := TDriverFireDAC.Create(AConnection,
+                                              FDriverTransaction,
+                                              ADriverName,
+                                              FCommandMonitor,
+                                              FMonitorCallback);
   FAutoTransaction := False;
 end;
 
-constructor TFactoryFireDAC.Create(const AConnection: TComponent;
-  const ADriverName: TDriverName;
-  const AMonitor: ICommandMonitor);
+constructor TFactoryFireDAC.Create(const AConnection: TFDConnection;
+  const ADriverName: TDriverName; const AMonitor: ICommandMonitor);
 begin
   Create(AConnection, ADriverName);
   FCommandMonitor := AMonitor;
 end;
 
-constructor TFactoryFireDAC.Create(const AConnection: TComponent;
+procedure TFactoryFireDAC.AddTransaction(const AKey: String;
+  const ATransaction: TComponent);
+begin
+  if not (ATransaction is TFDConnection) then
+    raise Exception.Create('Invalid transaction type. Expected TFDConnection.');
+
+  inherited AddTransaction(AKey, ATransaction);
+end;
+
+constructor TFactoryFireDAC.Create(const AConnection: TFDConnection;
   const ADriverName: TDriverName; const AMonitorCallback: TMonitorProc);
 begin
   Create(AConnection, ADriverName);
@@ -81,8 +96,8 @@ end;
 
 destructor TFactoryFireDAC.Destroy;
 begin
-  FDriverTransaction.Free;
   FDriverConnection.Free;
+  FDriverTransaction.Free;
   inherited;
 end;
 

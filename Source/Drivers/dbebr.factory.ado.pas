@@ -29,22 +29,26 @@ interface
 uses
   DB,
   Classes,
+  SysUtils,
+  ADODB,
+  // DBEBr
   dbebr.factory.connection,
   dbebr.factory.interfaces;
 
 type
-  // Fábrica de conexão concreta com dbExpress
+  // Fábrica de conexão concreta com ADO
   TFactoryADO = class(TFactoryConnection)
   public
-    constructor Create(const AConnection: TComponent;
+    constructor Create(const AConnection: TADOConnection;
       const ADriverName: TDriverName); overload;
-    constructor Create(const AConnection: TComponent;
+    constructor Create(const AConnection: TADOConnection;
       const ADriverName: TDriverName;
       const AMonitor: ICommandMonitor); overload;
-    constructor Create(const AConnection: TComponent;
+    constructor Create(const AConnection: TADOConnection;
       const ADriverName: TDriverName;
       const AMonitorCallback: TMonitorProc); overload;
     destructor Destroy; override;
+    procedure AddTransaction(const AKey: String; const ATransaction: TComponent); override;
   end;
 
 implementation
@@ -55,22 +59,35 @@ uses
 
 { TFactoryADO }
 
-constructor TFactoryADO.Create(const AConnection: TComponent;
+constructor TFactoryADO.Create(const AConnection: TADOConnection;
   const ADriverName: TDriverName);
 begin
-  FDriverConnection  := TDriverADO.Create(AConnection, ADriverName);
   FDriverTransaction := TDriverADOTransaction.Create(AConnection);
+  FDriverConnection  := TDriverADO.Create(AConnection,
+                                          FDriverTransaction,
+                                          ADriverName,
+                                          FCommandMonitor,
+                                          FMonitorCallback);
   FAutoTransaction := False;
 end;
 
-constructor TFactoryADO.Create(const AConnection: TComponent;
+constructor TFactoryADO.Create(const AConnection: TADOConnection;
   const ADriverName: TDriverName; const AMonitor: ICommandMonitor);
 begin
   Create(AConnection, ADriverName);
   FCommandMonitor := AMonitor;
 end;
 
-constructor TFactoryADO.Create(const AConnection: TComponent;
+procedure TFactoryADO.AddTransaction(const AKey: String;
+  const ATransaction: TComponent);
+begin
+  if not (ATransaction is TADOConnection) then
+    raise Exception.Create('Invalid transaction type. Expected TADOConnection.');
+
+  inherited AddTransaction(AKey, ATransaction);
+end;
+
+constructor TFactoryADO.Create(const AConnection: TADOConnection;
   const ADriverName: TDriverName; const AMonitorCallback: TMonitorProc);
 begin
   Create(AConnection, ADriverName);
@@ -79,8 +96,8 @@ end;
 
 destructor TFactoryADO.Destroy;
 begin
-  FDriverTransaction.Free;
   FDriverConnection.Free;
+  FDriverTransaction.Free;
   inherited;
 end;
 

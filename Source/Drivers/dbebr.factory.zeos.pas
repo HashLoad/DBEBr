@@ -29,6 +29,9 @@ interface
 uses
   DB,
   Classes,
+  SysUtils,
+  ZConnection,
+  // DBEBr
   dbebr.factory.connection,
   dbebr.factory.interfaces;
 
@@ -36,15 +39,16 @@ type
   // Fábrica de conexão concreta com dbExpress
   TFactoryZeos = class(TFactoryConnection)
   public
-    constructor Create(const AConnection: TComponent;
+    constructor Create(const AConnection: TZConnection;
       const ADriverName: TDriverName); overload;
-    constructor Create(const AConnection: TComponent;
+    constructor Create(const AConnection: TZConnection;
       const ADriverName: TDriverName;
       const AMonitor: ICommandMonitor); overload;
-    constructor Create(const AConnection: TComponent;
+    constructor Create(const AConnection: TZConnection;
       const ADriverName: TDriverName;
       const AMonitorCallback: TMonitorProc); overload;
     destructor Destroy; override;
+    procedure AddTransaction(const AKey: String; const ATransaction: TComponent); override;
   end;
 
 implementation
@@ -55,22 +59,35 @@ uses
 
 { TFactoryZeos }
 
-constructor TFactoryZeos.Create(const AConnection: TComponent;
+constructor TFactoryZeos.Create(const AConnection: TZConnection;
   const ADriverName: TDriverName);
 begin
-  FDriverConnection  := TDriverZeos.Create(AConnection, ADriverName);
   FDriverTransaction := TDriverZeosTransaction.Create(AConnection);
+  FDriverConnection  := TDriverZeos.Create(AConnection,
+                                           FDriverTransaction,
+                                           ADriverName,
+                                           FCommandMonitor,
+                                           FMonitorCallback);
   FAutoTransaction := False;
 end;
 
-constructor TFactoryZeos.Create(const AConnection: TComponent;
+constructor TFactoryZeos.Create(const AConnection: TZConnection;
   const ADriverName: TDriverName; const AMonitor: ICommandMonitor);
 begin
   Create(AConnection, ADriverName);
   FCommandMonitor := AMonitor;
 end;
 
-constructor TFactoryZeos.Create(const AConnection: TComponent;
+procedure TFactoryZeos.AddTransaction(const AKey: String;
+  const ATransaction: TComponent);
+begin
+  if not (ATransaction is TZConnection) then
+    raise Exception.Create('Invalid transaction type. Expected TZConnection.');
+
+  inherited AddTransaction(AKey, ATransaction);
+end;
+
+constructor TFactoryZeos.Create(const AConnection: TZConnection;
   const ADriverName: TDriverName; const AMonitorCallback: TMonitorProc);
 begin
   Create(AConnection, ADriverName);
@@ -79,8 +96,8 @@ end;
 
 destructor TFactoryZeos.Destroy;
 begin
-  FDriverTransaction.Free;
   FDriverConnection.Free;
+  FDriverTransaction.Free;
   inherited;
 end;
 

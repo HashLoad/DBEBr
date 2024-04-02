@@ -36,12 +36,11 @@ uses
   dbebr.factory.interfaces;
 
 type
-  // Classe de conexão concreta com dbExpress
-  TDriverZeosTransaction = class(TDriverTransaction)
-  protected
+  TDriverUniDACTransaction = class(TDriverTransaction)
+  private
     FConnection: TZConnection;
   public
-    constructor Create(AConnection: TComponent); override;
+    constructor Create(const AConnection: TComponent); override;
     destructor Destroy; override;
     procedure StartTransaction; override;
     procedure Commit; override;
@@ -55,35 +54,41 @@ implementation
 
 constructor TDriverZeosTransaction.Create(AConnection: TComponent);
 begin
+  FTransactionList := TDictionary<String, TComponent>.Create;
   FConnection := AConnection as TZConnection;
+  FConnection.DefaultTransaction.Name := 'DEFAULT';
+  FTransactionList.Add('DEFAULT', FConnection.DefaultTransaction);
+  FTransactionActive := FConnection.DefaultTransaction;
 end;
 
 destructor TDriverZeosTransaction.Destroy;
 begin
-  FConnection := nil;
+  FTransactionActive := nil;
+  FTransactionList.Clear;
+  FTransactionList.Free;
   inherited;
-end;
-
-function TDriverZeosTransaction.InTransaction: Boolean;
-begin
-  Result := False;
-  if FConnection.Connected then
-    Result := FConnection.InTransaction;
 end;
 
 procedure TDriverZeosTransaction.StartTransaction;
 begin
-  FConnection.StartTransaction;
+  (FTransactionActive as TZTransaction).StartTransaction;
 end;
 
 procedure TDriverZeosTransaction.Commit;
 begin
-  FConnection.Commit;
+  (FTransactionActive as TZTransaction).Commit;
 end;
 
 procedure TDriverZeosTransaction.Rollback;
 begin
-  FConnection.Rollback;
+  (FTransactionActive as TZTransaction).Rollback;
+end;
+
+function TDriverZeosTransaction.InTransaction: Boolean;
+begin
+  if not Assigned(FTransactionActive) then
+    raise Exception.Create('The active transaction is not defined. Please make sure to start a transaction before checking if it is in progress.');
+  Result := (FTransactionActive as TZTransaction).Active;
 end;
 
 end.

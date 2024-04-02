@@ -32,7 +32,6 @@ interface
 
 uses
   DB,
-  Rtti,
   Classes,
   SysUtils,
   Uni,

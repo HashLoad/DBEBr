@@ -37,8 +37,8 @@
     <Transaction>2019/03/11 11:35:44.000.371,D:\ORMBr\Test\Tests.Driver.DBExpress.pas=D:\ORMBr\Test\Unit1.pas</Transaction>
     <Transaction>2019/03/11 11:59:56.000.426,D:\ORMBr\Test\Tests.Driver.FireDAC.pas=D:\ORMBr\Test\Tests.Driver.DBExpress.pas</Transaction>
     <Transaction>2019/03/11 12:02:40.000.665,D:\ORMBr\Test\TestsFireDAC.dproj=D:\ORMBr\Test\TestsDBExpress.dproj</Transaction>
-    <Transaction>2019/03/11 12:16:12.000.739,D:\ORMBr\Source\Drivers\ormbr.driver.dbexpress.pas=</Transaction>
     <Transaction>2019/03/11 12:16:12.000.769,D:\ORMBr\Source\Drivers\ormbr.factory.dbexpress.pas=</Transaction>
+    <Transaction>2019/03/11 12:16:12.000.739,D:\ORMBr\Source\Drivers\ormbr.driver.dbexpress.pas=</Transaction>
     <Transaction>2019/03/11 12:16:33.000.390,=D:\ORMBr\Source\Drivers\ormbr.factory.firedac.pas</Transaction>
     <Transaction>2019/03/11 12:16:33.000.282,=D:\ORMBr\Source\Drivers\ormbr.driver.firedac.pas</Transaction>
     <Transaction>2019/03/11 12:16:33.000.336,=D:\ORMBr\Source\Drivers\ormbr.driver.firedac.transaction.pas</Transaction>
@@ -66,12 +66,10 @@
     <Transaction>2019/11/03 11:12:34.000.142,=D:\PROJETOS-Brasil\DBEBr\Source\Core\dbebr.factory.interfaces.pas</Transaction>
     <Transaction>2019/11/03 11:12:34.000.112,=D:\PROJETOS-Brasil\DBEBr\Source\Core\dbebr.factory.connection.pas</Transaction>
     <Transaction>2019/11/03 11:13:01.000.976,=D:\PROJETOS-Brasil\DBEBr\Source\Drivers\dbebr.factory.sqlite3.pas</Transaction>
-    <Transaction>2019/11/03 11:13:01.000.911,=D:\PROJETOS-Brasil\DBEBr\Source\Drivers\dbebr.driver.sqlite3.transaction.pas</Transaction>
     <Transaction>2019/11/03 11:13:01.000.844,=D:\PROJETOS-Brasil\DBEBr\Source\Drivers\dbebr.driver.sqlite3.pas</Transaction>
+    <Transaction>2019/11/03 11:13:01.000.911,=D:\PROJETOS-Brasil\DBEBr\Source\Drivers\dbebr.driver.sqlite3.transaction.pas</Transaction>
   </Transactions>
 	<ProjectSortOrder AutoSort="0" SortType="0">
-    <File Path="Tests.Driver.SQLite.pas"/>
-    <File Path="Tests.Consts.pas"/>
     <File Path="..\..\DBEBr"/>
     <File Path="..\Source"/>
     <File Path="..\Source\Core"/>
@@ -82,5 +80,7 @@
     <File Path="..\Source\Drivers\dbebr.driver.sqlite3.pas"/>
     <File Path="..\Source\Drivers\dbebr.driver.sqlite3.transaction.pas"/>
     <File Path="..\Source\Drivers\dbebr.factory.sqlite3.pas"/>
+    <File Path="Tests.Consts.pas"/>
+    <File Path="Tests.Driver.SQLite.pas"/>
   </ProjectSortOrder>
 </BorlandProject>

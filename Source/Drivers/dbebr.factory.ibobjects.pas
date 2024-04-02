@@ -30,22 +30,25 @@ uses
   DB,
   Classes,
   SysUtils,
+  IB_Components,
+  // DBEBr
   dbebr.factory.connection,
   dbebr.factory.interfaces;
 
 type
-  // Fábrica de conexão concreta com dbExpress
+  // Fábrica de conexão concreta com IBObjects
   TFactoryIBObjects = class(TFactoryConnection)
   public
-    constructor Create(const AConnection: TComponent;
+    constructor Create(const AConnection: TIBODatabase;
       const ADriverName: TDriverName); overload;
-    constructor Create(const AConnection: TComponent;
+    constructor Create(const AConnection: TIBODatabase;
       const ADriverName: TDriverName;
       const AMonitor: ICommandMonitor); overload;
-    constructor Create(const AConnection: TComponent;
+    constructor Create(const AConnection: TIBODatabase;
       const ADriverName: TDriverName;
       const AMonitorCallback: TMonitorProc); overload;
     destructor Destroy; override;
+    procedure AddTransaction(const AKey: String; const ATransaction: TComponent); override;
   end;
 
 implementation
@@ -56,32 +59,45 @@ uses
 
 { TFactoryIBObjects }
 
-constructor TFactoryIBObjects.Create(const AConnection: TComponent;
+constructor TFactoryIBObjects.Create(const AConnection: TIBODatabase;
   const ADriverName: TDriverName);
 begin
-  inherited;
-  FDriverConnection  := TDriverIBObjects.Create(AConnection, ADriverName);
   FDriverTransaction := TDriverIBObjectsTransaction.Create(AConnection);
+  FDriverConnection  := TDriverIBObjects.Create(AConnection,
+                                                FDriverTransaction,
+                                                ADriverName,
+                                                FCommandMonitor,
+                                                FMonitorCallback);
+  FAutoTransaction := False;
 end;
 
-constructor TFactoryIBObjects.Create(const AConnection: TComponent;
-  const ADriverName: TDriverName; const AMonitorCallback: TMonitorProc);
-begin
-  Create(AConnection, ADriverName);
-  FMonitorCallback := AMonitorCallback;
-end;
-
-constructor TFactoryIBObjects.Create(const AConnection: TComponent;
+constructor TFactoryIBObjects.Create(const AConnection: TIBODatabase;
   const ADriverName: TDriverName; const AMonitor: ICommandMonitor);
 begin
   Create(AConnection, ADriverName);
   FCommandMonitor := AMonitor;
 end;
 
+procedure TFactoryIBObjects.AddTransaction(const AKey: String;
+  const ATransaction: TComponent);
+begin
+  if not (ATransaction is TIBODatabase) then
+    raise Exception.Create('Invalid transaction type. Expected TIBODatabase.');
+
+  inherited AddTransaction(AKey, ATransaction);
+end;
+
+constructor TFactoryIBObjects.Create(const AConnection: TIBODatabase;
+  const ADriverName: TDriverName; const AMonitorCallback: TMonitorProc);
+begin
+  Create(AConnection, ADriverName);
+  FMonitorCallback := AMonitorCallback;
+end;
+
 destructor TFactoryIBObjects.Destroy;
 begin
-  FDriverTransaction.Free;
   FDriverConnection.Free;
+  FDriverTransaction.Free;
   inherited;
 end;
 

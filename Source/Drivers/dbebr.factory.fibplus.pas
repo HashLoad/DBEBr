@@ -30,22 +30,25 @@ uses
   DB,
   Classes,
   SysUtils,
+  FIBDatabase,
+  // DBEBr
   dbebr.factory.connection,
   dbebr.factory.interfaces;
 
 type
-  // Fábrica de conexão concreta com dbExpress
+  // Fábrica de conexão concreta com FIBPlus
   TFactoryFIBPlus = class(TFactoryConnection)
   public
-    constructor Create(const AConnection: TComponent;
+    constructor Create(const AConnection: TFIBDatabase;
       const ADriverName: TDriverName); overload;
-    constructor Create(const AConnection: TComponent;
+    constructor Create(const AConnection: TFIBDatabase;
       const ADriverName: TDriverName;
       const AMonitor: ICommandMonitor); overload;
-    constructor Create(const AConnection: TComponent;
+    constructor Create(const AConnection: TFIBDatabase;
       const ADriverName: TDriverName;
       const AMonitorCallback: TMonitorProc); overload;
     destructor Destroy; override;
+    procedure AddTransaction(const AKey: String; const ATransaction: TComponent); override;
   end;
 
 implementation
@@ -56,32 +59,45 @@ uses
 
 { TFactoryFIBPlus }
 
-constructor TFactoryFIBPlus.Create(const AConnection: TComponent;
+constructor TFactoryFIBPlus.Create(const AConnection: TFIBDatabase;
   const ADriverName: TDriverName);
 begin
-  inherited;
   FDriverTransaction := TDriverFIBPlusTransaction.Create(AConnection);
-  FDriverConnection  := TDriverFIBPlus.Create(AConnection, ADriverName);
+  FDriverConnection  := TDriverFIBPlus.Create(AConnection,
+                                              FDriverTransaction,
+                                              ADriverName,
+                                              FCommandMonitor,
+                                              FMonitorCallback);
+  FAutoTransaction := False;
 end;
 
-constructor TFactoryFIBPlus.Create(const AConnection: TComponent;
-  const ADriverName: TDriverName; const AMonitorCallback: TMonitorProc);
-begin
-  Create(AConnection, ADriverName);
-  FMonitorCallback := AMonitorCallback;
-end;
-
-constructor TFactoryFIBPlus.Create(const AConnection: TComponent;
+constructor TFactoryUniDAC.Create(const AConnection: TFIBDatabase;
   const ADriverName: TDriverName; const AMonitor: ICommandMonitor);
 begin
   Create(AConnection, ADriverName);
   FCommandMonitor := AMonitor;
 end;
 
+procedure TFactoryFIBPlus.AddTransaction(const AKey: String;
+  const ATransaction: TComponent);
+begin
+  if not (ATransaction is TFIBDatabase) then
+    raise Exception.Create('Invalid transaction type. Expected TFIBDatabase.');
+
+  inherited AddTransaction(AKey, ATransaction);
+end;
+
+constructor TFactoryFIBPlus.Create(const AConnection: TFIBDatabase;
+  const ADriverName: TDriverName; const AMonitorCallback: TMonitorProc);
+begin
+  Create(AConnection, ADriverName);
+  FMonitorCallback := AMonitorCallback;
+end;
+
 destructor TFactoryFIBPlus.Destroy;
 begin
-  FDriverTransaction.Free;
   FDriverConnection.Free;
+  FDriverTransaction.Free;
   inherited;
 end;
 

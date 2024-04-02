@@ -36,7 +36,7 @@ uses
 
 type
   // Classe de conexão concreta com dbExpress
-  TDriverSQLiteTransaction3 = class(TDriverTransaction)
+  TDriverSQLite3Transaction = class(TDriverTransaction)
   protected
     FConnection: TSQLiteDatabase;
   public
@@ -52,35 +52,35 @@ implementation
 
 { TDriverSQLiteTransaction3 }
 
-constructor TDriverSQLiteTransaction3.Create(AConnection: TComponent);
+constructor TDriverSQLite3Transaction.Create(AConnection: TComponent);
 begin
   FConnection := AConnection as TSQLiteDatabase;;
 end;
 
-destructor TDriverSQLiteTransaction3.Destroy;
+destructor TDriverSQLite3Transaction.Destroy;
 begin
   FConnection := nil;
   inherited;
 end;
 
-function TDriverSQLiteTransaction3.InTransaction: Boolean;
+function TDriverSQLite3Transaction.InTransaction: Boolean;
 begin
   Result := FConnection.IsTransactionOpen;
 end;
 
-procedure TDriverSQLiteTransaction3.StartTransaction;
+procedure TDriverSQLite3Transaction.StartTransaction;
 begin
   inherited;
   FConnection.BeginTransaction;
 end;
 
-procedure TDriverSQLiteTransaction3.Commit;
+procedure TDriverSQLite3Transaction.Commit;
 begin
   inherited;
   FConnection.Commit;
 end;
 
-procedure TDriverSQLiteTransaction3.Rollback;
+procedure TDriverSQLite3Transaction.Rollback;
 begin
   inherited;
   FConnection.Rollback;
