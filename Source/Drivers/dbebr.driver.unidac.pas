@@ -169,6 +169,7 @@ begin
     LExeSQL.Execute;
   finally
     _SetMonitorLog(LExeSQL.SQL.Text, LExeSQL.Transaction.Name, LExeSQL.Params);
+    FRowsAffected := LExeSQL.RowsAffected;
     LExeSQL.Free;
   end;
 end;
@@ -193,6 +194,7 @@ begin
     LExeSQL.Execute;
   finally
     _SetMonitorLog(LExeSQL.SQL.Text, LExeSQL.Transaction.Name, LExeSQL.Params);
+    FRowsAffected := LExeSQL.RowsAffected;
     LExeSQL.Free;
   end;
 end;
@@ -212,6 +214,7 @@ begin
     FSQLScript.Execute;
   finally
     _SetMonitorLog(FSQLScript.SQL.Text, FSQLScript.Transaction.Name, nil);
+    FRowsAffected := FSQLScript.RowsAffected;
     FSQLScript.SQL.Clear;
   end;
 end;
@@ -339,7 +342,7 @@ end;
 
 function TDriverQueryUniDAC.RowsAffected: UInt32;
 begin
-  Result := FSQLQuery.RowsAffected;
+  Result := FRowsAffected;
 end;
 
 function TDriverQueryUniDAC._GetCommandText: string;
@@ -377,6 +380,7 @@ begin
     LExeSQL.Execute;
   finally
     _SetMonitorLog(LExeSQL.SQL.Text, LExeSQL.Transaction.Name, LExeSQL.Params);
+    FRowsAffected := LExeSQL.RowsAffected;
     LExeSQL.Free;
   end;
 end;

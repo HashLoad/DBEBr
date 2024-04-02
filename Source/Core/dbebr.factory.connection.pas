@@ -71,6 +71,7 @@ type
     function CommandMonitor: ICommandMonitor;
     function MonitorCallback: TMonitorProc; virtual;
     function Options: IOptions; virtual;
+    function RowsAffected: UInt32; virtual;
   end;
 
   TDriverTransactionHacker = class(TDriverTransaction)
@@ -286,6 +287,11 @@ begin
   FDriverTransaction.Rollback;
   if FAutoTransaction then
     Disconnect;
+end;
+
+function TFactoryConnection.RowsAffected: UInt32;
+begin
+  Result := FDriverConnection.RowsAffected;
 end;
 
 procedure TFactoryConnection.SetCommandMonitor(AMonitor: ICommandMonitor);

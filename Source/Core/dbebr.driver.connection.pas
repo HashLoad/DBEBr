@@ -51,6 +51,7 @@ type
     FCommandMonitor: ICommandMonitor;
     FMonitorCallback: TMonitorProc;
     FDriverName: TDriverName;
+    FRowsAffected: UInt32;
     procedure _SetMonitorLog(const ASQL: String; const ATransactionName: String;
       const AParams: TParams);
   public
@@ -73,6 +74,7 @@ type
     function GetDriverName: TDriverName; virtual;
     // Concrete class methods implementation
     function GetSQLScripts: String; virtual;
+    function RowsAffected: UInt32; virtual;
     procedure ApplyUpdates(const ADataSets: array of IDBResultSet); virtual;
   end;
 
@@ -107,6 +109,7 @@ type
     FDriverTransaction: TDriverTransaction;
     FCommandMonitor: ICommandMonitor;
     FMonitorCallback: TMonitorProc;
+    FRowsAffected: UInt32;
     procedure _SetMonitorLog(const ASQL: String; const ATransactionName: String;
       const AParams: TParams);
     // Concrete class methods implementation
@@ -1246,6 +1249,11 @@ end;
 function TDriverConnection.GetSQLScripts: String;
 begin
   raise EAbstractError.Create('The GetSQLScripts() method must be implemented in the concrete class.');
+end;
+
+function TDriverConnection.RowsAffected: UInt32;
+begin
+  Result := FRowsAffected;
 end;
 
 procedure TDriverConnection._SetMonitorLog(const ASQL, ATransactionName: String;

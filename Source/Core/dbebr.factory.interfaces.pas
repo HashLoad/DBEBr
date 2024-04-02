@@ -283,6 +283,7 @@ type
     function CommandMonitor: ICommandMonitor;
     function MonitorCallback: TMonitorProc;
     function Options: IOptions;
+    function RowsAffected: UInt32;
   end;
 
 const
