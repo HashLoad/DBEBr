@@ -100,7 +100,7 @@ type
     procedure _SetCommandText(const ACommandText: String); override;
     function _GetCommandText: String; override;
   public
-    constructor Create(ADataSet: TUniQuery; const AMonitor: ICommandMonitor;
+    constructor Create(const ADataSet: TUniQuery; const AMonitor: ICommandMonitor;
       const AMonitorCallback: TMonitorProc); reintroduce;
     destructor Destroy; override;
     procedure Open; override;
@@ -398,7 +398,7 @@ begin
   FDataSet.CancelUpdates;
 end;
 
-constructor TDriverResultSetUniDAC.Create(ADataSet: TUniQuery; const AMonitor: ICommandMonitor;
+constructor TDriverResultSetUniDAC.Create(const ADataSet: TUniQuery; const AMonitor: ICommandMonitor;
       const AMonitorCallback: TMonitorProc);
 begin
   inherited Create(ADataSet, AMonitor, AMonitorCallback);

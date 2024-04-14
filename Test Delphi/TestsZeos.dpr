@@ -5,7 +5,7 @@ program TestsZeos;
 {$ENDIF}
 {$STRONGLINKTYPES ON}
 uses
-  FastMM5,
+  FastMM4,
   System.SysUtils,
   {$IFDEF TESTINSIGHT}
   TestInsight.DUnitX,

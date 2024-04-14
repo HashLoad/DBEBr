@@ -101,7 +101,7 @@ type
     procedure _SetCommandText(const ACommandText: String); override;
     function _GetCommandText: String; override;
   public
-    constructor Create(ADataSet: TFDQuery; const AMonitor: ICommandMonitor;
+    constructor Create(const ADataSet: TFDQuery; const AMonitor: ICommandMonitor;
       const AMonitorCallback: TMonitorProc); reintroduce;
     destructor Destroy; override;
     procedure Open; override;
@@ -407,7 +407,7 @@ begin
   FDataSet.CancelUpdates;
 end;
 
-constructor TDriverResultSetFireDAC.Create(ADataSet: TFDQuery; const AMonitor: ICommandMonitor;
+constructor TDriverResultSetFireDAC.Create(const ADataSet: TFDQuery; const AMonitor: ICommandMonitor;
       const AMonitorCallback: TMonitorProc);
 begin
   inherited Create(ADataSet, AMonitor, AMonitorCallback);
