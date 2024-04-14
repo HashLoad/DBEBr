@@ -17,7 +17,8 @@
        arquivo LICENSE na pasta principal.
 }
 
-{ @abstract(DBEBr Framework)
+{
+  @abstract(DBEBr Framework)
   @created(20 Jul 2016)
   @author(Isaque Pinheiro <https://www.isaquepinheiro.com.br>)
 }
@@ -34,11 +35,15 @@ uses
   DB,
   SqlExpr,
   DBXCommon,
+  DBClient,
+  Datasnap.Provider,
   // DBEBr
   dbebr.driver.connection,
   dbebr.factory.interfaces;
 
 type
+  TDataSetHacker = class(TDataSet);
+
   // Classe de conexão concreta com dbExpress
   TDriverDBExpress = class(TDriverConnection)
   private
@@ -85,16 +90,21 @@ type
     function RowsAffected: UInt32; override;
   end;
 
-  TDriverResultSetDBExpress = class(TDriverResultSet<TSQLQuery>)
+  TDriverResultSetDBExpress = class(TDriverResultSet<TClientDataSet>)
+  private
+    FSQLQuery: TSQLQuery;
+    FProvider: TDataSetProvider;
   protected
     procedure _SetUniDirectional(const Value: Boolean); override;
     procedure _SetReadOnly(const Value: Boolean); override;
     procedure _SetCachedUpdates(const Value: Boolean); override;
     procedure _SetCommandText(const ACommandText: String); override;
     function _GetCommandText: String; override;
+    function _Iso8601ToDateTime(const AValue: String): TDateTime;
   public
-    constructor Create(ADataSet: TSQLQuery; const AMonitor: ICommandMonitor;
-      const AMonitorCallback: TMonitorProc); reintroduce;
+    constructor Create(const ADataSet: TClientDataSet;
+      const ASQLQuery: TSQLQuery; const AProvider: TDataSetProvider;
+      const AMonitor: ICommandMonitor; const AMonitorCallback: TMonitorProc); reintroduce;
     destructor Destroy; override;
     procedure Open; override;
     procedure ApplyUpdates; override;
@@ -155,13 +165,10 @@ begin
   LExeSQL := TSQLQuery.Create(nil);
   try
     LExeSQL.SQLConnection := FConnection;
-//    LExeSQL.SQLConnection := _GetTransactionActive;
     LExeSQL.SQL.Text := ASQL;
-//    if not LExeSQL.Prepared then
-//      LExeSQL.Prepare;
     LExeSQL.ExecSQL;
   finally
-//    _SetMonitorLog(LExeSQL.SQL.Text, LExeSQL.sTransaction.Name, LExeSQL.Params);
+    _SetMonitorLog(LExeSQL.SQL.Text, 'DEFAULT', LExeSQL.Params);
     FRowsAffected := LExeSQL.RowsAffected;
     LExeSQL.Free;
   end;
@@ -175,18 +182,15 @@ begin
   LExeSQL := TSQLQuery.Create(nil);
   try
     LExeSQL.SQLConnection := FConnection;
-//    LExeSQL.Transaction := _GetTransactionActive;
     LExeSQL.SQL.Text := ASQL;
     for LFor := 0 to AParams.Count - 1 do
     begin
       LExeSQL.ParamByName(AParams[LFor].Name).DataType := AParams[LFor].DataType;
       LExeSQL.ParamByName(AParams[LFor].Name).Value := AParams[LFor].Value;
     end;
-//    if not LExeSQL.Prepared then
-//      LExeSQL.Prepare;
     LExeSQL.ExecSQL;
   finally
-//    _SetMonitorLog(LExeSQL.SQL.Text, LExeSQL.Transaction.Name, LExeSQL.Params);
+    _SetMonitorLog(LExeSQL.SQL.Text, 'DEFAULT', LExeSQL.Params);
     FRowsAffected := LExeSQL.RowsAffected;
     LExeSQL.Free;
   end;
@@ -203,10 +207,9 @@ begin
   if FSQLScript.SQL.Count = 0 then
     Exit;
   try
-//    FSQLScript.Transaction := _GetTransactionActive;
     FSQLScript.ExecSQL;
   finally
-//    _SetMonitorLog(FSQLScript.SQL.Text, FSQLScript.Transaction.Name, nil);
+    _SetMonitorLog(FSQLScript.SQL.Text, 'DEFAULT', nil);
     FRowsAffected := FSQLScript.RowsAffected;
     FSQLScript.SQL.Clear;
   end;
@@ -214,13 +217,19 @@ end;
 
 function TDriverDBExpress.GetSQLScripts: String;
 begin
-//  Result := 'Transaction: ' + FSQLScript.Transaction.Name + ' ' +  FSQLScript.SQL.Text;
+  Result := 'Transaction: ' + 'DEFAULT' + ' ' +  FSQLScript.SQL.Text;
+end;
+
+function TDriverDBExpress.IsConnected: Boolean;
+begin
+  Result := FConnection.Connected = True;
 end;
 
 procedure TDriverDBExpress.AddScript(const AScript: String);
 begin
-//  if MatchText(FConnection.ProviderName, ['Firebird', 'InterBase']) then // Firebird/Interbase
-//    FSQLScript.SQL.Add('SET AUTOCOMMIT OFF');
+  if Self.GetDriverName in [dnInterbase, dnFirebird, dnFirebird3] then
+    if FSQLScript.SQL.Count = 0 then
+      FSQLScript.SQL.Add('SET AUTOCOMMIT OFF');
   FSQLScript.SQL.Add(AScript);
 end;
 
@@ -291,27 +300,35 @@ end;
 
 function TDriverQueryDBExpress.ExecuteQuery: IDBResultSet;
 var
-  LResultSet: TSQLQuery;
+  LSQLQuery: TSQLQuery;
+  LResultSet: TClientDataSet;
+  LProvider: TDataSetProvider;
   LFor: Int16;
 begin
-  LResultSet := TSQLQuery.Create(nil);
+  LSQLQuery := TSQLQuery.Create(nil);
+  LProvider := TDataSetProvider.Create(nil);
+  LResultSet := TClientDataSet.Create(nil);
   try
-    LResultSet.SQLConnection := FSQLQuery.SQLConnection;
-//    LResultSet.Transaction := _GetTransactionActive;
-    LResultSet.SQL.Text := FSQLQuery.SQL.Text;
+    LSQLQuery.SQLConnection := FSQLQuery.SQLConnection;
+    LProvider.DataSet := LSQLQuery;
+    LProvider.Name := 'ProviderName';
+    LResultSet.ProviderName := LProvider.Name;
+    LResultSet.CommandText := FSQLQuery.SQL.Text;
     try
       for LFor := 0 to FSQLQuery.Params.Count - 1 do
       begin
         LResultSet.Params[LFor].DataType := FSQLQuery.Params[LFor].DataType;
         LResultSet.Params[LFor].Value := FSQLQuery.Params[LFor].Value;
       end;
-      if LResultSet.SQL.Text <> EmptyStr then
+      if LResultSet.CommandText <> EmptyStr then
       begin
-//        if not LResultSet.Prepared then
-//          LResultSet.Prepare;
         LResultSet.Open;
       end;
-      Result := TDriverResultSetDBExpress.Create(LResultSet, FCommandMonitor, FMonitorCallback);
+      Result := TDriverResultSetDBExpress.Create(LResultSet,
+                                                 LSQLQuery,
+                                                 LProvider,
+                                                 FCommandMonitor,
+                                                 FMonitorCallback);
       if LResultSet.Active then
       begin
         /// <summary>
@@ -323,12 +340,16 @@ begin
           Result.FetchingAll := True;
       end;
     finally
-//      if LResultSet.SQL.Text <> EmptyStr then
-//        _SetMonitorLog(LResultSet.SQL.Text, LResultSet.Transaction.Name, LResultSet.Params);
+      if LResultSet.CommandText <> EmptyStr then
+        _SetMonitorLog(LResultSet.CommandText, 'DEFAULT', LResultSet.Params);
     end;
   except
+    if Assigned(LSQLQuery) then
+      LSQLQuery.Free;
     if Assigned(LResultSet) then
       LResultSet.Free;
+    if Assigned(LProvider) then
+      LProvider.Free;
     raise;
   end;
 end;
@@ -361,18 +382,15 @@ begin
   LExeSQL := TSQLQuery.Create(nil);
   try
     LExeSQL.SQLConnection := FSQLQuery.SQLConnection;
-//    LExeSQL.Transaction := _GetTransactionActive;
     LExeSQL.SQL.Text := FSQLQuery.SQL.Text;
     for LFor := 0 to FSQLQuery.Params.Count - 1 do
     begin
       LExeSQL.Params[LFor].DataType := FSQLQuery.Params[LFor].DataType;
       LExeSQL.Params[LFor].Value := FSQLQuery.Params[LFor].Value;
     end;
-//    if not LExeSQL.Prepared then
-//      LExeSQL.Prepare;
     LExeSQL.ExecSQL;
   finally
-//    _SetMonitorLog(LExeSQL.SQL.Text, LExeSQL.Transaction.Name, LExeSQL.Params);
+    _SetMonitorLog(LExeSQL.SQL.Text, 'DEFAULT', LExeSQL.Params);
     FRowsAffected := LExeSQL.RowsAffected;
     LExeSQL.Free;
   end;
@@ -382,22 +400,27 @@ end;
 
 procedure TDriverResultSetDBExpress.ApplyUpdates;
 begin
-//  FDataSet.ApplyUpdates;
+  FDataSet.ApplyUpdates(0);
 end;
 
 procedure TDriverResultSetDBExpress.CancelUpdates;
 begin
-//  FDataSet.CancelUpdates;
+  FDataSet.CancelUpdates;
 end;
 
-constructor TDriverResultSetDBExpress.Create(ADataSet: TSQLQuery; const AMonitor: ICommandMonitor;
-      const AMonitorCallback: TMonitorProc);
+constructor TDriverResultSetDBExpress.Create(const ADataSet: TClientDataSet;
+  const ASQLQuery: TSQLQuery; const AProvider: TDataSetProvider;
+  const AMonitor: ICommandMonitor; const AMonitorCallback: TMonitorProc);
 begin
+  FSQLQuery := ASQLQuery;
+  FProvider := AProvider;
   inherited Create(ADataSet, AMonitor, AMonitorCallback);
 end;
 
 destructor TDriverResultSetDBExpress.Destroy;
 begin
+  FSQLQuery.Free;
+  FProvider.Free;
   FDataSet.Free;
   inherited;
 end;
@@ -435,30 +458,30 @@ begin
     // Usando DBExpress para acessar SQLite os campos data retornam no
     // formato ISO8601 "yyyy-MM-dd e o DBExpress não converte para dd-MM-yyy,
     // então tive que criar uma alternativa.
-    if FDataSet.SQLConnection.DriverName = 'Sqlite' then
+    if FSQLQuery.SQLConnection.DriverName = 'Sqlite' then
     begin
       if (Copy(LValue,5,1) = '-') and (Copy(LValue,8,1) = '-') then
       begin
-         Result := Iso8601ToDateTime(LValue);
+         Result := _Iso8601ToDateTime(LValue);
          Exit;
       end;
     end;
     Result := LValue;
   end;
 end;
-function TDriverResultSetUniDAC.IsCachedUpdates: Boolean;
+function TDriverResultSetDBExpress.IsCachedUpdates: Boolean;
 begin
-  Result := FDataSet.CachedUpdates;
+  Result := False; // FDataSet.CachedUpdates;
 end;
 
-function TDriverResultSetUniDAC.IsReadOnly: Boolean;
+function TDriverResultSetDBExpress.IsReadOnly: Boolean;
 begin
   Result := FDataSet.ReadOnly;
 end;
 
-function TDriverResultSetUniDAC.IsUniDirectional: Boolean;
+function TDriverResultSetDBExpress.IsUniDirectional: Boolean;
 begin
-  Result := FDataSet.UniDirectional;
+  Result := FDataSet.IsUniDirectional;
 end;
 
 function TDriverResultSetDBExpress.NotEof: Boolean;
@@ -476,41 +499,41 @@ begin
   try
     inherited Open;
   finally
-//    _SetMonitorLog(FDataSet.SQL.Text, FDataSet.Transaction.Name, FDataSet.Params);
+    _SetMonitorLog(FDataSet.CommandText, 'DEFAULT', FDataSet.Params);
   end;
 end;
 
 function TDriverResultSetDBExpress.RowsAffected: UInt32;
 begin
-  Result := FDataSet.RowsAffected;
+  Result := FSQLQuery.RowsAffected;
 end;
 
 function TDriverResultSetDBExpress._GetCommandText: String;
 begin
-  Result := FDataSet.SQL.Text;
+  Result := FDataSet.CommandText;
 end;
 
-procedure DriverResultSetDBExpress._SetCachedUpdates(const Value: Boolean);
+procedure TDriverResultSetDBExpress._SetCachedUpdates(const Value: Boolean);
 begin
-  FDataSet.CachedUpdates := Value;
+
 end;
 
-procedure DriverResultSetDBExpress._SetCommandText(const ACommandText: String);
+procedure TDriverResultSetDBExpress._SetCommandText(const ACommandText: String);
 begin
-  FDataSet.SQL.Text := ACommandText;
+  FDataSet.CommandText := ACommandText;
 end;
 
-procedure DriverResultSetDBExpress._SetReadOnly(const Value: Boolean);
+procedure TDriverResultSetDBExpress._SetReadOnly(const Value: Boolean);
 begin
   FDataSet.ReadOnly := Value;
 end;
 
-procedure DriverResultSetDBExpress._SetUniDirectional(const Value: Boolean);
+procedure TDriverResultSetDBExpress._SetUniDirectional(const Value: Boolean);
 begin
-  FDataSet.UniDirectional := Value;
+  TDataSetHacker(FDataSet).SetUniDirectional(Value);
 end;
 
-function TDriverResultSetDBExpress.Iso8601ToDateTime(const AValue: String): TDateTime;
+function TDriverResultSetDBExpress._Iso8601ToDateTime(const AValue: String): TDateTime;
 var
   Y, M, D, HH, MI, SS: Cardinal;
 begin

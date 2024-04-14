@@ -17,13 +17,12 @@
        arquivo LICENSE na pasta principal.
 }
 
-{
-  @abstract(DBEBr Framework)
+{ @abstract(DBEBr Framework)
   @created(20 Jul 2016)
   @author(Isaque Pinheiro <https://www.isaquepinheiro.com.br>)
 }
 
-unit dbebr.factory.dbexpress;
+unit dbebr.factory.sqldb;
 
 interface
 
@@ -31,14 +30,14 @@ uses
   DB,
   Classes,
   SysUtils,
-  SqlExpr,
+  SQLDB,
   // DBEBr
   dbebr.factory.connection,
   dbebr.factory.interfaces;
 
 type
-  // Fábrica de conexão concreta com dbExpress
-  TFactoryDBExpress = class(TFactoryConnection)
+  // Fábrica de conexão concreta com SQLDB
+  TFactorySQLdb = class(TFactoryConnection)
   public
     constructor Create(const AConnection: TSQLConnection;
       const ADriverName: TDriverName); overload;
@@ -55,47 +54,47 @@ type
 implementation
 
 uses
-  dbebr.driver.dbexpress,
-  dbebr.driver.dbexpress.transaction;
+  dbebr.driver.firedac,
+  dbebr.driver.firedac.transaction;
 
-{ TFactoryDBExpress }
+{ TFactoryFireDAC }
 
-constructor TFactoryDBExpress.Create(const AConnection: TSQLConnection;
+constructor TFactorySQLdb.Create(const AConnection: TSQLConnection;
   const ADriverName: TDriverName);
 begin
-  FDriverTransaction := TDriverDBExpressTransaction.Create(AConnection);
-  FDriverConnection  := TDriverDBExpress.Create(AConnection,
-                                                FDriverTransaction,
-                                                ADriverName,
-                                                FCommandMonitor,
-                                                FMonitorCallback);
+  FDriverTransaction := TDriverFireDACTransaction.Create(AConnection);
+  FDriverConnection  := TDriverFireDAC.Create(AConnection,
+                                              FDriverTransaction,
+                                              ADriverName,
+                                              FCommandMonitor,
+                                              FMonitorCallback);
   FAutoTransaction := False;
 end;
 
-constructor TFactoryDBExpress.Create(const AConnection: TSQLConnection;
+constructor TFactorySQLdb.Create(const AConnection: TSQLConnection;
   const ADriverName: TDriverName; const AMonitor: ICommandMonitor);
 begin
   FCommandMonitor := AMonitor;
   Create(AConnection, ADriverName);
 end;
 
-procedure TFactoryDBExpress.AddTransaction(const AKey: String;
+procedure TFactorySQLdb.AddTransaction(const AKey: String;
   const ATransaction: TComponent);
 begin
-//  if not (ATransaction is TDBXTransaction) then
-//    raise Exception.Create('Invalid transaction type. Expected TDBXTransaction.');
+  if not (ATransaction is TSQLTransaction) then
+    raise Exception.Create('Invalid transaction type. Expected TSQLTransaction.');
 
-//  inherited AddTransaction(AKey, ATransaction);
+  inherited AddTransaction(AKey, ATransaction);
 end;
 
-constructor TFactoryDBExpress.Create(const AConnection: TSQLConnection;
+constructor TFactorySQLdb.Create(const AConnection: TSQLConnection;
   const ADriverName: TDriverName; const AMonitorCallback: TMonitorProc);
 begin
   FMonitorCallback := AMonitorCallback;
   Create(AConnection, ADriverName);
 end;
 
-destructor TFactoryDBExpress.Destroy;
+destructor TFactorySQLdb.Destroy;
 begin
   FDriverConnection.Free;
   FDriverTransaction.Free;

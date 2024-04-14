@@ -17,7 +17,8 @@
        arquivo LICENSE na pasta principal.
 }
 
-{ @abstract(DBEBr Framework)
+{
+  @abstract(DBEBr Framework)
   @created(20 Jul 2016)
   @author(Isaque Pinheiro <https://www.isaquepinheiro.com.br>)
 }
@@ -42,13 +43,15 @@ type
   TDriverDBExpressTransaction = class(TDriverTransaction)
   protected
     FConnection: TSQLConnection;
-    FDBXTransaction: TDBXTransaction;
+    FTransactionLocal: TDBXTransaction;
   public
     constructor Create(const AConnection: TComponent); override;
     destructor Destroy; override;
     procedure StartTransaction; override;
     procedure Commit; override;
     procedure Rollback; override;
+    procedure AddTransaction(const AKey: String; const ATransaction: TComponent); override;
+    procedure UseTransaction(const AKey: String); override;
     function InTransaction: Boolean; override;
   end;
 
@@ -58,41 +61,45 @@ implementation
 
 constructor TDriverDBExpressTransaction.Create(const AConnection: TComponent);
 begin
-  FTransactionList := TDictionary<String, TComponent>.Create;
   FConnection := AConnection as TSQLConnection;
-  FConnection.DefaultTransaction.Name := 'DEFAULT';
-  FTransactionList.Add('DEFAULT', FConnection.DefaultTransaction);
-  FTransactionActive := FConnection.DefaultTransaction;
 end;
 
 destructor TDriverDBExpressTransaction.Destroy;
 begin
-  FTransactionActive := nil;
-  FTransactionList.Clear;
-  FTransactionList.Free;
+  if Assigned(FTransactionLocal) then
+    FTransactionLocal.Free;
   inherited;
 end;
 
 procedure TDriverDBExpressTransaction.StartTransaction;
 begin
-  (FTransactionActive as TDBXTransaction).StartTransaction;
+  FTransactionLocal := FConnection.BeginTransaction;
+end;
+
+procedure TDriverDBExpressTransaction.AddTransaction(const AKey: String;
+  const ATransaction: TComponent);
+begin
+
+end;
+
+procedure TDriverDBExpressTransaction.UseTransaction(const AKey: String);
+begin
+
 end;
 
 procedure TDriverDBExpressTransaction.Commit;
 begin
-  (FTransactionActive as TDBXTransaction).Commit;
+  FConnection.CommitFreeAndNil(FTransactionLocal);
 end;
 
 procedure TDriverDBExpressTransaction.Rollback;
 begin
-  (FTransactionActive as TDBXTransaction).Rollback;
+  FConnection.RollbackFreeAndNil(FTransactionLocal);
 end;
 
 function TDriverDBExpressTransaction.InTransaction: Boolean;
 begin
-  if not Assigned(FTransactionActive) then
-    raise Exception.Create('The active transaction is not defined. Please make sure to start a transaction before checking if it is in progress.');
-  Result := (FTransactionActive as TDBXTransaction).Active;
+  Result := FConnection.InTransaction;
 end;
 
 end.
