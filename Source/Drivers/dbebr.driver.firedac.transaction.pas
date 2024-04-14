@@ -27,20 +27,22 @@ unit dbebr.driver.firedac.transaction;
 interface
 
 uses
-  Classes,
   DB,
+  Classes,
+  SysUtils,
+  Generics.Collections,
   FireDAC.Comp.Client,
   // DBEBr
   dbebr.driver.connection,
   dbebr.factory.interfaces;
 
 type
-  // Classe de conexão concreta com FireDAC
   TDriverFireDACTransaction = class(TDriverTransaction)
-  protected
+  private
     FConnection: TFDConnection;
+    FTransaction: TFDTransaction;
   public
-    constructor Create(AConnection: TComponent); override;
+    constructor Create(const AConnection: TComponent); override;
     destructor Destroy; override;
     procedure StartTransaction; override;
     procedure Commit; override;
@@ -52,38 +54,55 @@ implementation
 
 { TDriverFireDACTransaction }
 
-constructor TDriverFireDACTransaction.Create(AConnection: TComponent);
+constructor TDriverFireDACTransaction.Create(const AConnection: TComponent);
 begin
+  FTransactionList := TDictionary<String, TComponent>.Create;
   FConnection := AConnection as TFDConnection;
+  if FConnection.Transaction = nil then
+  begin
+    FTransaction := TFDTransaction.Create(nil);
+    FTransaction.Connection := FConnection;
+    FConnection.Transaction := FTransaction;
+  end;
+  FConnection.Transaction.Name := 'DEFAULT';
+  FTransactionList.Add('DEFAULT', FConnection.Transaction);
+  FTransactionActive := FConnection.Transaction;
 end;
 
 destructor TDriverFireDACTransaction.Destroy;
 begin
-  FConnection := nil;
+  if Assigned(FTransaction) then
+  begin
+    FConnection.Transaction := nil;
+    FTransaction.Connection := nil;
+    FTransaction.Free;
+  end;
+  FTransactionActive := nil;
+  FTransactionList.Clear;
+  FTransactionList.Free;
   inherited;
-end;
-
-function TDriverFireDACTransaction.InTransaction: Boolean;
-begin
-  Result := FConnection.InTransaction;
 end;
 
 procedure TDriverFireDACTransaction.StartTransaction;
 begin
-  inherited;
-  FConnection.StartTransaction;
+  (FTransactionActive as TFDTransaction).StartTransaction;
 end;
 
 procedure TDriverFireDACTransaction.Commit;
 begin
-  inherited;
-  FConnection.Commit;
+  (FTransactionActive as TFDTransaction).Commit;
 end;
 
 procedure TDriverFireDACTransaction.Rollback;
 begin
-  inherited;
-  FConnection.Rollback;
+  (FTransactionActive as TFDTransaction).Rollback;
+end;
+
+function TDriverFireDACTransaction.InTransaction: Boolean;
+begin
+  if not Assigned(FTransactionActive) then
+    raise Exception.Create('The active transaction is not defined. Please make sure to start a transaction before checking if it is in progress.');
+  Result := (FTransactionActive as TFDTransaction).Active;
 end;
 
 end.

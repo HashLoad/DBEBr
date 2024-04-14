@@ -39,6 +39,7 @@ contains
   dbebr.connection.base in '..\..\Source\dbebr.connection.base.pas',
   dbebr.driver.connection in '..\..\..\Source\Core\dbebr.driver.connection.pas',
   dbebr.factory.connection in '..\..\..\Source\Core\dbebr.factory.connection.pas',
-  dbebr.factory.interfaces in '..\..\..\Source\Core\dbebr.factory.interfaces.pas';
+  dbebr.factory.interfaces in '..\..\..\Source\Core\dbebr.factory.interfaces.pas',
+  dbebr.dataset.fields in '..\..\..\Source\Core\dbebr.dataset.fields.pas';
 
 end.

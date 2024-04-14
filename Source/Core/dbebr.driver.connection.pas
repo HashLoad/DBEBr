@@ -193,8 +193,8 @@ type
     procedure _SetOnNewRecord(const Value: TDataSetNotifyEvent); virtual; abstract;
     procedure _SetOnPostError(const Value: TDataSetErrorEvent); virtual; abstract;
     // Concrete class methods implementation
-    procedure _SetCommandText(const ACommandText: string); virtual;
-    function _GetCommandText: string; virtual;
+    procedure _SetCommandText(const ACommandText: String); virtual;
+    function _GetCommandText: String; virtual;
     procedure _SetUniDirectional(const Value: Boolean); virtual;
     procedure _SetReadOnly(const Value: Boolean); virtual;
     procedure _SetCachedUpdates(const Value: Boolean); virtual;
@@ -219,10 +219,10 @@ type
     procedure ClearFields; virtual; abstract;
     procedure GotoBookmark(Bookmark: TBookmark); virtual; abstract;
     procedure FreeBookmark(Bookmark: TBookmark); virtual; abstract;
-    function Locate(const KeyFields: string; const KeyValues: Variant;
+    function Locate(const KeyFields: String; const KeyValues: Variant;
       Options: TLocateOptions): Boolean; virtual; abstract;
-    function Lookup(const KeyFields: string; const KeyValues: Variant;
-      const ResultFields: string): Variant; virtual; abstract;
+    function Lookup(const KeyFields: String; const KeyValues: Variant;
+      const ResultFields: String): Variant; virtual; abstract;
     function GetBookmark: TBookmark; virtual; abstract;
     function FieldCount: UInt16; virtual; abstract;
     function State: TDataSetState; virtual; abstract;
@@ -334,10 +334,10 @@ type
     procedure ClearFields; override;
     procedure GotoBookmark(Bookmark: TBookmark); override;
     procedure FreeBookmark(Bookmark: TBookmark); override;
-    function Locate(const KeyFields: string; const KeyValues: Variant;
+    function Locate(const KeyFields: String; const KeyValues: Variant;
       Options: TLocateOptions): Boolean; override;
-    function Lookup(const KeyFields: string; const KeyValues: Variant;
-      const ResultFields: string): Variant; override;
+    function Lookup(const KeyFields: String; const KeyValues: Variant;
+      const ResultFields: String): Variant; override;
     function IsEmpty: Boolean; override;
     function GetBookmark: TBookmark; override;
     function FieldCount: UInt16; override;
@@ -519,14 +519,14 @@ begin
   FDataSet.Last;
 end;
 
-function TDriverResultSet<T>.Locate(const KeyFields: string;
+function TDriverResultSet<T>.Locate(const KeyFields: String;
   const KeyValues: Variant; Options: TLocateOptions): Boolean;
 begin
   Result := FDataSet.Locate(KeyFields, KeyValues, Options);
 end;
 
-function TDriverResultSet<T>.Lookup(const KeyFields: string;
-  const KeyValues: Variant; const ResultFields: string): Variant;
+function TDriverResultSet<T>.Lookup(const KeyFields: String;
+  const KeyValues: Variant; const ResultFields: String): Variant;
 begin
   Result := FDataSet.Lookup(KeyFields, KeyValues, ResultFields);
 end;
@@ -885,7 +885,7 @@ begin
   raise EAbstractError.Create('The RowsAffected() method must be implemented in the concrete class.');
 end;
 
-function TDriverResultSetBase._GetCommandText: string;
+function TDriverResultSetBase._GetCommandText: String;
 begin
   raise EAbstractError.Create('The _GetCommandText() method must be implemented in the concrete class.');
 end;
@@ -900,7 +900,7 @@ begin
   raise EAbstractError.Create('The _SetCachedUpdates() method must be implemented in the concrete class.');
 end;
 
-procedure TDriverResultSetBase._SetCommandText(const ACommandText: string);
+procedure TDriverResultSetBase._SetCommandText(const ACommandText: String);
 begin
   raise EAbstractError.Create('The _SetCommandText() method must be implemented in the concrete class.');
 end;

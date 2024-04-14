@@ -74,15 +74,15 @@ end;
 constructor TFactoryDBExpress.Create(const AConnection: TSQLConnection;
   const ADriverName: TDriverName; const AMonitor: ICommandMonitor);
 begin
-  Create(AConnection, ADriverName);
   FCommandMonitor := AMonitor;
+  Create(AConnection, ADriverName);
 end;
 
 procedure TFactoryDBExpress.AddTransaction(const AKey: String;
   const ATransaction: TComponent);
 begin
-  if not (ATransaction is TSQLConnection) then
-    raise Exception.Create('Invalid transaction type. Expected TSQLConnection.');
+  if not (ATransaction is TDBXTransaction) then
+    raise Exception.Create('Invalid transaction type. Expected TDBXTransaction.');
 
   inherited AddTransaction(AKey, ATransaction);
 end;
@@ -90,8 +90,8 @@ end;
 constructor TFactoryDBExpress.Create(const AConnection: TSQLConnection;
   const ADriverName: TDriverName; const AMonitorCallback: TMonitorProc);
 begin
-  Create(AConnection, ADriverName);
   FMonitorCallback := AMonitorCallback;
+  Create(AConnection, ADriverName);
 end;
 
 destructor TFactoryDBExpress.Destroy;

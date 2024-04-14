@@ -51,11 +51,11 @@ type
     procedure StartTransaction; virtual;
     procedure Commit; virtual;
     procedure Rollback; virtual;
-    procedure ExecuteDirect(const ASQL: string); overload; virtual;
-    procedure ExecuteDirect(const ASQL: string;
+    procedure ExecuteDirect(const ASQL: String); overload; virtual;
+    procedure ExecuteDirect(const ASQL: String;
       const AParams: TParams); overload; virtual;
-    procedure ExecuteScript(const AScript: string); virtual;
-    procedure AddScript(const AScript: string); virtual;
+    procedure ExecuteScript(const AScript: String); virtual;
+    procedure AddScript(const AScript: String); virtual;
     procedure ExecuteScripts; virtual;
     procedure SetCommandMonitor(AMonitor: ICommandMonitor); virtual;
       deprecated 'use Create(AConnection, ADriverName, AMonitor)';
@@ -81,7 +81,7 @@ implementation
 
 { TFactoryConnection }
 
-procedure TFactoryConnection.AddScript(const AScript: string);
+procedure TFactoryConnection.AddScript(const AScript: String);
 begin
   FDriverConnection.AddScript(AScript);
 end;
@@ -138,7 +138,7 @@ begin
   Result := FOptions;
 end;
 
-procedure TFactoryConnection.ExecuteDirect(const ASQL: string;
+procedure TFactoryConnection.ExecuteDirect(const ASQL: String;
   const AParams: TParams);
 var
   LInTransaction: Boolean;
@@ -169,7 +169,7 @@ begin
   end;
 end;
 
-procedure TFactoryConnection.ExecuteDirect(const ASQL: string);
+procedure TFactoryConnection.ExecuteDirect(const ASQL: String);
 var
   LInTransaction: Boolean;
   LIsConnected: Boolean;
@@ -199,7 +199,7 @@ begin
   end;
 end;
 
-procedure TFactoryConnection.ExecuteScript(const AScript: string);
+procedure TFactoryConnection.ExecuteScript(const AScript: String);
 var
   LInTransaction: Boolean;
   LIsConnected: Boolean;

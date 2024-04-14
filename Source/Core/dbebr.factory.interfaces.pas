@@ -56,16 +56,16 @@ type
     function IsNull: Boolean; virtual; abstract;
     function AsBlob: TMemoryStream; virtual; abstract;
     function AsBlobPtr(out iNumBytes: UIntPtr): Pointer; virtual; abstract;
-    function AsBlobText: string; virtual; abstract;
-    function AsBlobTextDef(const Def: string = ''): string; virtual; abstract;
+    function AsBlobText: String; virtual; abstract;
+    function AsBlobTextDef(const Def: String = ''): String; virtual; abstract;
     function AsDateTime: TDateTime; virtual; abstract;
     function AsDateTimeDef(const Def: TDateTime = 0.0): TDateTime; virtual; abstract;
     function AsDouble: Double; virtual; abstract;
     function AsDoubleDef(const Def: Double = 0.0): Double; virtual; abstract;
     function AsInteger: UInt64; virtual; abstract;
     function AsIntegerDef(const Def: UInt64 = 0): UInt64; virtual; abstract;
-    function AsString: string; virtual; abstract;
-    function AsStringDef(const Def: string = ''): string; virtual; abstract;
+    function AsString: String; virtual; abstract;
+    function AsStringDef(const Def: String = ''): String; virtual; abstract;
     function AsFloat: Double; virtual; abstract;
     function AsFloatDef(const Def: Double = 0): Double; virtual; abstract;
     function AsCurrency: Currency; virtual; abstract;
@@ -88,7 +88,7 @@ type
     function _GetFiltered: Boolean;
     function _GetFilterOptions: TFilterOptions;
     function _GetActive: Boolean;
-    function _GetCommandText: string;
+    function _GetCommandText: String;
     function _GetAfterCancel: TDataSetNotifyEvent;
     function _GetAfterClose: TDataSetNotifyEvent;
     function _GetAfterDelete: TDataSetNotifyEvent;
@@ -119,7 +119,7 @@ type
     procedure _SetFiltered(const Value: Boolean);
     procedure _SetFilterOptions(Value: TFilterOptions);
     procedure _SetActive(const Value: Boolean);
-    procedure _SetCommandText(const ACommandText: string);
+    procedure _SetCommandText(const ACommandText: String);
     procedure _SetUniDirectional(const Value: Boolean);
     procedure _SetReadOnly(const Value: Boolean);
     procedure _SetCachedUpdates(const Value: Boolean);
@@ -167,10 +167,10 @@ type
     procedure ClearFields;
     procedure ApplyUpdates;
     procedure CancelUpdates;
-    function Locate(const KeyFields: string; const KeyValues: Variant;
+    function Locate(const KeyFields: String; const KeyValues: Variant;
       Options: TLocateOptions): Boolean;
-    function Lookup(const KeyFields: string; const KeyValues: Variant;
-      const ResultFields: string): Variant;
+    function Lookup(const KeyFields: String; const KeyValues: Variant;
+      const ResultFields: String): Variant;
     function GetBookmark: TBookmark;
     function FieldCount: UInt16;
     function State: TDataSetState;
@@ -179,11 +179,11 @@ type
     function RowsAffected: UInt32;
     function FieldDefs: TFieldDefs;
     function Modified: Boolean;
-    function GetFieldValue(const AFieldName: string): Variant; overload;
+    function GetFieldValue(const AFieldName: String): Variant; overload;
     function GetFieldValue(const AFieldIndex: UInt16): Variant; overload;
-    function GetField(const AFieldName: string): TField;
-    function GetFieldType(const AFieldName: string): TFieldType;
-    function FieldByName(const AFieldName: string): TAsField;
+    function GetField(const AFieldName: String): TField;
+    function GetFieldType(const AFieldName: String): TFieldType;
+    function FieldByName(const AFieldName: String): TAsField;
     function AggFields: TFields;
     function UpdateStatus: TUpdateStatus;
     function CanModify: Boolean;
@@ -232,17 +232,17 @@ type
 
   IDBQuery = interface
     ['{0588C65B-2571-48BB-BE03-BD51ABB6897F}']
-    procedure _SetCommandText(const ACommandText: string);
-    function _GetCommandText: string;
+    procedure _SetCommandText(const ACommandText: String);
+    function _GetCommandText: String;
     procedure ExecuteDirect;
     function ExecuteQuery: IDBResultSet;
     function RowsAffected: UInt32;
-    property CommandText: string read _GetCommandText write _SetCommandText;
+    property CommandText: String read _GetCommandText write _SetCommandText;
   end;
 
   ICommandMonitor = interface
     ['{9AEB5A47-0205-4648-8C8A-F9DA8D88EB64}']
-    procedure Command(const ASQL: string; AParams: TParams);
+    procedure Command(const ASQL: String; AParams: TParams);
     procedure Show;
   end;
 
@@ -269,10 +269,10 @@ type
     ['{4520C97F-8777-4D14-9C14-C79EF86957DB}']
     procedure Connect;
     procedure Disconnect;
-    procedure ExecuteDirect(const ASQL: string); overload;
-    procedure ExecuteDirect(const ASQL: string; const AParams: TParams); overload;
-    procedure ExecuteScript(const AScript: string);
-    procedure AddScript(const AScript: string);
+    procedure ExecuteDirect(const ASQL: String); overload;
+    procedure ExecuteDirect(const ASQL: String; const AParams: TParams); overload;
+    procedure ExecuteScript(const AScript: String);
+    procedure AddScript(const AScript: String);
     procedure ExecuteScripts;
     procedure SetCommandMonitor(AMonitor: ICommandMonitor);
     procedure ApplyUpdates(const ADataSets: array of IDBResultSet);
@@ -288,7 +288,7 @@ type
 
 const
   TStrDriverName: array[dnMSSQL..dnMariaDB] of
-                  string = ('MSSQL','MySQL','Firebird','SQLite','Interbase',
+                  String = ('MSSQL','MySQL','Firebird','SQLite','Interbase',
                             'DB2','Oracle','Informix','PostgreSQL','ADS','ASA',
                             'dnFirebase', 'dnFirebird3','AbsoluteDB','MongoDB',
                             'ElevateDB','NexusDB','MariaDB');

@@ -27,8 +27,10 @@ unit dbebr.driver.dbexpress.transaction;
 interface
 
 uses
-  Classes,
   DB,
+  Classes,
+  SysUtils,
+  Generics.Collections,
   SqlExpr,
   DBXCommon,
   // DBEBr
@@ -42,7 +44,7 @@ type
     FConnection: TSQLConnection;
     FDBXTransaction: TDBXTransaction;
   public
-    constructor Create(AConnection: TComponent); override;
+    constructor Create(const AConnection: TComponent); override;
     destructor Destroy; override;
     procedure StartTransaction; override;
     procedure Commit; override;
@@ -54,38 +56,43 @@ implementation
 
 { TDriverDBExpressTransaction }
 
-constructor TDriverDBExpressTransaction.Create(AConnection: TComponent);
+constructor TDriverDBExpressTransaction.Create(const AConnection: TComponent);
 begin
+  FTransactionList := TDictionary<String, TComponent>.Create;
   FConnection := AConnection as TSQLConnection;
+  FConnection.DefaultTransaction.Name := 'DEFAULT';
+  FTransactionList.Add('DEFAULT', FConnection.DefaultTransaction);
+  FTransactionActive := FConnection.DefaultTransaction;
 end;
 
 destructor TDriverDBExpressTransaction.Destroy;
 begin
-  FConnection := nil;
+  FTransactionActive := nil;
+  FTransactionList.Clear;
+  FTransactionList.Free;
   inherited;
-end;
-
-function TDriverDBExpressTransaction.InTransaction: Boolean;
-begin
-  Result := FConnection.InTransaction;
 end;
 
 procedure TDriverDBExpressTransaction.StartTransaction;
 begin
-  inherited;
-  FDBXTransaction := FConnection.BeginTransaction(TDBXIsolations.ReadCommitted);
+  (FTransactionActive as TDBXTransaction).StartTransaction;
 end;
 
 procedure TDriverDBExpressTransaction.Commit;
 begin
-  inherited;
-  FConnection.CommitFreeAndNil(FDBXTransaction);
+  (FTransactionActive as TDBXTransaction).Commit;
 end;
 
 procedure TDriverDBExpressTransaction.Rollback;
 begin
-  inherited;
-  FConnection.RollbackFreeAndNil(FDBXTransaction);
+  (FTransactionActive as TDBXTransaction).Rollback;
+end;
+
+function TDriverDBExpressTransaction.InTransaction: Boolean;
+begin
+  if not Assigned(FTransactionActive) then
+    raise Exception.Create('The active transaction is not defined. Please make sure to start a transaction before checking if it is in progress.');
+  Result := (FTransactionActive as TDBXTransaction).Active;
 end;
 
 end.

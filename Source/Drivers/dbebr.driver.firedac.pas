@@ -28,9 +28,10 @@ interface
 
 uses
   Classes,
-  DB,
-  Variants,
+  SysUtils,
   StrUtils,
+  Variants,
+  DB,
   FireDAC.Comp.Client,
   FireDAC.Comp.Script,
   FireDAC.Comp.ScriptCommands,
@@ -41,37 +42,51 @@ uses
   dbebr.factory.interfaces;
 
 type
+  TFDQueryHelper = class Helper for TFDQuery
+  public
+    function AsParams: TParams;
+  end;
+
   // Classe de conexão concreta com FireDAC
   TDriverFireDAC = class(TDriverConnection)
+  private
+    function _GetTransactionActive: TFDTransaction;
   protected
     FConnection: TFDConnection;
     FSQLScript: TFDScript;
   public
     constructor Create(const AConnection: TComponent;
-      const ADriverName: TDriverName); override;
+      const ADriverTransaction: TDriverTransaction;
+      const ADriverName: TDriverName;
+      const AMonitor: ICommandMonitor;
+      const AMonitorCallback: TMonitorProc); override;
     destructor Destroy; override;
     procedure Connect; override;
     procedure Disconnect; override;
-    procedure ExecuteDirect(const ASQL: string); override;
-    procedure ExecuteDirect(const ASQL: string; const AParams: TParams); override;
-    procedure ExecuteScript(const AScript: string); override;
-    procedure AddScript(const AScript: string); override;
+    procedure ExecuteDirect(const ASQL: String); override;
+    procedure ExecuteDirect(const ASQL: String; const AParams: TParams); override;
+    procedure ExecuteScript(const AScript: String); override;
+    procedure AddScript(const AScript: String); override;
     procedure ExecuteScripts; override;
     procedure ApplyUpdates(const ADataSets: array of IDBResultSet); override;
     function IsConnected: Boolean; override;
-    function InTransaction: Boolean; override;
     function CreateQuery: IDBQuery; override;
-    function CreateResultSet(const ASQL: string): IDBResultSet; override;
+    function CreateResultSet(const ASQL: String = ''): IDBResultSet; override;
+    function GetSQLScripts: String; override;
   end;
 
   TDriverQueryFireDAC = class(TDriverQuery)
   private
     FFDQuery: TFDQuery;
+    function _GetTransactionActive: TFDTransaction;
   protected
-    procedure _SetCommandText(ACommandText: string); override;
-    function _GetCommandText: string; override;
+    procedure _SetCommandText(const ACommandText: String); override;
+    function _GetCommandText: String; override;
   public
-    constructor Create(AConnection: TFDConnection);
+    constructor Create(const AConnection: TFDConnection;
+      const ADriverTransaction: TDriverTransaction;
+      const AMonitor: ICommandMonitor;
+      const AMonitorCallback: TMonitorProc);
     destructor Destroy; override;
     procedure ExecuteDirect; override;
     function ExecuteQuery: IDBResultSet; override;
@@ -83,18 +98,21 @@ type
     procedure _SetUniDirectional(const Value: Boolean); override;
     procedure _SetReadOnly(const Value: Boolean); override;
     procedure _SetCachedUpdates(const Value: Boolean); override;
-    procedure _SetCommandText(const ACommandText: string); override;
-    function _GetCommandText: string; override;
+    procedure _SetCommandText(const ACommandText: String); override;
+    function _GetCommandText: String; override;
   public
-    constructor Create(ADataSet: TFDQuery); override;
+    constructor Create(ADataSet: TFDQuery; const AMonitor: ICommandMonitor;
+      const AMonitorCallback: TMonitorProc); reintroduce;
     destructor Destroy; override;
+    procedure Open; override;
     procedure ApplyUpdates; override;
+    procedure CancelUpdates; override;
     function NotEof: Boolean; override;
-    function GetFieldValue(const AFieldName: string): Variant; overload; override;
-    function GetFieldValue(const AFieldIndex: Uint16): Variant; overload; override;
-    function GetFieldType(const AFieldName: string): TFieldType; overload; override;
-    function GetField(const AFieldName: string): TField; override;
-    function RowsAffected: Uint32; override;
+    function GetFieldValue(const AFieldName: String): Variant; overload; override;
+    function GetFieldValue(const AFieldIndex: UInt16): Variant; overload; override;
+    function GetFieldType(const AFieldName: String): TFieldType; overload; override;
+    function GetField(const AFieldName: String): TField; override;
+    function RowsAffected: UInt32; override;
     function IsUniDirectional: Boolean; override;
     function IsReadOnly: Boolean; override;
     function IsCachedUpdates: Boolean; override;
@@ -105,11 +123,16 @@ implementation
 { TDriverFireDAC }
 
 constructor TDriverFireDAC.Create(const AConnection: TComponent;
-  const ADriverName: TDriverName);
+  const ADriverTransaction: TDriverTransaction;
+  const ADriverName: TDriverName;
+  const AMonitor: ICommandMonitor;
+  const AMonitorCallback: TMonitorProc);
 begin
-  inherited;
   FConnection := AConnection as TFDConnection;
+  FDriverTransaction := ADriverTransaction;
   FDriverName := ADriverName;
+  FCommandMonitor := AMonitor;
+  FMonitorCallback := AMonitorCallback;
   FSQLScript := TFDScript.Create(nil);
   try
     FSQLScript.Connection := FConnection;
@@ -129,6 +152,7 @@ end;
 
 destructor TDriverFireDAC.Destroy;
 begin
+  FDriverTransaction := nil;
   FConnection := nil;
   FSQLScript.Free;
   inherited;
@@ -136,17 +160,29 @@ end;
 
 procedure TDriverFireDAC.Disconnect;
 begin
-  inherited;
   FConnection.Connected := False;
 end;
 
-procedure TDriverFireDAC.ExecuteDirect(const ASQL: string);
+procedure TDriverFireDAC.ExecuteDirect(const ASQL: String);
+var
+  LExeSQL: TFDQuery;
 begin
-  inherited;
-  FConnection.ExecSQL(ASQL);
+  LExeSQL := TFDQuery.Create(nil);
+  try
+    LExeSQL.Connection := FConnection;
+    LExeSQL.Transaction := _GetTransactionActive;
+    LExeSQL.SQL.Text := ASQL;
+    if not LExeSQL.Prepared then
+      LExeSQL.Prepare;
+    LExeSQL.Execute;
+  finally
+    _SetMonitorLog(LExeSQL.SQL.Text, LExeSQL.Transaction.Name, LExeSQL.AsParams);
+    FRowsAffected := LExeSQL.RowsAffected;
+    LExeSQL.Free;
+  end;
 end;
 
-procedure TDriverFireDAC.ExecuteDirect(const ASQL: string; const AParams: TParams);
+procedure TDriverFireDAC.ExecuteDirect(const ASQL: String; const AParams: TParams);
 var
   LExeSQL: TFDQuery;
   LFor: Int16;
@@ -154,7 +190,8 @@ begin
   LExeSQL := TFDQuery.Create(nil);
   try
     LExeSQL.Connection := FConnection;
-    LExeSQL.SQL.Text   := ASQL;
+    LExeSQL.Transaction := _GetTransactionActive;
+    LExeSQL.SQL.Text := ASQL;
     for LFor := 0 to AParams.Count - 1 do
     begin
       LExeSQL.ParamByName(AParams[LFor].Name).DataType := AParams[LFor].DataType;
@@ -162,96 +199,103 @@ begin
     end;
     if not LExeSQL.Prepared then
       LExeSQL.Prepare;
-    LExeSQL.ExecSQL;
+    LExeSQL.Execute;
   finally
+    _SetMonitorLog(LExeSQL.SQL.Text, LExeSQL.Transaction.Name, LExeSQL.AsParams);
+    FRowsAffected := LExeSQL.RowsAffected;
     LExeSQL.Free;
   end;
 end;
 
-procedure TDriverFireDAC.ExecuteScript(const AScript: string);
+procedure TDriverFireDAC.ExecuteScript(const AScript: String);
 begin
-  inherited;
-  if AScript = '' then
-    Exit;
-  FSQLScript.SQLScripts[0].SQL.Clear;
-  try
-    FSQLScript.SQLScripts[0].SQL.Add(AScript);
-    if FSQLScript.ValidateAll then
-      FSQLScript.ExecuteAll;
-  finally
-    FSQLScript.SQLScripts[0].SQL.Clear;
-  end;
+  AddScript(AScript);
+  ExecuteScripts;
 end;
 
 procedure TDriverFireDAC.ExecuteScripts;
 begin
-  inherited;
   if FSQLScript.SQLScripts.Count = 0 then
     Exit;
   try
+    FSQLScript.Transaction := _GetTransactionActive;
     if FSQLScript.ValidateAll then
       FSQLScript.ExecuteAll;
   finally
+    _SetMonitorLog(FSQLScript.SQLScripts.Items[0].SQL.Text, FSQLScript.Transaction.Name, nil);
+    FRowsAffected := 0;
     FSQLScript.SQLScripts[0].SQL.Clear;
   end;
 end;
 
-procedure TDriverFireDAC.AddScript(const AScript: string);
+function TDriverFireDAC.GetSQLScripts: String;
 begin
-  inherited;
+  Result := 'Transaction: ' + FSQLScript.Transaction.Name + ' ' +  FSQLScript.SQLScripts.Items[0].SQL.Text;
+end;
+
+procedure TDriverFireDAC.AddScript(const AScript: String);
+begin
+  if Self.GetDriverName in [dnInterbase, dnFirebird, dnFirebird3] then
+    if FSQLScript.SQLScripts.Items[0].SQL.Count = 0 then
+      FSQLScript.SQLScripts.Items[0].SQL.Add('SET AUTOCOMMIT OFF');
   FSQLScript.SQLScripts[0].SQL.Add(AScript);
 end;
 
 procedure TDriverFireDAC.ApplyUpdates(const ADataSets: array of IDBResultSet);
 var
-  LDataSets: array of TCustomDataSet;
-  LFor: Int16;
+  LDataSet: IDBResultSet;
 begin
-  SetLength(LDataSets, Length(ADataSets));
-  for LFor := Low(ADataSets) to High(ADataSets) do
-    LDataSets[LFor] := TCustomDADataSet(ADataSets[LFor].DataSet);
-
-  FConnection.ApplyUpdates(LDataSets);
+  for LDataset in AdataSets do
+    LDataset.ApplyUpdates;
 end;
 
 procedure TDriverFireDAC.Connect;
 begin
-  inherited;
   FConnection.Connected := True;
-end;
-
-function TDriverFireDAC.InTransaction: Boolean;
-begin
-  Result := FConnection.InTransaction;
 end;
 
 function TDriverFireDAC.IsConnected: Boolean;
 begin
-  inherited;
-  Result := FConnection.Connected;
+  Result := FConnection.Connected = True;
+end;
+
+function TDriverFireDAC._GetTransactionActive: TFDTransaction;
+begin
+  Result := FDriverTransaction.TransactionActive as TFDTransaction;
 end;
 
 function TDriverFireDAC.CreateQuery: IDBQuery;
 begin
-  Result := TDriverQueryFireDAC.Create(FConnection);
+  Result := TDriverQueryFireDAC.Create(FConnection,
+                                       FDriverTransaction,
+                                       FCommandMonitor,
+                                       FMonitorCallback);
 end;
 
-function TDriverFireDAC.CreateResultSet(const ASQL: string): IDBResultSet;
+function TDriverFireDAC.CreateResultSet(const ASQL: String): IDBResultSet;
 var
   LDBQuery: IDBQuery;
 begin
-  LDBQuery := TDriverQueryFireDAC.Create(FConnection);
+  LDBQuery := TDriverQueryFireDAC.Create(FConnection,
+                                         FDriverTransaction,
+                                         FCommandMonitor,
+                                         FMonitorCallback);
   LDBQuery.CommandText := ASQL;
-  Result   := LDBQuery.ExecuteQuery;
+  Result := LDBQuery.ExecuteQuery;
 end;
 
-{ TDriverDBExpressQuery }
+{ TDriverQueryFireDAC }
 
-constructor TDriverQueryFireDAC.Create(AConnection: TFDConnection);
+constructor TDriverQueryFireDAC.Create(const AConnection: TFDConnection;
+  const ADriverTransaction: TDriverTransaction;
+  const AMonitor: ICommandMonitor;
+  const AMonitorCallback: TMonitorProc);
 begin
   if AConnection = nil then
     Exit;
-
+  FDriverTransaction := ADriverTransaction;
+  FCommandMonitor := AMonitor;
+  FMonitorCallback := AMonitorCallback;
   FFDQuery := TFDQuery.Create(nil);
   try
     FFDQuery.Connection := AConnection;
@@ -270,28 +314,34 @@ end;
 function TDriverQueryFireDAC.ExecuteQuery: IDBResultSet;
 var
   LResultSet: TFDQuery;
-  LFor: UInt16;
+  LFor : Int16;
 begin
   LResultSet := TFDQuery.Create(nil);
   try
     LResultSet.Connection := FFDQuery.Connection;
-    LResultSet.SQL.Text   := FFDQuery.SQL.Text;
-    for LFor := 0 to FFDQuery.Params.Count - 1 do
-    begin
-      LResultSet.Params[LFor].DataType := FFDQuery.Params[LFor].DataType;
-      LResultSet.Params[LFor].Value    := FFDQuery.Params[LFor].Value;
-    end;
-    if LResultSet.SQL.Text <> '' then
-    begin
-      if not LResultSet.Prepared then
-        LResultSet.Prepare;
-      LResultSet.Open;
-    end;
-    Result := TDriverResultSetFireDAC.Create(LResultSet);
-    if LResultSet.Active then
-    begin
-      if LResultSet.RecordCount = 0 then
-        Result.FetchingAll := True;
+    LResultSet.Transaction := _GetTransactionActive;
+    LResultSet.SQL.Text := FFDQuery.SQL.Text;
+    try
+      for LFor := 0 to FFDQuery.Params.Count - 1 do
+      begin
+        LResultSet.Params[LFor].DataType := FFDQuery.Params[LFor].DataType;
+        LResultSet.Params[LFor].Value := FFDQuery.Params[LFor].Value;
+      end;
+      if LResultSet.SQL.Text <> EmptyStr then
+      begin
+        if not LResultSet.Prepared then
+          LResultSet.Prepare;
+        LResultSet.Open;
+      end;
+      Result := TDriverResultSetFireDAC.Create(LResultSet, FCommandMonitor, FMonitorCallback);
+      if LResultSet.Active then
+      begin
+        if LResultSet.RecordCount = 0 then
+          Result.FetchingAll := True;
+      end;
+    finally
+      if LResultSet.SQL.Text <> EmptyStr then
+        _SetMonitorLog(LResultSet.SQL.Text, LResultSet.Transaction.Name, LResultSet.AsParams);
     end;
   except
     if Assigned(LResultSet) then
@@ -302,22 +352,47 @@ end;
 
 function TDriverQueryFireDAC.RowsAffected: UInt32;
 begin
-  Result := FFDQuery.RowsAffected;
+  Result := FRowsAffected;
 end;
 
-function TDriverQueryFireDAC._GetCommandText: string;
+function TDriverQueryFireDAC._GetCommandText: String;
 begin
   Result := FFDQuery.SQL.Text;
 end;
 
-procedure TDriverQueryFireDAC._SetCommandText(ACommandText: string);
+function TDriverQueryFireDAC._GetTransactionActive: TFDTransaction;
+begin
+  Result := FDriverTransaction.TransactionActive as TFDTransaction;
+end;
+
+procedure TDriverQueryFireDAC._SetCommandText(const ACommandText: String);
 begin
   FFDQuery.SQL.Text := ACommandText;
 end;
 
 procedure TDriverQueryFireDAC.ExecuteDirect;
+var
+  LExeSQL: TFDQuery;
+  LFor: Int16;
 begin
-  FFDQuery.ExecSQL;
+  LExeSQL := TFDQuery.Create(nil);
+  try
+    LExeSQL.Connection := FFDQuery.Connection;
+    LExeSQL.Transaction := _GetTransactionActive;
+    LExeSQL.SQL.Text := FFDQuery.SQL.Text;
+    for LFor := 0 to FFDQuery.Params.Count - 1 do
+    begin
+      LExeSQL.Params[LFor].DataType := FFDQuery.Params[LFor].DataType;
+      LExeSQL.Params[LFor].Value := FFDQuery.Params[LFor].Value;
+    end;
+    if not LExeSQL.Prepared then
+      LExeSQL.Prepare;
+    LExeSQL.Execute;
+  finally
+    _SetMonitorLog(LExeSQL.SQL.Text, LExeSQL.Transaction.Name, LExeSQL.AsParams);
+    FRowsAffected := LExeSQL.RowsAffected;
+    LExeSQL.Free;
+  end;
 end;
 
 { TDriverResultSetFireDAC }
@@ -327,10 +402,15 @@ begin
   FDataSet.ApplyUpdates;
 end;
 
-constructor TDriverResultSetFireDAC.Create(ADataSet: TFDQuery);
+procedure TDriverResultSetFireDAC.CancelUpdates;
 begin
-  FDataSet := ADataSet;
-  inherited;
+  FDataSet.CancelUpdates;
+end;
+
+constructor TDriverResultSetFireDAC.Create(ADataSet: TFDQuery; const AMonitor: ICommandMonitor;
+      const AMonitorCallback: TMonitorProc);
+begin
+  inherited Create(ADataSet, AMonitor, AMonitorCallback);
 end;
 
 destructor TDriverResultSetFireDAC.Destroy;
@@ -339,7 +419,7 @@ begin
   inherited;
 end;
 
-function TDriverResultSetFireDAC.GetFieldValue(const AFieldName: string): Variant;
+function TDriverResultSetFireDAC.GetFieldValue(const AFieldName: String): Variant;
 var
   LField: TField;
 begin
@@ -347,19 +427,19 @@ begin
   Result := GetFieldValue(LField.Index);
 end;
 
-function TDriverResultSetFireDAC.GetField(const AFieldName: string): TField;
+function TDriverResultSetFireDAC.GetField(const AFieldName: String): TField;
 begin
   Result := FDataSet.FieldByName(AFieldName);
 end;
 
-function TDriverResultSetFireDAC.GetFieldType(const AFieldName: string): TFieldType;
+function TDriverResultSetFireDAC.GetFieldType(const AFieldName: String): TFieldType;
 begin
   Result := FDataSet.FieldByName(AFieldName).DataType;
 end;
 
 function TDriverResultSetFireDAC.GetFieldValue(const AFieldIndex: Uint16): Variant;
 begin
-  if AFieldIndex > FDataSet.FieldCount -1  then
+  if AFieldIndex > FDataSet.FieldCount - 1 then
     Exit(Variants.Null);
 
   if FDataSet.Fields[AFieldIndex].IsNull then
@@ -375,12 +455,12 @@ end;
 
 function TDriverResultSetFireDAC.IsReadOnly: Boolean;
 begin
-  Result := FDataSet.ReadOnly;
+  Result := False; // FDataSet.ReadOnly;
 end;
 
 function TDriverResultSetFireDAC.IsUniDirectional: Boolean;
 begin
-  Result := FDataSet.UniDirectional;
+  Result := FDataSet.IsUniDirectional;
 end;
 
 function TDriverResultSetFireDAC.NotEof: Boolean;
@@ -392,34 +472,58 @@ begin
   Result := not FDataSet.Eof;
 end;
 
+procedure TDriverResultSetFireDAC.Open;
+begin
+  try
+    inherited Open;
+  finally
+    _SetMonitorLog(FDataSet.SQL.Text, FDataSet.Transaction.Name, FDataSet.AsParams);
+  end;
+end;
+
 function TDriverResultSetFireDAC.RowsAffected: UInt32;
 begin
   Result := FDataSet.RowsAffected;
 end;
 
-function TDriverResultSetFireDAC._GetCommandText: string;
+function TDriverResultSetFireDAC._GetCommandText: String;
 begin
   Result := FDataSet.SQL.Text;
 end;
 
 procedure TDriverResultSetFireDAC._SetCachedUpdates(const Value: Boolean);
 begin
-  FDataSet.CachedUpdates := Value/
+  FDataSet.CachedUpdates := Value;
 end;
 
-procedure TDriverResultSetFireDAC._SetCommandText(const ACommandText: string);
+procedure TDriverResultSetFireDAC._SetCommandText(const ACommandText: String);
 begin
   FDataSet.SQL.Text := ACommandText;
 end;
 
 procedure TDriverResultSetFireDAC._SetReadOnly(const Value: Boolean);
 begin
-  FDataSet.ReadOnly := Value;
+  // FDataSet.ReadOnly := Value;
 end;
 
 procedure TDriverResultSetFireDAC._SetUniDirectional(const Value: Boolean);
 begin
-  FDataSet.UniDirectional := Value;
+  FDataSet.FetchOptions.Unidirectional := Value;
+end;
+
+{ TFDQueryHelper }
+
+function TFDQueryHelper.AsParams: TParams;
+var
+  LFor: Int16;
+begin
+  Result := TParams.Create;
+  for LFor := 0 to Self.Params.Count - 1 do
+  begin
+    Result.Add;
+    Result[LFor].DataType := Self.Params[LFor].DataType;
+    Result[LFor].Value := Self.Params[LFor].Value;
+  end;
 end;
 
 end.

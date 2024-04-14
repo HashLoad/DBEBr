@@ -48,11 +48,11 @@ type
     destructor Destroy; override;
     procedure Connect; override;
     procedure Disconnect; override;
-    procedure ExecuteDirect(const ASQL: string); overload; override;
-    procedure ExecuteDirect(const ASQL: string;
+    procedure ExecuteDirect(const ASQL: String); overload; override;
+    procedure ExecuteDirect(const ASQL: String;
       const AParams: TParams); overload; override;
-    procedure ExecuteScript(const AScript: string); override;
-    procedure AddScript(const AScript: string); override;
+    procedure ExecuteScript(const AScript: String); override;
+    procedure AddScript(const AScript: String); override;
     procedure ExecuteScripts; override;
     function IsConnected: Boolean; override;
     function InTransaction: Boolean; override;
@@ -64,8 +64,8 @@ type
   private
     FSQLQuery: TABSQuery;
   protected
-    procedure SetCommandText(ACommandText: string); override;
-    function GetCommandText: string; override;
+    procedure SetCommandText(ACommandText: String); override;
+    function GetCommandText: String; override;
   public
     constructor Create(AConnection: TABSDatabase);
     destructor Destroy; override;
@@ -78,10 +78,10 @@ type
     constructor Create(ADataSet: TABSQuery); override;
     destructor Destroy; override;
     function NotEof: Boolean; override;
-    function GetFieldValue(const AFieldName: string): Variant; overload; override;
+    function GetFieldValue(const AFieldName: String): Variant; overload; override;
     function GetFieldValue(const AFieldIndex: UInt16): Variant; overload; override;
-    function GetFieldType(const AFieldName: string): TFieldType; overload; override;
-    function GetField(const AFieldName: string): TField; override;
+    function GetFieldType(const AFieldName: String): TFieldType; overload; override;
+    function GetField(const AFieldName: String): TField; override;
   end;
 
 implementation
@@ -119,13 +119,13 @@ begin
   FConnection.Connected := False;
 end;
 
-procedure TDriverAbsoluteDB.ExecuteDirect(const ASQL: string);
+procedure TDriverAbsoluteDB.ExecuteDirect(const ASQL: String);
 begin
   inherited;
   ExecuteScript(ASQL);
 end;
 
-procedure TDriverAbsoluteDB.ExecuteDirect(const ASQL: string; const AParams: TParams);
+procedure TDriverAbsoluteDB.ExecuteDirect(const ASQL: String; const AParams: TParams);
 var
   LExeSQL: TABSQuery;
   LFor: Int16;
@@ -149,7 +149,7 @@ begin
   end;
 end;
 
-procedure TDriverAbsoluteDB.ExecuteScript(const AScript: string);
+procedure TDriverAbsoluteDB.ExecuteScript(const AScript: String);
 begin
   inherited;
   FSQLScript.SQL.Text := AScript;
@@ -175,7 +175,7 @@ begin
   Result   := LDBQuery.ExecuteQuery;
 end;
 
-procedure TDriverAbsoluteDB.AddScript(const AScript: string);
+procedure TDriverAbsoluteDB.AddScript(const AScript: String);
 begin
   inherited;
   FSQLScript.SQL.Add(AScript);
@@ -251,12 +251,12 @@ begin
      Result.FetchingAll := True;
 end;
 
-function TDriverQueryAbsoluteDB.GetCommandText: string;
+function TDriverQueryAbsoluteDB.GetCommandText: String;
 begin
   Result := FSQLQuery.SQL.Text;
 end;
 
-procedure TDriverQueryAbsoluteDB.SetCommandText(ACommandText: string);
+procedure TDriverQueryAbsoluteDB.SetCommandText(ACommandText: String);
 begin
   inherited;
   FSQLQuery.SQL.Text := ACommandText;
@@ -281,7 +281,7 @@ begin
   inherited;
 end;
 
-function TDriverResultSetAbsoluteDB.GetFieldValue(const AFieldName: string): Variant;
+function TDriverResultSetAbsoluteDB.GetFieldValue(const AFieldName: String): Variant;
 var
   LField: TField;
 begin
@@ -289,12 +289,12 @@ begin
   Result := GetFieldValue(LField.Index);
 end;
 
-function TDriverResultSetAbsoluteDB.GetField(const AFieldName: string): TField;
+function TDriverResultSetAbsoluteDB.GetField(const AFieldName: String): TField;
 begin
   Result := FDataSet.FieldByName(AFieldName);
 end;
 
-function TDriverResultSetAbsoluteDB.GetFieldType(const AFieldName: string): TFieldType;
+function TDriverResultSetAbsoluteDB.GetFieldType(const AFieldName: String): TFieldType;
 begin
   Result := FDataSet.FieldByName(AFieldName).DataType;
 end;

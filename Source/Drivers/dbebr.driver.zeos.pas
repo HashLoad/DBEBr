@@ -57,11 +57,11 @@ type
     destructor Destroy; override;
     procedure Connect; override;
     procedure Disconnect; override;
-    procedure ExecuteDirect(const ASQL: string); overload; override;
-    procedure ExecuteDirect(const ASQL: string;
+    procedure ExecuteDirect(const ASQL: String); overload; override;
+    procedure ExecuteDirect(const ASQL: String;
       const AParams: TParams); overload; override;
-    procedure ExecuteScript(const AScript: string); override;
-    procedure AddScript(const AScript: string); override;
+    procedure ExecuteScript(const AScript: String); override;
+    procedure AddScript(const AScript: String); override;
     procedure ExecuteScripts; override;
     function IsConnected: Boolean; override;
     function InTransaction: Boolean; override;
@@ -73,8 +73,8 @@ type
   private
     FSQLQuery: TZReadOnlyQuery;
   protected
-    procedure SetCommandText(ACommandText: string); override;
-    function GetCommandText: string; override;
+    procedure SetCommandText(ACommandText: String); override;
+    function GetCommandText: String; override;
   public
     constructor Create(AConnection: TZConnection);
     destructor Destroy; override;
@@ -87,10 +87,10 @@ type
     constructor Create(ADataSet: TZReadOnlyQuery); override;
     destructor Destroy; override;
     function NotEof: Boolean; override;
-    function GetFieldValue(const AFieldName: string): Variant; overload; override;
+    function GetFieldValue(const AFieldName: String): Variant; overload; override;
     function GetFieldValue(const AFieldIndex: UInt16): Variant; overload; override;
-    function GetFieldType(const AFieldName: string): TFieldType; overload; override;
-    function GetField(const AFieldName: string): TField; override;
+    function GetFieldType(const AFieldName: String): TFieldType; overload; override;
+    function GetField(const AFieldName: String): TField; override;
   end;
 
 implementation
@@ -125,13 +125,13 @@ begin
   FConnection.Connected := False;
 end;
 
-procedure TDriverZeos.ExecuteDirect(const ASQL: string);
+procedure TDriverZeos.ExecuteDirect(const ASQL: String);
 begin
   inherited;
   FConnection.ExecuteDirect(ASQL);
 end;
 
-procedure TDriverZeos.ExecuteDirect(const ASQL: string; const AParams: TParams);
+procedure TDriverZeos.ExecuteDirect(const ASQL: String; const AParams: TParams);
 var
   LExeSQL: TZReadOnlyQuery;
   LFor: UInt16;
@@ -156,7 +156,7 @@ begin
   end;
 end;
 
-procedure TDriverZeos.ExecuteScript(const AScript: string);
+procedure TDriverZeos.ExecuteScript(const AScript: String);
 begin
   inherited;
   FSQLScript.Script.Text := AScript;
@@ -173,7 +173,7 @@ begin
   end;
 end;
 
-procedure TDriverZeos.AddScript(const AScript: string);
+procedure TDriverZeos.AddScript(const AScript: String);
 begin
   inherited;
   FSQLScript.Script.Add(AScript);
@@ -258,12 +258,12 @@ begin
      Result.FetchingAll := True;
 end;
 
-function TDriverQueryZeos.GetCommandText: string;
+function TDriverQueryZeos.GetCommandText: String;
 begin
   Result := FSQLQuery.SQL.Text;
 end;
 
-procedure TDriverQueryZeos.SetCommandText(ACommandText: string);
+procedure TDriverQueryZeos.SetCommandText(ACommandText: String);
 begin
   inherited;
   FSQLQuery.SQL.Text := ACommandText;
@@ -288,7 +288,7 @@ begin
   inherited;
 end;
 
-function TDriverResultSetZeos.GetFieldValue(const AFieldName: string): Variant;
+function TDriverResultSetZeos.GetFieldValue(const AFieldName: String): Variant;
 var
   LField: TField;
 begin
@@ -296,12 +296,12 @@ begin
   Result := GetFieldValue(LField.Index);
 end;
 
-function TDriverResultSetZeos.GetField(const AFieldName: string): TField;
+function TDriverResultSetZeos.GetField(const AFieldName: String): TField;
 begin
   Result := FDataSet.FieldByName(AFieldName);
 end;
 
-function TDriverResultSetZeos.GetFieldType(const AFieldName: string): TFieldType;
+function TDriverResultSetZeos.GetFieldType(const AFieldName: String): TFieldType;
 begin
   Result := FDataSet.FieldByName(AFieldName).DataType;
 end;

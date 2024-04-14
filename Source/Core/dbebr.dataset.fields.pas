@@ -29,6 +29,7 @@ interface
 
 uses
   DB,
+  Rtti,
   Classes,
   SysUtils;
 
@@ -36,6 +37,11 @@ const
   C_INTERNAL_FIELD = 'InternalField';
 
 type
+  TFieldHelper = class helper for TField
+  public
+    function AsType<T: TField>: T;
+  end;
+
   IFieldSingleton = interface
     ['{F61DC5DB-5300-4C83-AF08-35DB9BB298B6}']
     function AddField(const ADataSet: TDataSet;
@@ -64,10 +70,10 @@ type
 
   TFieldSingleton = class(TInterfacedObject, IFieldSingleton)
   private
-  class var
-    FInstance: IFieldSingleton;
+    class var
+      FInstance: IFieldSingleton;
   private
-    function GetFieldType(ADataSet: TDataSet; AFieldType: TFieldType): TField;
+    function _GetFieldType(const ADataSet: TDataSet; const AFieldType: TFieldType): TField;
   protected
     constructor Create;
   public
@@ -113,7 +119,7 @@ begin
   if ADataSet.FindField(AFieldName) <> nil then
     raise Exception.Create('The field: ' + AFieldName + ' already exists in the dataset.');
 
-  LField := GetFieldType(ADataSet, AFieldType);
+  LField := _GetFieldType(ADataSet, AFieldType);
   if LField = nil then
     raise Exception.Create('Unsupported field type.');
 
@@ -159,7 +165,7 @@ begin
   if ADataSet.FindField(AFieldName) <> nil then
     raise Exception.Create('The field: ' + AFieldName + ' already exists in the dataset.');
 
-  LField := GetFieldType(ADataSet, AFieldType);
+  LField := _GetFieldType(ADataSet, AFieldType);
   if LField = nil then
     raise Exception.Create('Unsupported field type.');
 
@@ -188,62 +194,62 @@ begin
 
 end;
 
-function TFieldSingleton.GetFieldType(ADataSet: TDataSet;
-  AFieldType: TFieldType): TField;
+function TFieldSingleton._GetFieldType(const ADataSet: TDataSet;
+  const AFieldType: TFieldType): TField;
 begin
   case AFieldType of
-//     ftUnknown:         Result := nil;
-     ftString:          Result := TStringField.Create(ADataSet);
-     ftSmallint:        Result := TSmallintField.Create(ADataSet);
-     ftInteger:         Result := TIntegerField.Create(ADataSet);
-     ftWord:            Result := TWordField.Create(ADataSet);
-     ftBoolean:         Result := TBooleanField.Create(ADataSet);
-     ftFloat:           Result := TFloatField.Create(ADataSet);
-     ftCurrency:        Result := TCurrencyField.Create(ADataSet);
-     ftBCD:             Result := TBCDField.Create(ADataSet);
-     ftDate:            Result := TDateField.Create(ADataSet);
-     ftTime:            Result := TTimeField.Create(ADataSet);
-     ftDateTime:        Result := TDateTimeField.Create(ADataSet);
-     ftBytes:           Result := TBytesField.Create(ADataSet);
-     ftVarBytes:        Result := TVarBytesField.Create(ADataSet);
-     ftAutoInc:         Result := TIntegerField.Create(ADataSet);
-     ftBlob:            Result := TBlobField.Create(ADataSet);
-     ftMemo:            Result := TMemoField.Create(ADataSet);
-     ftGraphic:         Result := TGraphicField.Create(ADataSet);
-//     ftFmtMemo:         Result := nil;
-//     ftParadoxOle:      Result := nil;
-//     ftDBaseOle:        Result := nil;
-     ftTypedBinary:     Result := TBinaryField.Create(ADataSet);
-//     ftCursor:          Result := nil;
-     ftFixedChar:       Result := TStringField.Create(ADataSet);
-     ftWideString:      Result := TWideStringField.Create(ADataSet);
-     ftLargeint:        Result := TLargeintField.Create(ADataSet);
-     ftADT:             Result := TADTField.Create(ADataSet);
-     ftArray:           Result := TArrayField.Create(ADataSet);
-     ftReference:       Result := TReferenceField.Create(ADataSet);
-     ftDataSet:         Result := TDataSetField.Create(ADataSet);
-//     ftOraBlob:         Result := nil;
-//     ftOraClob:         Result := nil;
-     ftVariant:         Result := TVariantField.Create(ADataSet);
-     ftInterface:       Result := TInterfaceField.Create(ADataSet);
-     ftIDispatch:       Result := TIDispatchField.Create(ADataSet);
-     ftGuid:            Result := TGuidField.Create(ADataSet);
-     ftTimeStamp:       Result := TDateTimeField.Create(ADataSet);
-     ftFMTBcd:          Result := TFMTBCDField.Create(ADataSet);
-     ftFixedWideChar:   Result := TStringField.Create(ADataSet);
-     ftWideMemo:        Result := TMemoField.Create(ADataSet);
-     ftOraTimeStamp:    Result := TDateTimeField.Create(ADataSet);
-     ftOraInterval:     Result := nil;
-     ftLongWord:        Result := TLongWordField.Create(ADataSet);
-     ftShortint:        Result := TShortintField.Create(ADataSet);
-     ftByte:            Result := TByteField.Create(ADataSet);
-     ftExtended:        Result := TExtendedField.Create(ADataSet);
-//     ftConnection:      Result := nil;
-//     ftParams:          Result := nil;
-//     ftStream:          Result := nil;
-     ftTimeStampOffset: Result := TStringField.Create(ADataSet);
-     ftObject:          Result := TObjectField.Create(ADataSet);
-     ftSingle:          Result := TSingleField.Create(ADataSet);
+//     ftUnknown:         Result := nil; // 0
+     ftString:          Result := TStringField.Create(ADataSet); // 1
+     ftSmallint:        Result := TSmallintField.Create(ADataSet); // 2
+     ftInteger:         Result := TIntegerField.Create(ADataSet); // 3
+     ftWord:            Result := TWordField.Create(ADataSet); // 4
+     ftBoolean:         Result := TBooleanField.Create(ADataSet); // 5
+     ftFloat:           Result := TFloatField.Create(ADataSet); // 6
+     ftCurrency:        Result := TCurrencyField.Create(ADataSet); // 7
+     ftBCD:             Result := TBCDField.Create(ADataSet); // 8
+     ftDate:            Result := TDateField.Create(ADataSet); // 9
+     ftTime:            Result := TTimeField.Create(ADataSet); // 10
+     ftDateTime:        Result := TDateTimeField.Create(ADataSet); // 11
+     ftBytes:           Result := TBytesField.Create(ADataSet); // 12
+     ftVarBytes:        Result := TVarBytesField.Create(ADataSet); // 13
+     ftAutoInc:         Result := TIntegerField.Create(ADataSet); // 14
+     ftBlob:            Result := TBlobField.Create(ADataSet); // 15
+     ftMemo:            Result := TMemoField.Create(ADataSet); // 16
+     ftGraphic:         Result := TGraphicField.Create(ADataSet); // 17
+//     ftFmtMemo:         Result := nil; // 18
+//     ftParadoxOle:      Result := nil; // 19
+//     ftDBaseOle:        Result := nil; // 20
+     ftTypedBinary:     Result := TBinaryField.Create(ADataSet); // 21
+//     ftCursor:          Result := nil; // 22
+     ftFixedChar:       Result := TStringField.Create(ADataSet); // 23
+     ftWideString:      Result := TWideStringField.Create(ADataSet); // 24
+     ftLargeint:        Result := TLargeintField.Create(ADataSet); // 25
+     ftADT:             Result := TADTField.Create(ADataSet); // 26
+     ftArray:           Result := TArrayField.Create(ADataSet); // 27
+     ftReference:       Result := TReferenceField.Create(ADataSet); // 28
+     ftDataSet:         Result := TDataSetField.Create(ADataSet); // 29
+//     ftOraBlob:         Result := nil; // 30
+//     ftOraClob:         Result := nil; // 31
+     ftVariant:         Result := TVariantField.Create(ADataSet); // 32
+     ftInterface:       Result := TInterfaceField.Create(ADataSet); // 33
+     ftIDispatch:       Result := TIDispatchField.Create(ADataSet); // 34
+     ftGuid:            Result := TGuidField.Create(ADataSet); // 35
+     ftTimeStamp:       Result := TDateTimeField.Create(ADataSet); // 36
+     ftFMTBcd:          Result := TFMTBCDField.Create(ADataSet); // 37
+     ftFixedWideChar:   Result := TStringField.Create(ADataSet); // 38
+     ftWideMemo:        Result := TMemoField.Create(ADataSet); // 39
+     ftOraTimeStamp:    Result := TDateTimeField.Create(ADataSet); // 40
+//     ftOraInterval:     Result := nil; // 41
+     ftLongWord:        Result := TLongWordField.Create(ADataSet); // 42
+     ftShortint:        Result := TShortintField.Create(ADataSet); // 43
+     ftByte:            Result := TByteField.Create(ADataSet); // 44
+     ftExtended:        Result := TExtendedField.Create(ADataSet); // 45
+//     ftConnection:      Result := nil; // 46
+//     ftParams:          Result := nil; // 47
+//     ftStream:          Result := nil; // 48
+     ftTimeStampOffset: Result := TStringField.Create(ADataSet); // 49
+     ftObject:          Result := TObjectField.Create(ADataSet); // 50
+     ftSingle:          Result := TSingleField.Create(ADataSet); // 51
   else
      Result := TVariantField.Create(ADataSet);
   end;
@@ -269,7 +275,7 @@ begin
   if ADataSet.FindField(AFieldName) <> nil then
     raise Exception.Create('The calculated field: ' + AFieldName + ' already exists.');
 
-  LField := GetFieldType(ADataSet, AFieldType);
+  LField := _GetFieldType(ADataSet, AFieldType);
   if LField = nil then
     raise Exception.Create('Unsupported field type.');
 
@@ -319,6 +325,13 @@ begin
     LField.DisplayFormat := ADisplayFormat;
 
   Result := Self;
+end;
+
+{ TFieldHelper }
+
+function TFieldHelper.AsType<T>: T;
+begin
+  Result := T(Self);
 end;
 
 end.

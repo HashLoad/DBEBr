@@ -74,15 +74,15 @@ end;
 constructor TFactoryFireDAC.Create(const AConnection: TFDConnection;
   const ADriverName: TDriverName; const AMonitor: ICommandMonitor);
 begin
-  Create(AConnection, ADriverName);
   FCommandMonitor := AMonitor;
+  Create(AConnection, ADriverName);
 end;
 
 procedure TFactoryFireDAC.AddTransaction(const AKey: String;
   const ATransaction: TComponent);
 begin
-  if not (ATransaction is TFDConnection) then
-    raise Exception.Create('Invalid transaction type. Expected TFDConnection.');
+  if not (ATransaction is TFDTransaction) then
+    raise Exception.Create('Invalid transaction type. Expected TFDTransaction.');
 
   inherited AddTransaction(AKey, ATransaction);
 end;
@@ -90,8 +90,8 @@ end;
 constructor TFactoryFireDAC.Create(const AConnection: TFDConnection;
   const ADriverName: TDriverName; const AMonitorCallback: TMonitorProc);
 begin
-  Create(AConnection, ADriverName);
   FMonitorCallback := AMonitorCallback;
+  Create(AConnection, ADriverName);
 end;
 
 destructor TFactoryFireDAC.Destroy;

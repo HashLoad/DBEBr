@@ -35,7 +35,7 @@ uses
   SysUtils,
   StrUtils,
   Variants,
-  Data.DB,
+  DB,
   // UniDAC
   Uni,
   DBAccess,
@@ -62,10 +62,10 @@ type
     destructor Destroy; override;
     procedure Connect; override;
     procedure Disconnect; override;
-    procedure ExecuteDirect(const ASQL: string); override;
-    procedure ExecuteDirect(const ASQL: string; const AParams: TParams); override;
-    procedure ExecuteScript(const AScript: string); override;
-    procedure AddScript(const AScript: string); override;
+    procedure ExecuteDirect(const ASQL: String); override;
+    procedure ExecuteDirect(const ASQL: String; const AParams: TParams); override;
+    procedure ExecuteScript(const AScript: String); override;
+    procedure AddScript(const AScript: String); override;
     procedure ExecuteScripts; override;
     procedure ApplyUpdates(const ADataSets: array of IDBResultSet); override;
     function IsConnected: Boolean; override;
@@ -79,8 +79,8 @@ type
     FSQLQuery: TUniSQL;
     function _GetTransactionActive: TUniTransaction;
   protected
-    procedure _SetCommandText(const ACommandText: string); override;
-    function _GetCommandText: string; override;
+    procedure _SetCommandText(const ACommandText: String); override;
+    function _GetCommandText: String; override;
   public
     constructor Create(const AConnection: TUniConnection;
       const ADriverTransaction: TDriverTransaction;
@@ -97,8 +97,8 @@ type
     procedure _SetUniDirectional(const Value: Boolean); override;
     procedure _SetReadOnly(const Value: Boolean); override;
     procedure _SetCachedUpdates(const Value: Boolean); override;
-    procedure _SetCommandText(const ACommandText: string); override;
-    function _GetCommandText: string; override;
+    procedure _SetCommandText(const ACommandText: String); override;
+    function _GetCommandText: String; override;
   public
     constructor Create(ADataSet: TUniQuery; const AMonitor: ICommandMonitor;
       const AMonitorCallback: TMonitorProc); reintroduce;
@@ -107,10 +107,10 @@ type
     procedure ApplyUpdates; override;
     procedure CancelUpdates; override;
     function NotEof: Boolean; override;
-    function GetFieldValue(const AFieldName: string): Variant; overload; override;
+    function GetFieldValue(const AFieldName: String): Variant; overload; override;
     function GetFieldValue(const AFieldIndex: UInt16): Variant; overload; override;
-    function GetFieldType(const AFieldName: string): TFieldType; overload; override;
-    function GetField(const AFieldName: string): TField; override;
+    function GetFieldType(const AFieldName: String): TFieldType; overload; override;
+    function GetField(const AFieldName: String): TField; override;
     function RowsAffected: UInt32; override;
     function IsUniDirectional: Boolean; override;
     function IsReadOnly: Boolean; override;
@@ -155,7 +155,7 @@ begin
   FConnection.Connected := False;
 end;
 
-procedure TDriverUniDAC.ExecuteDirect(const ASQL: string);
+procedure TDriverUniDAC.ExecuteDirect(const ASQL: String);
 var
   LExeSQL: TUniSQL;
 begin
@@ -164,8 +164,8 @@ begin
     LExeSQL.Connection := FConnection;
     LExeSQL.Transaction := _GetTransactionActive;
     LExeSQL.SQL.Text := ASQL;
-//    if not LExeSQL.Prepared then
-//      LExeSQL.Prepare;
+    if not LExeSQL.Prepared then
+      LExeSQL.Prepare;
     LExeSQL.Execute;
   finally
     _SetMonitorLog(LExeSQL.SQL.Text, LExeSQL.Transaction.Name, LExeSQL.Params);
@@ -174,7 +174,7 @@ begin
   end;
 end;
 
-procedure TDriverUniDAC.ExecuteDirect(const ASQL: string; const AParams: TParams);
+procedure TDriverUniDAC.ExecuteDirect(const ASQL: String; const AParams: TParams);
 var
   LExeSQL: TUniSQL;
   LFor: Int16;
@@ -189,8 +189,8 @@ begin
       LExeSQL.ParamByName(AParams[LFor].Name).DataType := AParams[LFor].DataType;
       LExeSQL.ParamByName(AParams[LFor].Name).Value := AParams[LFor].Value;
     end;
-//    if not LExeSQL.Prepared then
-//      LExeSQL.Prepare;
+    if not LExeSQL.Prepared then
+      LExeSQL.Prepare;
     LExeSQL.Execute;
   finally
     _SetMonitorLog(LExeSQL.SQL.Text, LExeSQL.Transaction.Name, LExeSQL.Params);
@@ -199,7 +199,7 @@ begin
   end;
 end;
 
-procedure TDriverUniDAC.ExecuteScript(const AScript: string);
+procedure TDriverUniDAC.ExecuteScript(const AScript: String);
 begin
   AddScript(AScript);
   ExecuteScripts;
@@ -224,10 +224,11 @@ begin
   Result := 'Transaction: ' + FSQLScript.Transaction.Name + ' ' +  FSQLScript.SQL.Text;
 end;
 
-procedure TDriverUniDAC.AddScript(const AScript: string);
+procedure TDriverUniDAC.AddScript(const AScript: String);
 begin
-  if MatchText(FConnection.ProviderName, ['Firebird', 'InterBase']) then // Firebird/Interbase
-    FSQLScript.SQL.Add('SET AUTOCOMMIT OFF');
+  if Self.GetDriverName in [dnInterbase, dnFirebird, dnFirebird3] then
+    if FSQLScript.SQL.Count = 0 then
+      FSQLScript.SQL.Add('SET AUTOCOMMIT OFF');
   FSQLScript.SQL.Add(AScript);
 end;
 
@@ -319,8 +320,8 @@ begin
       end;
       if LResultSet.SQL.Text <> EmptyStr then
       begin
-//        if not LResultSet.Prepared then
-//          LResultSet.Prepare;
+        if not LResultSet.Prepared then
+          LResultSet.Prepare;
         LResultSet.Open;
       end;
       Result := TDriverResultSetUniDAC.Create(LResultSet, FCommandMonitor, FMonitorCallback);
@@ -345,7 +346,7 @@ begin
   Result := FRowsAffected;
 end;
 
-function TDriverQueryUniDAC._GetCommandText: string;
+function TDriverQueryUniDAC._GetCommandText: String;
 begin
   Result := FSQLQuery.SQL.Text;
 end;
@@ -355,7 +356,7 @@ begin
   Result := FDriverTransaction.TransactionActive as TUniTransaction;
 end;
 
-procedure TDriverQueryUniDAC._SetCommandText(const ACommandText: string);
+procedure TDriverQueryUniDAC._SetCommandText(const ACommandText: String);
 begin
   FSQLQuery.SQL.Text := ACommandText;
 end;
@@ -375,8 +376,8 @@ begin
       LExeSQL.Params[LFor].DataType := FSQLQuery.Params[LFor].DataType;
       LExeSQL.Params[LFor].Value := FSQLQuery.Params[LFor].Value;
     end;
-//    if not LExeSQL.Prepared then
-//      LExeSQL.Prepare;
+    if not LExeSQL.Prepared then
+      LExeSQL.Prepare;
     LExeSQL.Execute;
   finally
     _SetMonitorLog(LExeSQL.SQL.Text, LExeSQL.Transaction.Name, LExeSQL.Params);
@@ -409,7 +410,7 @@ begin
   inherited;
 end;
 
-function TDriverResultSetUniDAC.GetFieldValue(const AFieldName: string): Variant;
+function TDriverResultSetUniDAC.GetFieldValue(const AFieldName: String): Variant;
 var
   LField: TField;
 begin
@@ -417,12 +418,12 @@ begin
   Result := GetFieldValue(LField.Index);
 end;
 
-function TDriverResultSetUniDAC.GetField(const AFieldName: string): TField;
+function TDriverResultSetUniDAC.GetField(const AFieldName: String): TField;
 begin
   Result := FDataSet.FieldByName(AFieldName);
 end;
 
-function TDriverResultSetUniDAC.GetFieldType(const AFieldName: string): TFieldType;
+function TDriverResultSetUniDAC.GetFieldType(const AFieldName: String): TFieldType;
 begin
   Result := FDataSet.FieldByName(AFieldName).DataType;
 end;
@@ -476,7 +477,7 @@ begin
   Result := FDataSet.RowsAffected;
 end;
 
-function TDriverResultSetUniDAC._GetCommandText: string;
+function TDriverResultSetUniDAC._GetCommandText: String;
 begin
   Result := FDataSet.SQL.Text;
 end;
@@ -486,7 +487,7 @@ begin
   FDataSet.CachedUpdates := Value;
 end;
 
-procedure TDriverResultSetUniDAC._SetCommandText(const ACommandText: string);
+procedure TDriverResultSetUniDAC._SetCommandText(const ACommandText: String);
 begin
   FDataSet.SQL.Text := ACommandText;
 end;
@@ -502,3 +503,4 @@ begin
 end;
 
 end.
+
