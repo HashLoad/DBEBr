@@ -53,11 +53,11 @@ type
     destructor Destroy; override;
     procedure Connect; override;
     procedure Disconnect; override;
-    procedure ExecuteDirect(const ASQL: string); overload; override;
-    procedure ExecuteDirect(const ASQL: string;
+    procedure ExecuteDirect(const ASQL: String); overload; override;
+    procedure ExecuteDirect(const ASQL: String;
       const AParams: TParams); overload; override;
-    procedure ExecuteScript(const AScript: string); override;
-    procedure AddScript(const AScript: string); override;
+    procedure ExecuteScript(const AScript: String); override;
+    procedure AddScript(const AScript: String); override;
     procedure ExecuteScripts; override;
     function IsConnected: Boolean; override;
     function InTransaction: Boolean; override;
@@ -69,8 +69,8 @@ type
   private
     FSQLQuery: TIBOQuery;
   protected
-    procedure SetCommandText(ACommandText: string); override;
-    function GetCommandText: string; override;
+    procedure SetCommandText(ACommandText: String); override;
+    function GetCommandText: String; override;
   public
     constructor Create(AConnection: TIBODatabase);
     destructor Destroy; override;
@@ -83,10 +83,10 @@ type
     constructor Create(ADataSet: TIBOQuery); override;
     destructor Destroy; override;
     function NotEof: Boolean; override;
-    function GetFieldValue(const AFieldName: string): Variant; overload; override;
+    function GetFieldValue(const AFieldName: String): Variant; overload; override;
     function GetFieldValue(const AFieldIndex: UInt16): Variant; overload; override;
-    function GetFieldType(const AFieldName: string): TFieldType; overload; override;
-    function GetField(const AFieldName: string): TField; override;
+    function GetFieldType(const AFieldName: String): TFieldType; overload; override;
+    function GetField(const AFieldName: String): TField; override;
   end;
 
 implementation
@@ -125,13 +125,13 @@ begin
   FConnection.Connected := False;
 end;
 
-procedure TDriverIBObjects.ExecuteDirect(const ASQL: string);
+procedure TDriverIBObjects.ExecuteDirect(const ASQL: String);
 begin
   inherited;
   ExecuteDirect(ASQL, nil);
 end;
 
-procedure TDriverIBObjects.ExecuteDirect(const ASQL: string; const AParams: TParams);
+procedure TDriverIBObjects.ExecuteDirect(const ASQL: String; const AParams: TParams);
 var
   LExeSQL: TIBOQuery;
   LFor: UInt16;
@@ -155,7 +155,7 @@ begin
   end;
 end;
 
-procedure TDriverIBObjects.ExecuteScript(const AScript: string);
+procedure TDriverIBObjects.ExecuteScript(const AScript: String);
 begin
   inherited;
   FSQLScript.SQL.Text := AScript;
@@ -172,7 +172,7 @@ begin
   end;
 end;
 
-procedure TDriverIBObjects.AddScript(const AScript: string);
+procedure TDriverIBObjects.AddScript(const AScript: String);
 begin
   inherited;
   FSQLScript.SQL.Add(AScript);
@@ -266,12 +266,12 @@ begin
      Result.FetchingAll := True;
 end;
 
-function TDriverQueryIBObjects.GetCommandText: string;
+function TDriverQueryIBObjects.GetCommandText: String;
 begin
   Result := FSQLQuery.SQL.Text;
 end;
 
-procedure TDriverQueryIBObjects.SetCommandText(ACommandText: string);
+procedure TDriverQueryIBObjects.SetCommandText(ACommandText: String);
 begin
   inherited;
   FSQLQuery.SQL.Text := ACommandText;
@@ -296,7 +296,7 @@ begin
   inherited;
 end;
 
-function TDriverResultSetIBObjects.GetFieldValue(const AFieldName: string): Variant;
+function TDriverResultSetIBObjects.GetFieldValue(const AFieldName: String): Variant;
 var
   LField: TField;
 begin
@@ -304,13 +304,13 @@ begin
   Result := GetFieldValue(LField.Index);
 end;
 
-function TDriverResultSetIBObjects.GetField(const AFieldName: string): TField;
+function TDriverResultSetIBObjects.GetField(const AFieldName: String): TField;
 begin
   inherited;
   Result := FDataSet.FieldByName(AFieldName);
 end;
 
-function TDriverResultSetIBObjects.GetFieldType(const AFieldName: string): TFieldType;
+function TDriverResultSetIBObjects.GetFieldType(const AFieldName: String): TFieldType;
 begin
   Result := FDataSet.FieldByName(AFieldName).DataType;
 end;

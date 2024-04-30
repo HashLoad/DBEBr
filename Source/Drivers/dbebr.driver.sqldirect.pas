@@ -49,23 +49,23 @@ type
     destructor Destroy; override;
     procedure Connect; override;
     procedure Disconnect; override;
-    procedure ExecuteDirect(const ASQL: string); override;
-    procedure ExecuteDirect(const ASQL: string; const AParams: TParams); override;
-    procedure ExecuteScript(const AScript: string); override;
-    procedure AddScript(const AScript: string); override;
+    procedure ExecuteDirect(const ASQL: String); override;
+    procedure ExecuteDirect(const ASQL: String; const AParams: TParams); override;
+    procedure ExecuteScript(const AScript: String); override;
+    procedure AddScript(const AScript: String); override;
     procedure ExecuteScripts; override;
     function IsConnected: Boolean; override;
     function InTransaction: Boolean; override;
     function CreateQuery: IDBQuery; override;
-    function CreateResultSet(const ASQL: string): IDBResultSet; override;
+    function CreateResultSet(const ASQL: String): IDBResultSet; override;
   end;
 
   TDriverQueryFireDAC = class(TDriverQuery)
   private
     FFDQuery: TSDQuery;
   protected
-    procedure SetCommandText(ACommandText: string); override;
-    function GetCommandText: string; override;
+    procedure SetCommandText(ACommandText: String); override;
+    function GetCommandText: String; override;
   public
     constructor Create(AConnection: TSDDatabase);
     destructor Destroy; override;
@@ -78,10 +78,10 @@ type
     constructor Create(ADataSet: TSDQuery); override;
     destructor Destroy; override;
     function NotEof: Boolean; override;
-    function GetFieldValue(const AFieldName: string): Variant; overload; override;
+    function GetFieldValue(const AFieldName: String): Variant; overload; override;
     function GetFieldValue(const AFieldIndex: UInt16): Variant; overload; override;
-    function GetFieldType(const AFieldName: string): TFieldType; overload; override;
-    function GetField(const AFieldName: string): TField; override;
+    function GetFieldType(const AFieldName: String): TFieldType; overload; override;
+    function GetField(const AFieldName: String): TField; override;
   end;
 
 implementation
@@ -116,13 +116,13 @@ begin
   FConnection.Connected := False;
 end;
 
-procedure TDriverSQLDirect.ExecuteDirect(const ASQL: string);
+procedure TDriverSQLDirect.ExecuteDirect(const ASQL: String);
 begin
   inherited;
   ExecuteDirect(ASQL, nil);
 end;
 
-procedure TDriverSQLDirect.ExecuteDirect(const ASQL: string; const AParams: TParams);
+procedure TDriverSQLDirect.ExecuteDirect(const ASQL: String; const AParams: TParams);
 var
   LExeSQL: TSDQuery;
   LFor: UInt16;
@@ -147,7 +147,7 @@ begin
   end;
 end;
 
-procedure TDriverSQLDirect.ExecuteScript(const AScript: string);
+procedure TDriverSQLDirect.ExecuteScript(const AScript: String);
 begin
   inherited;
   FSQLScript.SQL.Text := AScript;
@@ -171,7 +171,7 @@ begin
   end;
 end;
 
-procedure TDriverSQLDirect.AddScript(const AScript: string);
+procedure TDriverSQLDirect.AddScript(const AScript: String);
 begin
   inherited;
   FSQLScript.SQL.Add(AScript);
@@ -199,7 +199,7 @@ begin
   Result := TDriverQueryFireDAC.Create(FConnection);
 end;
 
-function TDriverSQLDirect.CreateResultSet(const ASQL: string): IDBResultSet;
+function TDriverSQLDirect.CreateResultSet(const ASQL: String): IDBResultSet;
 var
   LDBQuery: IDBQuery;
 begin
@@ -253,12 +253,12 @@ begin
      Result.FetchingAll := True;
 end;
 
-function TDriverQueryFireDAC.GetCommandText: string;
+function TDriverQueryFireDAC.GetCommandText: String;
 begin
   Result := FFDQuery.SQL.Text;
 end;
 
-procedure TDriverQueryFireDAC.SetCommandText(ACommandText: string);
+procedure TDriverQueryFireDAC.SetCommandText(ACommandText: String);
 begin
   inherited;
   FFDQuery.SQL.Text := ACommandText;
@@ -283,7 +283,7 @@ begin
   inherited;
 end;
 
-function TDriverResultSetFireDAC.GetFieldValue(const AFieldName: string): Variant;
+function TDriverResultSetFireDAC.GetFieldValue(const AFieldName: String): Variant;
 var
   LField: TField;
 begin
@@ -291,12 +291,12 @@ begin
   Result := GetFieldValue(LField.Index);
 end;
 
-function TDriverResultSetFireDAC.GetField(const AFieldName: string): TField;
+function TDriverResultSetFireDAC.GetField(const AFieldName: String): TField;
 begin
   Result := FDataSet.FieldByName(AFieldName);
 end;
 
-function TDriverResultSetFireDAC.GetFieldType(const AFieldName: string): TFieldType;
+function TDriverResultSetFireDAC.GetFieldType(const AFieldName: String): TFieldType;
 begin
   Result := FDataSet.FieldByName(AFieldName).DataType;
 end;

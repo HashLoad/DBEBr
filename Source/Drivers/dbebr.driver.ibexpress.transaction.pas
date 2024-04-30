@@ -77,7 +77,7 @@ end;
 procedure TDriverIBExpressTransaction.StartTransaction;
 begin
   inherited;
-  FConnection.Connected := true;
+  FConnection.Connected := True;
 
   if not FTransaction.InTransaction then
     FTransaction.StartTransaction;

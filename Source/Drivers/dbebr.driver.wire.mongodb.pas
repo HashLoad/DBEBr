@@ -49,7 +49,7 @@ type
     FConnection: TMongoWireConnection;
     FCollection: String;
     procedure SetConnection(AConnection: TMongoWireConnection);
-    function GetSequence(AMongoCampo: string): Int64;
+    function GetSequence(AMongoCampo: String): Int64;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -70,10 +70,10 @@ type
     destructor Destroy; override;
     procedure Connect; override;
     procedure Disconnect; override;
-    procedure ExecuteDirect(const ASQL: string); override;
-    procedure ExecuteDirect(const ASQL: string; const AParams: TParams); override;
-    procedure ExecuteScript(const AScript: string); override;
-    procedure AddScript(const AScript: string); override;
+    procedure ExecuteDirect(const ASQL: String); override;
+    procedure ExecuteDirect(const ASQL: String; const AParams: TParams); override;
+    procedure ExecuteScript(const AScript: String); override;
+    procedure AddScript(const AScript: String); override;
     procedure ExecuteScripts; override;
     function IsConnected: Boolean; override;
     function InTransaction: Boolean; override;
@@ -84,10 +84,10 @@ type
   TDriverQueryMongoWire = class(TDriverQuery)
   private
     FConnection: TMongoWireConnection;
-    FCommandText: string;
+    FCommandText: String;
   protected
-    procedure SetCommandText(ACommandText: string); override;
-    function GetCommandText: string; override;
+    procedure SetCommandText(ACommandText: String); override;
+    function GetCommandText: String; override;
   public
     constructor Create(AConnection: TMongoWireConnection);
     destructor Destroy; override;
@@ -100,10 +100,10 @@ type
     constructor Create(ADataSet: TMongoDBQuery); override;
     destructor Destroy; override;
     function NotEof: Boolean; override;
-    function GetFieldValue(const AFieldName: string): Variant; overload; override;
+    function GetFieldValue(const AFieldName: String): Variant; overload; override;
     function GetFieldValue(const AFieldIndex: UInt16): Variant; overload; override;
-    function GetFieldType(const AFieldName: string): TFieldType; overload; override;
-    function GetField(const AFieldName: string): TField; override;
+    function GetFieldType(const AFieldName: String): TFieldType; overload; override;
+    function GetField(const AFieldName: String): TField; override;
   end;
 
 implementation
@@ -139,7 +139,7 @@ begin
   FConnection.Connected := False;
 end;
 
-procedure TDriverMongoWire.ExecuteDirect(const ASQL: string);
+procedure TDriverMongoWire.ExecuteDirect(const ASQL: String);
 begin
   inherited;
   try
@@ -150,9 +150,9 @@ begin
   end;
 end;
 
-procedure TDriverMongoWire.ExecuteDirect(const ASQL: string; const AParams: TParams);
+procedure TDriverMongoWire.ExecuteDirect(const ASQL: String; const AParams: TParams);
 var
-  LCommand: string;
+  LCommand: String;
 begin
   LCommand := TUtilSingleton
                 .GetInstance
@@ -167,7 +167,7 @@ begin
     CommandDeleteExecute(ASQL, AParams);
 end;
 
-procedure TDriverMongoWire.ExecuteScript(const AScript: string);
+procedure TDriverMongoWire.ExecuteScript(const AScript: String);
 begin
   inherited;
   try
@@ -191,7 +191,7 @@ begin
 //  end;
 end;
 
-procedure TDriverMongoWire.AddScript(const AScript: string);
+procedure TDriverMongoWire.AddScript(const AScript: String);
 begin
   inherited;
 //  FScripts.Add(ASQL);
@@ -343,12 +343,12 @@ begin
   end;
 end;
 
-function TDriverQueryMongoWire.GetCommandText: string;
+function TDriverQueryMongoWire.GetCommandText: String;
 begin
   Result := FCommandText;
 end;
 
-procedure TDriverQueryMongoWire.SetCommandText(ACommandText: string);
+procedure TDriverQueryMongoWire.SetCommandText(ACommandText: String);
 begin
   inherited;
   FCommandText := ACommandText;
@@ -378,7 +378,7 @@ begin
   inherited;
 end;
 
-function TDriverResultSetMongoWire.GetFieldValue(const AFieldName: string): Variant;
+function TDriverResultSetMongoWire.GetFieldValue(const AFieldName: String): Variant;
 var
   LField: TField;
 begin
@@ -386,12 +386,12 @@ begin
   Result := GetFieldValue(LField.Index);
 end;
 
-function TDriverResultSetMongoWire.GetField(const AFieldName: string): TField;
+function TDriverResultSetMongoWire.GetField(const AFieldName: String): TField;
 begin
   Result := FDataSet.FieldByName(AFieldName);
 end;
 
-function TDriverResultSetMongoWire.GetFieldType(const AFieldName: string): TFieldType;
+function TDriverResultSetMongoWire.GetFieldType(const AFieldName: String): TFieldType;
 begin
   Result := FDataSet.FieldByName(AFieldName).DataType;
 end;
@@ -438,7 +438,7 @@ var
   LQuery: TMongoWireQuery;
   LUtil: IUtilSingleton;
   LObject: TObject;
-  LFilter: string;
+  LFilter: String;
 begin
   LUtil := TUtilSingleton.GetInstance;
   LFilter := LUtil.ParseCommandNoSQL('filter', ACommandText, '{}');
@@ -477,12 +477,12 @@ begin
   end;
 end;
 
-function TMongoDBQuery.GetSequence(AMongoCampo: string): Int64;
+function TMongoDBQuery.GetSequence(AMongoCampo: String): Int64;
 //Var
 //  LDocD, LChave, LDocR: IJSONDocument;
 //  LJsonObj: TJSONObject;
 //  LField, LComandSave, LComandModify: TStringBuilder;
-//  LCollectionSeq, sCollectionField: string;
+//  LCollectionSeq, sCollectionField: String;
 //  LRetorno: Int64;
 begin
 //  LField := TStringBuilder.Create;
@@ -510,7 +510,7 @@ begin
 //                .Append(FCollection)
 //                .Append('", ')
 //                .Append(LField.ToString)
-//                .Append(': 0 }, upsert:true }');
+//                .Append(': 0 }, upsert:True }');
 //
 //    LComandModify.Append('{ findAndModify: "')
 //                  .Append(LCollectionSeq)
@@ -520,7 +520,7 @@ begin
 //                  .Append(FCollection)
 //                  .Append('" }, update: { $inc: { ')
 //                  .Append(LField.ToString)
-//                  .Append(': 1 } }, new:true }');
+//                  .Append(': 1 } }, new:True }');
 
 //    LJsonObj.AddPair(sCollectionField, TJSONString.Create(FCollection));
 //    LChave := LJsonObj.ToJSON;

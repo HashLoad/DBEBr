@@ -91,15 +91,15 @@ type
     oORMBr: TJclBorRADToolInstallations;
     iVersion: Integer;
     tPlatform: TJclBDSPlatform;
-    sDirRoot: string;
-    sDirLibrary: string;
-    sDirPackage: string;
+    sDirRoot: String;
+    sDirLibrary: String;
+    sDirPackage: String;
     sDestino   : TDestino;
     sPathBin   : String;
     FPacoteAtual: TFileName;
     procedure BeforeExecute(Sender: TJclBorlandCommandLineTool);
     procedure AddLibrarySearchPath;
-    procedure OutputCallLine(const Text: string);
+    procedure OutputCallLine(const Text: String);
     procedure SetPlatformSelected;
     procedure CreateDirectoryLibrarysNotExist;
     procedure GravarConfiguracoes;
@@ -109,13 +109,13 @@ type
     function PathArquivoLog: String;
     function PathSystem: String;
     procedure CopiarArquivoTo(ADestino : TDestino; const ANomeArquivo: String);
-    procedure ExtrairDiretorioPacote(NomePacote: string);
+    procedure ExtrairDiretorioPacote(NomePacote: String);
     procedure AddLibraryPathToDelphiPath(const APath, AProcurarRemover: String);
     procedure FindDirs(ADirRoot: String; bAdicionar: Boolean = True);
     procedure DeixarSomenteLib;
     procedure RemoverDiretoriosEPacotesAntigos;
     {$IFNDEF DEBUG}
-    function RunAsAdminAndWaitForCompletion(hWnd: HWND; filename: string): Boolean;
+    function RunAsAdminAndWaitForCompletion(hWnd: HWND; filename: String): Boolean;
     {$ENDIF}
     procedure GetDriveLetters(AList: TStrings);
     procedure MostraDadosVersao;
@@ -135,7 +135,7 @@ uses
 {$R *.dfm}
 
 {$IFNDEF DEBUG}
-function TfrmPrincipal.RunAsAdminAndWaitForCompletion(hWnd: HWND; filename: string): Boolean;
+function TfrmPrincipal.RunAsAdminAndWaitForCompletion(hWnd: HWND; filename: String): Boolean;
 {
     See Step 3: Redesign for UAC Compatibility (UAC)
     http://msdn.microsoft.com/en-us/library/bb756922.aspx
@@ -163,13 +163,13 @@ begin
 end;
 {$ENDIF}
 
-procedure TfrmPrincipal.ExtrairDiretorioPacote(NomePacote: string);
+procedure TfrmPrincipal.ExtrairDiretorioPacote(NomePacote: String);
 
   procedure FindDirPackage(sDir, sPacote: String);
   var
     oDirList: TSearchRec;
     iRet: Integer;
-    sDirDpk: string;
+    sDirDpk: String;
   begin
     sDir := IncludeTrailingPathDelimiter(sDir);
     if not DirectoryExists(sDir) then
@@ -374,10 +374,10 @@ begin
 end;
 
 procedure TfrmPrincipal.DeixarSomenteLib;
-  procedure Copiar(const Extensao : string);
+  procedure Copiar(const Extensao : String);
   var
     ListArquivos: TStringDynArray;
-    Arquivo : string;
+    Arquivo : String;
     i: integer;
   begin
     ListArquivos := TDirectory.GetFiles(IncludeTrailingPathDelimiter(sDirRoot) + 'Source', Extensao ,TSearchOption.soAllDirectories ) ;
@@ -407,7 +407,7 @@ var
   ListaPaths: TStringList;
   I: Integer;
   PathsAtuais: String;
-  PathFonte: string;
+  PathFonte: String;
 begin
   with oORMBr.Installations[iVersion] do
   begin
@@ -417,7 +417,7 @@ begin
     if PathsAtuais = '' then
       PathsAtuais := GetEnvironmentVariable('PATH');
 
-    // manipular as strings
+    // manipular as Strings
     ListaPaths := TStringList.Create;
     try
       ListaPaths.Clear;
@@ -459,7 +459,7 @@ var
 
   function EProibido(const ADir: String): Boolean;
   const
-    LISTA_PROIBIDOS: ARRAY[0..5] OF STRING = (
+    LISTA_PROIBIDOS: ARRAY[0..5] OF String = (
       'quick', 'rave', 'laz', 'VerificarNecessidade', '__history', '__recovery'
     );
   var
@@ -549,9 +549,9 @@ begin
 end;
 
 // Evento disparado a cada ação do instalador
-procedure TfrmPrincipal.OutputCallLine(const Text: string);
+procedure TfrmPrincipal.OutputCallLine(const Text: String);
 begin
-  // remover a warnings de conversão de string (delphi 2010 em diante)
+  // remover a warnings de conversão de String (delphi 2010 em diante)
   // as diretivas -W e -H não removem estas mensagens
   if (pos('Warning: W1057', Text) <= 0) and ((pos('Warning: W1058', Text) <= 0)) then
     WriteToTXT(PathArquivoLog, Text);

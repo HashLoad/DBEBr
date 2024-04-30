@@ -62,10 +62,10 @@ type
     procedure StartTransaction;
     procedure Commit;
     procedure Rollback;
-    procedure ExecuteDirect(const ASQL: string); overload;
-    procedure ExecuteDirect(const ASQL: string; const AParams: TParams); overload;
-    procedure ExecuteScript(const AScript: string);
-    procedure AddScript(const AScript: string);
+    procedure ExecuteDirect(const ASQL: String); overload;
+    procedure ExecuteDirect(const ASQL: String; const AParams: TParams); overload;
+    procedure ExecuteScript(const AScript: String);
+    procedure AddScript(const AScript: String);
     procedure ExecuteScripts;
     procedure SetCommandMonitor(AMonitor: ICommandMonitor);
     function InTransaction: Boolean;
@@ -93,7 +93,7 @@ begin
   inherited;
 end;
 
-procedure TDBEBrConnectionBase.AddScript(const AScript: string);
+procedure TDBEBrConnectionBase.AddScript(const AScript: String);
 begin
   GetDBConnection.AddScript(AScript);
 end;
@@ -134,18 +134,18 @@ begin
   GetDBConnection.Disconnect;
 end;
 
-procedure TDBEBrConnectionBase.ExecuteDirect(const ASQL: string);
+procedure TDBEBrConnectionBase.ExecuteDirect(const ASQL: String);
 begin
   GetDBConnection.ExecuteDirect(ASQL);
 end;
 
-procedure TDBEBrConnectionBase.ExecuteDirect(const ASQL: string;
+procedure TDBEBrConnectionBase.ExecuteDirect(const ASQL: String;
   const AParams: TParams);
 begin
   GetDBConnection.ExecuteDirect(ASQL, AParams);
 end;
 
-procedure TDBEBrConnectionBase.ExecuteScript(const AScript: string);
+procedure TDBEBrConnectionBase.ExecuteScript(const AScript: String);
 begin
   GetDBConnection.ExecuteScript(AScript);
 end;

@@ -73,7 +73,7 @@ end;
 procedure TDriverIBObjectsTransaction.StartTransaction;
 begin
   inherited;
-  FConnection.Connected := true;
+  FConnection.Connected := True;
 
   if not FConnection.DefaultTransaction.InTransaction  then
     FConnection.DefaultTransaction.StartTransaction;

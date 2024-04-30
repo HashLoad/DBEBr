@@ -50,13 +50,13 @@ uses
 procedure TTestDBEBrZeos.TestConnect;
 begin
   FDBConnection.Connect;
-  AssertEquals('FConnection.IsConnected = true', True, FDBConnection.IsConnected);
+  AssertEquals('FConnection.IsConnected = True', True, FDBConnection.IsConnected);
 end;
 
 procedure TTestDBEBrZeos.TestDisconnect;
 begin
   FDBConnection.Disconnect;
-  AssertEquals('FConnection.IsConnected = false', False, FDBConnection.IsConnected);
+  AssertEquals('FConnection.IsConnected = False', False, FDBConnection.IsConnected);
 end;
 
 procedure TTestDBEBrZeos.TestExecuteDirect;
@@ -127,7 +127,7 @@ end;
 
 procedure TTestDBEBrZeos.TestIsConnected;
 begin
-  AssertEquals('FConnection.IsConnected = false', false, FDBConnection.IsConnected);
+  AssertEquals('FConnection.IsConnected = False', False, FDBConnection.IsConnected);
 end;
 
 procedure TTestDBEBrZeos.TestInTransaction;
@@ -168,7 +168,7 @@ end;
 procedure TTestDBEBrZeos.TestStartTransaction;
 begin
   FDBConnection.StartTransaction;
-  AssertEquals('FConnection.InTransaction = true', True, FDBConnection.InTransaction);
+  AssertEquals('FConnection.InTransaction = True', True, FDBConnection.InTransaction);
 end;
 
 procedure TTestDBEBrZeos.TestCommit;
@@ -176,7 +176,7 @@ begin
   TestStartTransaction;
 
   FDBConnection.Commit;
-  AssertEquals('FConnection.InTransaction = false', False, FDBConnection.InTransaction);
+  AssertEquals('FConnection.InTransaction = False', False, FDBConnection.InTransaction);
 end;
 
 procedure TTestDBEBrZeos.TestRollback;
@@ -184,7 +184,7 @@ begin
   TestStartTransaction;
 
   FDBConnection.Rollback;
-  AssertEquals('FConnection.InTransaction = false', False, FDBConnection.InTransaction);
+  AssertEquals('FConnection.InTransaction = False', False, FDBConnection.InTransaction);
 end;
 
 procedure TTestDBEBrZeos.SetUp;

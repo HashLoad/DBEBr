@@ -65,15 +65,15 @@ type
     destructor Destroy; override;
     procedure Connect; override;
     procedure Disconnect; override;
-    procedure ExecuteDirect(const ASQL: string); override;
-    procedure ExecuteDirect(const ASQL: string; const AParams: TParams); override;
-    procedure ExecuteScript(const AScript: string); override;
-    procedure AddScript(const AScript: string); override;
+    procedure ExecuteDirect(const ASQL: String); override;
+    procedure ExecuteDirect(const ASQL: String; const AParams: TParams); override;
+    procedure ExecuteScript(const AScript: String); override;
+    procedure AddScript(const AScript: String); override;
     procedure ExecuteScripts; override;
     function IsConnected: Boolean; override;
     function InTransaction: Boolean; override;
     function CreateQuery: IDBQuery; override;
-    function CreateResultSet(const ASQL: string): IDBResultSet; override;
+    function CreateResultSet(const ASQL: String): IDBResultSet; override;
   end;
 
   TDriverQueryMongoFireDAC = class(TDriverQuery)
@@ -83,8 +83,8 @@ type
     FMongoConnection: TMongoConnection;
     FMongoEnv: TMongoEnv;
   protected
-    procedure SetCommandText(ACommandText: string); override;
-    function GetCommandText: string; override;
+    procedure SetCommandText(ACommandText: String); override;
+    function GetCommandText: String; override;
   public
     constructor Create(AConnection: TFDConnection; AMongoConnection: TMongoConnection;
       AMongoEnv: TMongoEnv);
@@ -98,10 +98,10 @@ type
     constructor Create(ADataSet: TFDMongoQuery); override;
     destructor Destroy; override;
     function NotEof: Boolean; override;
-    function GetFieldValue(const AFieldName: string): Variant; overload; override;
+    function GetFieldValue(const AFieldName: String): Variant; overload; override;
     function GetFieldValue(const AFieldIndex: UInt16): Variant; overload; override;
-    function GetFieldType(const AFieldName: string): TFieldType; overload; override;
-    function GetField(const AFieldName: string): TField; override;
+    function GetFieldType(const AFieldName: String): TFieldType; overload; override;
+    function GetField(const AFieldName: String): TField; override;
   end;
 
 implementation
@@ -143,17 +143,17 @@ begin
   FConnection.Connected := False;
 end;
 
-procedure TDriverMongoFireDAC.ExecuteDirect(const ASQL: string);
+procedure TDriverMongoFireDAC.ExecuteDirect(const ASQL: String);
 begin
   inherited;
   raise Exception.Create('Command [ExecuteDirect()] not supported for NoSQL MongoDB database!');
 //  FConnection.ExecSQL(ASQL);
 end;
 
-procedure TDriverMongoFireDAC.ExecuteDirect(const ASQL: string;
+procedure TDriverMongoFireDAC.ExecuteDirect(const ASQL: String;
   const AParams: TParams);
 var
-  LCommand: string;
+  LCommand: String;
 begin
   LCommand := TUtilSingleton
                 .GetInstance
@@ -168,7 +168,7 @@ begin
     CommandDeleteExecute(ASQL, AParams);
 end;
 
-procedure TDriverMongoFireDAC.ExecuteScript(const AScript: string);
+procedure TDriverMongoFireDAC.ExecuteScript(const AScript: String);
 begin
   inherited;
 //  FSQLScript.QMatch := ASQL;
@@ -192,7 +192,7 @@ begin
 //  end;
 end;
 
-procedure TDriverMongoFireDAC.AddScript(const AScript: string);
+procedure TDriverMongoFireDAC.AddScript(const AScript: String);
 begin
   inherited;
 //  FSQLScript.QMatch := ASQL;
@@ -283,7 +283,7 @@ begin
   Result := TDriverQueryMongoFireDAC.Create(FConnection, FMongoConnection, FMongoEnv);
 end;
 
-function TDriverMongoFireDAC.CreateResultSet(const ASQL: string): IDBResultSet;
+function TDriverMongoFireDAC.CreateResultSet(const ASQL: String): IDBResultSet;
 var
   LDBQuery: IDBQuery;
 begin
@@ -353,12 +353,12 @@ begin
     Result.FetchingAll := True;
 end;
 
-function TDriverQueryMongoFireDAC.GetCommandText: string;
+function TDriverQueryMongoFireDAC.GetCommandText: String;
 begin
   Result := FFDMongoQuery.QMatch;
 end;
 
-procedure TDriverQueryMongoFireDAC.SetCommandText(ACommandText: string);
+procedure TDriverQueryMongoFireDAC.SetCommandText(ACommandText: String);
 begin
   inherited;
   FFDMongoQuery.QMatch := ACommandText;
@@ -386,7 +386,7 @@ begin
 end;
 
 function TDriverResultSetMongoFireDAC.GetFieldValue(
-  const AFieldName: string): Variant;
+  const AFieldName: String): Variant;
 var
   LField: TField;
 begin
@@ -395,7 +395,7 @@ begin
 end;
 
 function TDriverResultSetMongoFireDAC.GetFieldType(
-  const AFieldName: string): TFieldType;
+  const AFieldName: String): TFieldType;
 begin
   Result := FDataSet.FieldByName(AFieldName).DataType;
 end;
@@ -413,7 +413,7 @@ begin
 end;
 
 function TDriverResultSetMongoFireDAC.GetField(
-  const AFieldName: string): TField;
+  const AFieldName: String): TField;
 begin
   Result := FDataSet.FieldByName(AFieldName);
 end;

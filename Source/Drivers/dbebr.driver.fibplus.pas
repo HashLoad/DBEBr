@@ -52,11 +52,11 @@ type
     destructor Destroy; override;
     procedure Connect; override;
     procedure Disconnect; override;
-    procedure ExecuteDirect(const ASQL: string); overload; override;
-    procedure ExecuteDirect(const ASQL: string;
+    procedure ExecuteDirect(const ASQL: String); overload; override;
+    procedure ExecuteDirect(const ASQL: String;
       const AParams: TParams); overload; override;
-    procedure ExecuteScript(const AScript: string); override;
-    procedure AddScript(const AScript: string); override;
+    procedure ExecuteScript(const AScript: String); override;
+    procedure AddScript(const AScript: String); override;
     procedure ExecuteScripts; override;
     function IsConnected: Boolean; override;
     function InTransaction: Boolean; override;
@@ -68,8 +68,8 @@ type
   private
     FSQLQuery: TFIBQuery;
   protected
-    procedure SetCommandText(ACommandText: string); override;
-    function GetCommandText: string; override;
+    procedure SetCommandText(ACommandText: String); override;
+    function GetCommandText: String; override;
   public
     constructor Create(AConnection: TFIBDatabase);
     destructor Destroy; override;
@@ -85,10 +85,10 @@ type
     destructor Destroy; override;
     procedure Close; override;
     function NotEof: Boolean; override;
-    function GetFieldValue(const AFieldName: string): Variant; overload; override;
+    function GetFieldValue(const AFieldName: String): Variant; overload; override;
     function GetFieldValue(const AFieldIndex: UInt16): Variant; overload; override;
-    function GetFieldType(const AFieldName: string): TFieldType; overload; override;
-    function GetField(const AFieldName: string): TField; override;
+    function GetFieldType(const AFieldName: String): TFieldType; overload; override;
+    function GetField(const AFieldName: String): TField; override;
     function FieldDefs: TFieldDefs; override;
     function DataSet: TDataSet; override;
   end;
@@ -129,13 +129,13 @@ begin
   FConnection.Connected := False;
 end;
 
-procedure TDriverFIBPlus.ExecuteDirect(const ASQL: string);
+procedure TDriverFIBPlus.ExecuteDirect(const ASQL: String);
 begin
   inherited;
   ExecuteDirect(ASQL, nil);
 end;
 
-procedure TDriverFIBPlus.ExecuteDirect(const ASQL: string; const AParams: TParams);
+procedure TDriverFIBPlus.ExecuteDirect(const ASQL: String; const AParams: TParams);
 var
   LExeSQL: TFIBQuery;
   LFor: Int16;
@@ -160,7 +160,7 @@ begin
   end;
 end;
 
-procedure TDriverFIBPlus.ExecuteScript(const AScript: string);
+procedure TDriverFIBPlus.ExecuteScript(const AScript: String);
 begin
   inherited;
   FSQLScript.SQL.Text := AScript;
@@ -177,7 +177,7 @@ begin
   end;
 end;
 
-procedure TDriverFIBPlus.AddScript(const AScript: string);
+procedure TDriverFIBPlus.AddScript(const AScript: String);
 begin
   inherited;
   FSQLScript.SQL.Add(AScript);
@@ -278,12 +278,12 @@ begin
      Result.FetchingAll := True;
 end;
 
-function TDriverQueryFIBPlus.GetCommandText: string;
+function TDriverQueryFIBPlus.GetCommandText: String;
 begin
   Result := FSQLQuery.SQL.Text;
 end;
 
-procedure TDriverQueryFIBPlus.SetCommandText(ACommandText: string);
+procedure TDriverQueryFIBPlus.SetCommandText(ACommandText: String);
 begin
   inherited;
   FSQLQuery.SQL.Text := ACommandText;
@@ -337,19 +337,19 @@ begin
   Result := FDataSet.FieldDefs;
 end;
 
-function TDriverResultSetFIBPlus.GetFieldValue(const AFieldName: string): Variant;
+function TDriverResultSetFIBPlus.GetFieldValue(const AFieldName: String): Variant;
 begin
   inherited;
   Result := FDataSet.FieldByName(AFieldName).Value;
 end;
 
-function TDriverResultSetFIBPlus.GetField(const AFieldName: string): TField;
+function TDriverResultSetFIBPlus.GetField(const AFieldName: String): TField;
 begin
   inherited;
   Result := FDataSet.FieldByName(AFieldName);
 end;
 
-function TDriverResultSetFIBPlus.GetFieldType(const AFieldName: string): TFieldType;
+function TDriverResultSetFIBPlus.GetFieldType(const AFieldName: String): TFieldType;
 begin
   inherited;
   Result := FDataSet.FieldByName(AFieldName).DataType;

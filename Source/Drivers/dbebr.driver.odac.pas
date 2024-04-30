@@ -22,10 +22,10 @@ type
   public
     procedure Connect; override;
     procedure Disconnect; override;
-    procedure ExecuteDirect(const ASQL: string); overload; override;
-    procedure ExecuteDirect(const ASQL: string; const AParams: TParams); overload; override;
-    procedure ExecuteScript(const AScript: string); override;
-    procedure AddScript(const AScript: string); override;
+    procedure ExecuteDirect(const ASQL: String); overload; override;
+    procedure ExecuteDirect(const ASQL: String; const AParams: TParams); overload; override;
+    procedure ExecuteScript(const AScript: String); override;
+    procedure AddScript(const AScript: String); override;
     procedure ExecuteScripts; override;
     function IsConnected: Boolean; override;
     function InTransaction: Boolean; override;
@@ -40,8 +40,8 @@ type
   private
     FSQLQuery: TOraQuery;
   protected
-    procedure SetCommandText(ACommandText: string); override;
-    function GetCommandText: string; override;
+    procedure SetCommandText(ACommandText: String); override;
+    function GetCommandText: String; override;
   public
     constructor Create(AConnection: TOraSession);
     destructor Destroy; override;
@@ -54,10 +54,10 @@ type
     constructor Create(ADataSet: TOraQuery); override;
     destructor Destroy; override;
     function NotEof: Boolean; override;
-    function GetFieldValue(const AFieldName: string): Variant; overload; override;
+    function GetFieldValue(const AFieldName: String): Variant; overload; override;
     function GetFieldValue(const AFieldIndex: UInt16): Variant; overload; override;
-    function GetFieldType(const AFieldName: string): TFieldType; overload; override;
-    function GetField(const AFieldName: string): TField; override;
+    function GetFieldType(const AFieldName: String): TFieldType; overload; override;
+    function GetField(const AFieldName: String): TField; override;
   end;
 
 
@@ -65,7 +65,7 @@ implementation
 
 { TFactoryODAC }
 
-procedure TDriverODAC.AddScript(const AScript: string);
+procedure TDriverODAC.AddScript(const AScript: String);
 begin
   inherited;
   FSQLScript.SQL.Add(AScript);
@@ -119,7 +119,7 @@ begin
   FConnection.Connected := False;
 end;
 
-procedure TDriverODAC.ExecuteDirect(const ASQL: string;
+procedure TDriverODAC.ExecuteDirect(const ASQL: String;
   const AParams: TParams);
 var
   LExeSQL: TOraQuery;
@@ -148,12 +148,12 @@ begin
   end;
 end;
 
-procedure TDriverODAC.ExecuteDirect(const ASQL: string);
+procedure TDriverODAC.ExecuteDirect(const ASQL: String);
 begin
   FConnection.ExecSQL(ASQL);
 end;
 
-procedure TDriverODAC.ExecuteScript(const AScript: string);
+procedure TDriverODAC.ExecuteScript(const AScript: String);
 begin
   inherited;
   FSQLScript.SQL.Text := AScript;
@@ -233,12 +233,12 @@ begin
      Result.FetchingAll := True;
 end;
 
-function TDriverQueryODAC.GetCommandText: string;
+function TDriverQueryODAC.GetCommandText: String;
 begin
   Result := FSQLQuery.SQL.Text;
 end;
 
-procedure TDriverQueryODAC.SetCommandText(ACommandText: string);
+procedure TDriverQueryODAC.SetCommandText(ACommandText: String);
 begin
   inherited;
   FSQLQuery.SQL.Add(ACommandText);
@@ -258,13 +258,13 @@ begin
   inherited;
 end;
 
-function TDriverResultSetODAC.GetField(const AFieldName: string): TField;
+function TDriverResultSetODAC.GetField(const AFieldName: String): TField;
 begin
   Result := FDataSet.FieldByName(AFieldName);
 end;
 
 function TDriverResultSetODAC.GetFieldType(
-  const AFieldName: string): TFieldType;
+  const AFieldName: String): TFieldType;
 begin
   Result := FDataSet.FieldByName(AFieldName).DataType;
 end;
@@ -280,7 +280,7 @@ begin
     Result := FDataSet.Fields[AFieldIndex].Value;
 end;
 
-function TDriverResultSetODAC.GetFieldValue(const AFieldName: string): Variant;
+function TDriverResultSetODAC.GetFieldValue(const AFieldName: String): Variant;
 begin
   Result := GetFieldValue(FDataSet.FieldByName(AFieldName).Index);
 end;

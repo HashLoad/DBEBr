@@ -68,7 +68,7 @@ begin
   TestStartTransaction;
 
   FDBConnection.Commit;
-  Assert.IsFalse(FDBConnection.InTransaction, 'FConnection.InTransaction = false');
+  Assert.IsFalse(FDBConnection.InTransaction, 'FConnection.InTransaction = False');
 end;
 
 procedure TTestDriverConnection.TestExecuteDirect;
@@ -145,7 +145,7 @@ end;
 
 procedure TTestDriverConnection.TestIsConnected;
 begin
-  Assert.IsFalse(FDBConnection.IsConnected, 'FConnection.IsConnected = false');
+  Assert.IsFalse(FDBConnection.IsConnected, 'FConnection.IsConnected = False');
 end;
 
 procedure TTestDriverConnection.TestRollback;
@@ -153,7 +153,7 @@ begin
   TestStartTransaction;
 
   FDBConnection.Rollback;
-  Assert.IsFalse(FDBConnection.InTransaction, 'FConnection.InTransaction = false');
+  Assert.IsFalse(FDBConnection.InTransaction, 'FConnection.InTransaction = False');
 end;
 
 procedure TTestDriverConnection.Setup;
@@ -170,7 +170,7 @@ end;
 procedure TTestDriverConnection.TestStartTransaction;
 begin
   FDBConnection.StartTransaction;
-  Assert.IsTrue(FDBConnection.InTransaction, 'FConnection.InTransaction = true');
+  Assert.IsTrue(FDBConnection.InTransaction, 'FConnection.InTransaction = True');
 end;
 
 procedure TTestDriverConnection.TearDown;
@@ -187,7 +187,7 @@ end;
 procedure TTestDriverConnection.TestConnect;
 begin
   FDBConnection.Connect;
-  Assert.IsTrue(FDBConnection.IsConnected, 'FConnection.IsConnected = true');
+  Assert.IsTrue(FDBConnection.IsConnected, 'FConnection.IsConnected = True');
 end;
 
 procedure TTestDriverConnection.TestCreateQuery;
@@ -217,7 +217,7 @@ end;
 procedure TTestDriverConnection.TestDisconnect;
 begin
   FDBConnection.Disconnect;
-  Assert.IsFalse(FDBConnection.IsConnected, 'FConnection.IsConnected = false');
+  Assert.IsFalse(FDBConnection.IsConnected, 'FConnection.IsConnected = False');
 end;
 
 initialization

@@ -50,22 +50,22 @@ type
                       const APrecision: UInt16 = 0;
                       const ASize: UInt32 = 0): IFieldSingleton;
     function AddCalcField(const ADataSet: TDataSet;
-                           const AFieldName: string;
+                           const AFieldName: String;
                            const AFieldType: TFieldType;
                            const ASize: Uint32 = 0): IFieldSingleton;
     function AddAggregateField(const ADataSet: TDataSet;
-                                const AFieldName, AExpression: string;
+                                const AFieldName, AExpression: String;
                                 const AAlignment: TAlignment = taLeftJustify;
-                                const ADisplayFormat: string = ''): IFieldSingleton;
-    function AddLookupField(const AFieldName: string;
+                                const ADisplayFormat: String = ''): IFieldSingleton;
+    function AddLookupField(const AFieldName: String;
                              const ADataSet: TDataSet;
-                             const AKeyFields: string;
+                             const AKeyFields: String;
                              const ALookupDataSet: TDataSet;
-                             const ALookupKeyFields: string;
-                             const ALookupResultField: string;
+                             const ALookupKeyFields: String;
+                             const ALookupResultField: String;
                              const AFieldType: TFieldType;
                              const ASize: UInt32 = 0;
-                             const ADisplayLabel: string = ''): IFieldSingleton;
+                             const ADisplayLabel: String = ''): IFieldSingleton;
   end;
 
   TFieldSingleton = class(TInterfacedObject, IFieldSingleton)
@@ -85,22 +85,22 @@ type
                       const APrecision: UInt16 = 0;
                       const ASize: UInt32 = 0): IFieldSingleton;
     function AddCalcField(const ADataSet: TDataSet;
-                           const AFieldName: string;
+                           const AFieldName: String;
                            const AFieldType: TFieldType;
                            const ASize: UInt32 = 0): IFieldSingleton;
     function AddAggregateField(const ADataSet: TDataSet;
-                                const AFieldName, AExpression: string;
+                                const AFieldName, AExpression: String;
                                 const AAlignment: TAlignment = taLeftJustify;
-                                const ADisplayFormat: string = ''): IFieldSingleton;
-    function AddLookupField(const AFieldName: string;
+                                const ADisplayFormat: String = ''): IFieldSingleton;
+    function AddLookupField(const AFieldName: String;
                              const ADataSet: TDataSet;
-                             const AKeyFields: string;
+                             const AKeyFields: String;
                              const ALookupDataSet: TDataSet;
-                             const ALookupKeyFields: string;
-                             const ALookupResultField: string;
+                             const ALookupKeyFields: String;
+                             const ALookupResultField: String;
                              const AFieldType: TFieldType;
                              const ASize: UInt32 = 0;
-                             const ADisplayLabel: string = ''): IFieldSingleton;
+                             const ADisplayLabel: String = ''): IFieldSingleton;
   end;
 
 implementation
@@ -147,15 +147,15 @@ begin
   Result := Self;
 end;
 
-function TFieldSingleton.AddLookupField(const AFieldName: string;
+function TFieldSingleton.AddLookupField(const AFieldName: String;
   const ADataSet: TDataSet;
-  const AKeyFields: string;
+  const AKeyFields: String;
   const ALookupDataSet: TDataSet;
-  const ALookupKeyFields: string;
-  const ALookupResultField: string;
+  const ALookupKeyFields: String;
+  const ALookupResultField: String;
   const AFieldType: TFieldType;
   const ASize: UInt32;
-  const ADisplayLabel: string): IFieldSingleton;
+  const ADisplayLabel: String): IFieldSingleton;
 var
   LField: TField;
 begin
@@ -296,9 +296,9 @@ begin
 end;
 
 function TFieldSingleton.AddAggregateField(const ADataSet: TDataSet;
-  const AFieldName, AExpression: string;
+  const AFieldName, AExpression: String;
   const AAlignment: TAlignment;
-  const ADisplayFormat: string): IFieldSingleton;
+  const ADisplayFormat: String): IFieldSingleton;
 var
   LField: TAggregateField;
 begin
