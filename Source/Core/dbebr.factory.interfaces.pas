@@ -192,7 +192,8 @@ type
     function IsReadOnly: Boolean;
     function IsCachedUpdates: Boolean;
     function DataSource: TDataSource;
-    function DataSet: TDataSet; //deprecated 'Instead, use the direct methods';
+    {$MESSAGE WARN 'Instead, use the direct methods. IDBResultSet.Insert, IDBResultSet.Post, IDBResultSet.etc...'}
+    function DataSet: TDataSet;
     // Propertys
     property FetchingAll: Boolean read _GetFetchingAll write _SetFetchingAll;
     property Filter: String read _GetFilter write _SetFilter;
@@ -287,7 +288,7 @@ type
   end;
 
 const
-  TStrDriverName: array[dnMSSQL..dnMariaDB] of
+  TStrDriverName: array[TDriverName.dnMSSQL..TDriverName.dnMariaDB] of
                   String = ('MSSQL','MySQL','Firebird','SQLite','Interbase',
                             'DB2','Oracle','Informix','PostgreSQL','ADS','ASA',
                             'dnFirebase', 'dnFirebird3','AbsoluteDB','MongoDB',

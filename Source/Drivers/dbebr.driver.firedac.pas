@@ -152,8 +152,8 @@ end;
 
 destructor TDriverFireDAC.Destroy;
 begin
-  FDriverTransaction := nil;
   FConnection := nil;
+  FDriverTransaction := nil;
   FSQLScript.Free;
   inherited;
 end;
@@ -166,6 +166,7 @@ end;
 procedure TDriverFireDAC.ExecuteDirect(const ASQL: String);
 var
   LExeSQL: TFDQuery;
+  LParams: TParams;
 begin
   LExeSQL := TFDQuery.Create(nil);
   try
@@ -175,16 +176,23 @@ begin
     if not LExeSQL.Prepared then
       LExeSQL.Prepare;
     LExeSQL.Execute;
+    LParams := LExeSQL.AsParams;
   finally
-    _SetMonitorLog(LExeSQL.SQL.Text, LExeSQL.Transaction.Name, LExeSQL.AsParams);
+    _SetMonitorLog(LExeSQL.SQL.Text, LExeSQL.Transaction.Name, LParams);
     FRowsAffected := LExeSQL.RowsAffected;
     LExeSQL.Free;
+    if Assigned(LParams) then
+    begin
+      LParams.Clear;
+      LParams.Free;
+    end;
   end;
 end;
 
 procedure TDriverFireDAC.ExecuteDirect(const ASQL: String; const AParams: TParams);
 var
   LExeSQL: TFDQuery;
+  LParams: TParams;
   LFor: Int16;
 begin
   LExeSQL := TFDQuery.Create(nil);
@@ -200,10 +208,16 @@ begin
     if not LExeSQL.Prepared then
       LExeSQL.Prepare;
     LExeSQL.Execute;
+    LParams := LExeSQL.AsParams;
   finally
-    _SetMonitorLog(LExeSQL.SQL.Text, LExeSQL.Transaction.Name, LExeSQL.AsParams);
+    _SetMonitorLog(LExeSQL.SQL.Text, LExeSQL.Transaction.Name, LParams);
     FRowsAffected := LExeSQL.RowsAffected;
     LExeSQL.Free;
+    if Assigned(LParams) then
+    begin
+      LParams.Clear;
+      LParams.Free;
+    end;
   end;
 end;
 
@@ -235,7 +249,7 @@ end;
 
 procedure TDriverFireDAC.AddScript(const AScript: String);
 begin
-  if Self.GetDriverName in [dnInterbase, dnFirebird, dnFirebird3] then
+  if Self.GetDriverName in [TDriverName.dnInterbase, TDriverName.dnFirebird, TDriverName.dnFirebird3] then
     if FSQLScript.SQLScripts.Items[0].SQL.Count = 0 then
       FSQLScript.SQLScripts.Items[0].SQL.Add('SET AUTOCOMMIT OFF');
   FSQLScript.SQLScripts[0].SQL.Add(AScript);
@@ -314,6 +328,7 @@ end;
 function TDriverQueryFireDAC.ExecuteQuery: IDBResultSet;
 var
   LResultSet: TFDQuery;
+  LParams: TParams;
   LFor : Int16;
 begin
   LResultSet := TFDQuery.Create(nil);
@@ -339,9 +354,15 @@ begin
         if LResultSet.RecordCount = 0 then
           Result.FetchingAll := True;
       end;
+      LParams := LResultSet.AsParams;
     finally
       if LResultSet.SQL.Text <> EmptyStr then
-        _SetMonitorLog(LResultSet.SQL.Text, LResultSet.Transaction.Name, LResultSet.AsParams);
+        _SetMonitorLog(LResultSet.SQL.Text, LResultSet.Transaction.Name, LParams);
+      if Assigned(LParams) then
+      begin
+        LParams.Clear;
+        LParams.Free;
+      end;
     end;
   except
     if Assigned(LResultSet) then
@@ -373,6 +394,7 @@ end;
 procedure TDriverQueryFireDAC.ExecuteDirect;
 var
   LExeSQL: TFDQuery;
+  LParams: TParams;
   LFor: Int16;
 begin
   LExeSQL := TFDQuery.Create(nil);
@@ -388,10 +410,16 @@ begin
     if not LExeSQL.Prepared then
       LExeSQL.Prepare;
     LExeSQL.Execute;
+    LParams := LExeSQL.AsParams;
   finally
-    _SetMonitorLog(LExeSQL.SQL.Text, LExeSQL.Transaction.Name, LExeSQL.AsParams);
+    _SetMonitorLog(LExeSQL.SQL.Text, LExeSQL.Transaction.Name, LParams);
     FRowsAffected := LExeSQL.RowsAffected;
     LExeSQL.Free;
+    if Assigned(LParams) then
+    begin
+      LParams.Clear;
+      LParams.Free;
+    end;
   end;
 end;
 
@@ -473,11 +501,19 @@ begin
 end;
 
 procedure TDriverResultSetFireDAC.Open;
+var
+  LParams: TParams;
 begin
   try
     inherited Open;
+    LParams := FDataSet.AsParams;
   finally
-    _SetMonitorLog(FDataSet.SQL.Text, FDataSet.Transaction.Name, FDataSet.AsParams);
+    _SetMonitorLog(FDataSet.SQL.Text, FDataSet.Transaction.Name, LParams);
+    if Assigned(LParams) then
+    begin
+      LParams.Clear;
+      LParams.Free;
+    end;
   end;
 end;
 

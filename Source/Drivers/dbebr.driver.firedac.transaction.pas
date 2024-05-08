@@ -71,15 +71,15 @@ end;
 
 destructor TDriverFireDACTransaction.Destroy;
 begin
-  if Assigned(FTransaction) then
-  begin
-    FConnection.Transaction := nil;
-    FTransaction.Connection := nil;
-    FTransaction.Free;
-  end;
   FTransactionActive := nil;
   FTransactionList.Clear;
   FTransactionList.Free;
+  if Assigned(FTransaction) then
+  begin
+    FTransaction.Connection := nil;
+    FTransaction.Free;
+  end;
+  FConnection := nil;
   inherited;
 end;
 

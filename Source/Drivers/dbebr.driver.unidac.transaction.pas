@@ -71,6 +71,7 @@ begin
   FTransactionActive := nil;
   FTransactionList.Clear;
   FTransactionList.Free;
+  FConnection := nil;
   inherited;
 end;
 
